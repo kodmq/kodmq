@@ -1,0 +1,20 @@
+{
+  "name": "kodmq",
+  "module": "index.ts",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./build --target node"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^11.0.0",
+    "ioredis": "^5.3.2"
+  }
+}
