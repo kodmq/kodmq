@@ -12,4 +12,6 @@ export enum JobStatus {
   Failed,
 }
 
+export type JobStatusHistory = Exclude<JobStatus, JobStatus.Pending | JobStatus.Scheduled>
+
 export type StringKeyOf<T> = Extract<keyof T, string>

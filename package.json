@@ -1,8 +1,9 @@
 {
   "name": "kodmq",
-  "module": "index.ts",
   "type": "module",
-  "version": "1.0.0",
+  "version": "0.1.0",
+  "description": "A simple message queue",
+  "main": "build/index.js",
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./build --target node"
   },

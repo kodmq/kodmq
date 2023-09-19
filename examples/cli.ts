@@ -9,7 +9,9 @@ async function processPhoto(data: { photoId: string }) {
 const kodmq = new KodMQ({
   handlers: {
     processPhoto
-  }
+  },
 })
 
 export default kodmq
+
+// Run this file using `kodmq ./examples/cli.ts`
