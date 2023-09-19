@@ -1,35 +1,36 @@
 import KodMQ from "./KodMQ.ts"
 import Job from "./Job.ts"
-import { JobStatus } from "./types.ts"
-import { randomId } from "./helpers.ts"
+import { JobStatus, WorkerStatus } from "./types.ts"
+import { KodMQError } from "./errors.ts"
 
 export type WorkerData = {
-  id: string
+  id: string | number
   startedAt: Date
-  isRunning: boolean
+  status: WorkerStatus
   currentJob: Job | null
 }
 
 export default class Worker<TKodMQ extends KodMQ = KodMQ> {
-  kodmq: TKodMQ
-
-  id: string
+  id: string | number
+  status: WorkerStatus = WorkerStatus.Idle
   startedAt: Date
-  isRunning: boolean = false
   currentJob: Job | null = null
 
-  constructor(kodmq: TKodMQ) {
+  kodmq: TKodMQ
+
+  constructor(id: string | number, kodmq: TKodMQ) {
+    this.id = id
+    this.startedAt = new Date()
+
     this.kodmq = kodmq
 
-    this.id = randomId()
-    this.startedAt = new Date()
   }
 
   /**
    * Start jobs processing
    */
   async start() {
-    await this.update({ isRunning: true })
+    await this.update({ status: WorkerStatus.Active })
 
     await this.kodmq.adapter.subscribeToJobs(async (job) => {
       try {
@@ -44,8 +45,9 @@ export default class Worker<TKodMQ extends KodMQ = KodMQ> {
       } finally {
         await this.update({ currentJob: null })
       }
-    }, () => this.isRunning)
+    }, () => this.status === WorkerStatus.Active)
 
+    await this.update({ status: WorkerStatus.Stopped })
     await this.kodmq.adapter.deleteWorker(this)
   }
 
@@ -53,7 +55,16 @@ export default class Worker<TKodMQ extends KodMQ = KodMQ> {
    * Stop jobs processing
    */
   async stop() {
-    await this.update({ isRunning: false })
+    await this.update({ status: WorkerStatus.Stopping })
+  }
+
+  /**
+   * Wait for stopped status
+   */
+  async waitForStatus(status: WorkerStatus, timeout: number = 50) {
+    while (this.status !== status) {
+      await new Promise((resolve) => setTimeout(resolve, timeout))
+    }
   }
 
   /**
@@ -92,9 +103,21 @@ export default class Worker<TKodMQ extends KodMQ = KodMQ> {
     } else if (typeof retryDelay === "function") {
       runAt += retryDelay(job)
     } else {
-      throw new Error(`Invalid retryDelay: ${retryDelay}`)
+      throw new KodMQError(`Invalid retryDelay: ${retryDelay}`)
     }
 
     await this.kodmq.adapter.pushJob(job, new Date(runAt))
+  }
+
+  /**
+   * Create worker instance
+   */
+  static async create<TKodMQ extends KodMQ = KodMQ>(kodmq: TKodMQ) {
+    const id = await kodmq.adapter.getNextWorkerId()
+    const worker = new Worker<TKodMQ>(id, kodmq)
+
+    await kodmq.adapter.saveWorker(worker)
+
+    return worker
   }
 }

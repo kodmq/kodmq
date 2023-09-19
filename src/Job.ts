@@ -1,11 +1,9 @@
 import { JobData, JobName } from "./types.ts"
 import KodMQ from "./KodMQ.ts"
-import Worker from "./Worker.ts"
-import { randomId } from "./helpers.ts"
 
 export default class Job<T extends JobData = any> {
   constructor(
-    public id: string,
+    public id: string | number,
     public name: JobName,
     public data: T,
     public failedAttempts: number = 0,
@@ -30,10 +28,11 @@ export default class Job<T extends JobData = any> {
    *
    * @param name
    * @param data
+   * @param kodmq
    */
-  static create<T extends JobData = any>(name: JobName, data: T) {
+  static async create<T extends JobData = any>(name: JobName, data: T, kodmq: KodMQ) {
     return new Job<T>(
-      randomId(),
+      await kodmq.adapter.getNextJobId(),
       name,
       data
     )

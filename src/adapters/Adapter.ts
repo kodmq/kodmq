@@ -1,12 +1,17 @@
 import Job from "../Job.ts"
 import { GetJobsOptions } from "../KodMQ.ts"
 import Worker, { WorkerData } from "../Worker.ts"
-import { JobStatusHistory } from "../types.ts"
+import { JobStatus } from "../types.ts"
 
 export type AdapterHandler = (job: Job) => Promise<void>
 export type AdapterKeepSubscribed = () => boolean
 
 export default abstract class Adapter {
+  /**
+   * Get next job ID
+   */
+  abstract getNextJobId(): Promise<number>
+
   /**
    * Get all jobs from the database
    *
@@ -21,7 +26,7 @@ export default abstract class Adapter {
    * @param job
    * @param status
    */
-  abstract saveJob(job: Job, status: JobStatusHistory): Promise<void>
+  abstract saveJob(job: Job, status: JobStatus): Promise<void>
 
   /**
    * Push a job to the queue
@@ -43,6 +48,11 @@ export default abstract class Adapter {
    * @param keepAlive
    */
   abstract subscribeToJobs(handler: AdapterHandler, keepAlive: AdapterKeepSubscribed): Promise<void>
+
+  /**
+   * Get next worker ID
+   */
+  abstract getNextWorkerId(): Promise<number>
 
   /**
    * Get all workers from the database

@@ -1,5 +1,11 @@
-export type Handler = (data: JobData) => void | Promise<void>
+export type StringKeyOf<T> = Extract<keyof T, string>
+
+export type Handler = (data: JobData) => any | Promise<any>
 export type Handlers = Record<JobName, Handler>
+
+//
+// Job
+//
 
 export type JobName = string
 export type JobData = any
@@ -12,6 +18,13 @@ export enum JobStatus {
   Failed,
 }
 
-export type JobStatusHistory = Exclude<JobStatus, JobStatus.Pending | JobStatus.Scheduled>
+//
+// Worker
+//
 
-export type StringKeyOf<T> = Extract<keyof T, string>
+export enum WorkerStatus {
+  Idle,
+  Active,
+  Stopping,
+  Stopped,
+}

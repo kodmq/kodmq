@@ -1,3 +1,5 @@
+import { Handlers } from "../src/types.ts"
+
 export function welcomeMessage(name: string) {
   console.log(`Welcome, ${name}!`)
 }
@@ -14,8 +16,13 @@ export function promotionMessage(promoted: boolean) {
   }
 }
 
-export const handlers = {
+export async function longRunningJob() {
+  return await new Promise((resolve) => setTimeout(resolve, 1000))
+}
+
+export const handlers: Handlers = {
   welcomeMessage,
   happyBirthdayMessage,
   promotionMessage,
+  longRunningJob,
 }

@@ -1,10 +1,11 @@
 import Worker from "./Worker.ts"
 import RedisAdapter from "./adapters/RedisAdapter.ts"
-import { Handlers, JobStatus, StringKeyOf } from "./types.ts"
+import { Handlers, JobStatus, StringKeyOf, WorkerStatus } from "./types.ts"
 import { Config, DefaultConfig } from "./Config.ts"
 import process from "process"
 import Job from "./Job.ts"
 import Adapter from "./adapters/Adapter.ts"
+import { KodMQError } from "./errors.ts"
 
 export type GetJobsOptions = {
   status?: JobStatus
@@ -34,14 +35,14 @@ export default class KodMQ<
    * @param config
    */
   constructor(config: Config<TAdapter, THandlers>) {
-    if (!config) throw new Error("KodMQ requires config")
+    if (!config) throw new KodMQError("KodMQ requires config")
 
     if (!config.handlers || Object.keys(config.handlers).length === 0) {
-      throw new Error("KodMQ requires handlers")
+      throw new KodMQError("KodMQ requires handlers")
     }
 
     if (config.adapter && !(config.adapter instanceof Adapter)) {
-      throw new Error("KodMQ requires adapter to be an instance of Adapter")
+      throw new KodMQError("KodMQ requires adapter to be an instance of Adapter")
     }
 
     this.config = { ...DefaultConfig, ...config }
@@ -57,12 +58,17 @@ export default class KodMQ<
    */
   async perform<T extends StringKeyOf<THandlers>>(
     jobName: T,
-    jobData: Parameters<THandlers[T]>[0]
+    jobData?: Parameters<THandlers[T]>[0]
   ) {
-    const job = Job.create(jobName, jobData)
-    await this.adapter.pushJob(job)
+    try {
+      const job = await Job.create(jobName, jobData, this)
+      await this.adapter.pushJob(job)
 
-    return job
+      return job
+    } catch (e) {
+      if (e instanceof KodMQError) throw e
+      throw new KodMQError(`Failed to perform job "${jobName}"`, e as Error)
+    }
   }
 
   /**
@@ -73,14 +79,19 @@ export default class KodMQ<
    * @param runAt
    */
   async schedule<T extends StringKeyOf<THandlers>>(
+    runAt: Date,
     jobName: T,
-    jobData: Parameters<THandlers[T]>[0],
-    runAt: Date
+    jobData?: Parameters<THandlers[T]>[0],
   ) {
-    const job = Job.create(jobName, jobData)
-    await this.adapter.pushJob(job, runAt)
+    try {
+      const job = await Job.create(jobName, jobData, this)
+      await this.adapter.pushJob(job, runAt)
 
-    return job
+      return job
+    } catch (e) {
+      if (e instanceof KodMQError) throw e
+      throw new KodMQError(`Failed to schedule job "${jobName}"`, e as Error)
+    }
   }
 
   /**
@@ -105,13 +116,18 @@ export default class KodMQ<
    * @param timeout
    */
   async waitUntilAllJobsCompleted(timeout: number = 0) {
-    while (true) {
-      const pendingJobs = await this.getJobs({ status: JobStatus.Pending })
-      const scheduledJobs = await this.getJobs({ status: JobStatus.Scheduled })
+    try {
+      while (true) {
+        const pendingJobs = await this.getJobs({ status: JobStatus.Pending })
+        const scheduledJobs = await this.getJobs({ status: JobStatus.Scheduled })
 
-      if (pendingJobs.length === 0 && scheduledJobs.length === 0) break
+        if (pendingJobs.length === 0 && scheduledJobs.length === 0) break
 
-      await new Promise(resolve => setTimeout(resolve, timeout))
+        await new Promise(resolve => setTimeout(resolve, timeout))
+      }
+    } catch (e) {
+      if (e instanceof KodMQError) throw e
+      throw new KodMQError("Failed to wait until all jobs are completed", e as Error)
     }
   }
 
@@ -122,7 +138,7 @@ export default class KodMQ<
    */
   async clearAll(options: { iKnowWhatIAmDoing: boolean } = { iKnowWhatIAmDoing: false }) {
     if (!options.iKnowWhatIAmDoing && process.env.NODE_ENV === "production") {
-      throw new Error("KodMQ.clearAll() is not allowed in production. If you really want to do this, run KodMQ.clearAll({ iKnowWhatIAmDoing: true })")
+      throw new KodMQError("KodMQ.clearAll() is not allowed in production. If you really want to do this, run KodMQ.clearAll({ iKnowWhatIAmDoing: true })")
     }
 
     return this.adapter.clearAll()
@@ -133,25 +149,41 @@ export default class KodMQ<
    *
    * @param options
    */
-  start(options: StartOptions = {}) {
-    const workers = []
-    const concurrency = options.concurrency || DefaultConcurrency
+  async start(options: StartOptions = {}) {
+    try {
+      const promises = []
+      const concurrency = options.concurrency || DefaultConcurrency
 
-    for (let i = 0; i < concurrency; i++) {
-      const worker = new Worker(this)
-      workers.push(worker.start())
-      this.workers.push(worker)
+      for (let i = 0; i < concurrency; i++) {
+        const worker = await Worker.create(this)
+        this.workers.push(worker)
+
+        promises.push(worker.start())
+      }
+
+      return Promise.all(promises)
+    } catch (e) {
+      if (e instanceof KodMQError) throw e
+      throw new KodMQError("Failed to start queue", e as Error)
     }
-
-    return Promise.all(workers)
   }
 
   /**
    * Stop the queue
    */
   async stop() {
-    for (const worker of this.workers) {
-      await worker.stop()
+    try {
+      const promises = []
+
+      for (const worker of this.workers) {
+        promises.push(worker.stop())
+        promises.push(worker.waitForStatus(WorkerStatus.Stopped))
+      }
+
+      await Promise.all(promises)
+    } catch (e) {
+      if (e instanceof KodMQError) throw e
+      throw new KodMQError("Failed to stop queue", e as Error)
     }
   }
 

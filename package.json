@@ -8,6 +8,7 @@
     "build": "bun build ./src/index.ts --outdir ./build --target node"
   },
   "devDependencies": {
+    "@total-typescript/ts-reset": "^0.5.1",
     "bun-types": "latest"
   },
   "peerDependencies": {
