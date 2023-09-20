@@ -1,4 +1,4 @@
-import { JobStatuses, WorkerStatuses } from "@/statuses"
+import { JobStatuses, WorkerStatuses } from "~/src/statuses"
 
 export type StringKeyOf<T> = Extract<keyof T, string>
 
@@ -10,6 +10,7 @@ export type JobData = any
 
 export type JobStatus = typeof JobStatuses[number]
 export type WorkerStatus = typeof WorkerStatuses[number]
+export type Status = JobStatus | WorkerStatus
 
 export type WorkerStructure = {
   id: string | number

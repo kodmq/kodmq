@@ -1,5 +1,5 @@
-import KodMQ from "@/KodMQ"
-import { JobData, JobName } from "@/types"
+import KodMQ from "~/src/KodMQ"
+import { JobData, JobName } from "~/src/types"
 
 export default class Job<T extends JobData = any> {
   constructor(

@@ -1,5 +1,5 @@
-import KodMQ from "@/KodMQ"
+import KodMQ from "~/src/KodMQ"
 
-export * from "@/types"
-export * from "@/statuses"
+export * from "~/src/types"
+export * from "~/src/statuses"
 export default KodMQ

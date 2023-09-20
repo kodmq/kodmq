@@ -1,4 +1,4 @@
-import { Pending, ReadableStatus } from "kodmq"
+import { Pending, ReadableJobStatuses } from "kodmq"
 import Heading from "@/components/content/Heading"
 import JobStatusSwitcher from "@/components/job/JobStatusSwitcher"
 import { Card, CardContent } from "@/components/ui/card"
@@ -14,7 +14,7 @@ export default async function JobsPage() {
 
       <JobStatusSwitcher
         currentStatus={Pending}
-        statuses={ReadableStatus}
+        statuses={ReadableJobStatuses}
         className="mb-4"
       />
 

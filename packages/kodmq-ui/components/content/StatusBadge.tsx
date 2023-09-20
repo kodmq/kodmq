@@ -9,8 +9,9 @@ import {
   ReadableStatuses,
   Scheduled,
   Stopped,
-  Stopping, WorkerStatus,
-} from "kodmq/src"
+  Stopping,
+  WorkerStatus,
+} from "kodmq"
 import { Badge } from "@/components/ui/badge"
 
 export type StatusBadgeProps = {

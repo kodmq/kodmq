@@ -1,11 +1,11 @@
 import Redis, { RedisOptions } from "ioredis"
-import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "@/adapters/Adapter"
-import { KodMQAdapterError } from "@/errors"
-import Job from "@/Job"
-import { GetJobsOptions } from "@/KodMQ"
-import { Active, Completed, Failed, Pending, Scheduled } from "@/statuses"
-import { JobStatus, WorkerStructure } from "@/types"
-import Worker from "@/Worker"
+import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "~/src/adapters/Adapter"
+import { KodMQAdapterError } from "~/src/errors"
+import Job from "~/src/Job"
+import { GetJobsOptions } from "~/src/KodMQ"
+import { Active, Completed, Failed, Pending, Scheduled } from "~/src/statuses"
+import { JobStatus, WorkerStructure } from "~/src/types"
+import Worker from "~/src/Worker"
 
 const GlobalPrefix = "kmq:"
 const WorkersKeyPrefix = `${GlobalPrefix}:w:`

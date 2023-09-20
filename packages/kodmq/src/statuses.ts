@@ -1,4 +1,4 @@
-import { JobStatus } from "@/types"
+import { JobStatus, Status, WorkerStatus } from "~/src/types"
 
 export const Pending = 0
 export const Scheduled = 1
@@ -15,16 +15,16 @@ export const JobStatuses = [
   Active,
   Completed,
   Failed,
-]
+] as const
 
 export const WorkerStatuses = [
   Idle,
   Active,
   Stopping,
   Stopped,
-]
+] as const
 
-export const ReadableStatuses: Record<JobStatus, string> = {
+export const ReadableStatuses: Record<Status, string> = {
   [Pending]: "Pending",
   [Scheduled]: "Scheduled",
   [Active]: "Active",
@@ -43,4 +43,4 @@ export const ReadableJobStatuses = JobStatuses.reduce((acc, status) => {
 export const ReadableWorkerStatuses = WorkerStatuses.reduce((acc, status) => {
   acc[status] = ReadableStatuses[status]
   return acc
-}, {} as Record<JobStatus, string>)
+}, {} as Record<WorkerStatus, string>)

@@ -1,8 +1,8 @@
-import { KodMQError } from "@/errors"
-import Job from "@/Job"
-import KodMQ from "@/KodMQ"
-import { Active, Completed, Failed, Idle, Stopped, Stopping } from "@/statuses"
-import { WorkerStructure, WorkerStatus } from "@/types"
+import { KodMQError } from "~/src/errors"
+import Job from "~/src/Job"
+import KodMQ from "~/src/KodMQ"
+import { Active, Completed, Failed, Idle, Stopped, Stopping } from "~/src/statuses"
+import { WorkerStructure, WorkerStatus } from "~/src/types"
 
 export default class Worker<TKodMQ extends KodMQ = KodMQ> {
   id: string | number

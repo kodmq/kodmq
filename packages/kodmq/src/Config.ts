@@ -1,6 +1,6 @@
-import Adapter from "@/adapters/Adapter"
-import Job from "@/Job"
-import { Handlers } from "@/types"
+import Adapter from "~/src/adapters/Adapter"
+import Job from "~/src/Job"
+import { Handlers } from "~/src/types"
 
 export type Config<
   TAdapter extends Adapter = Adapter,

@@ -1,7 +1,7 @@
-import Job from "@/Job"
-import { GetJobsOptions } from "@/KodMQ"
-import { JobStatus, WorkerStructure } from "@/types"
-import Worker from "@/Worker"
+import Job from "~/src/Job"
+import { GetJobsOptions } from "~/src/KodMQ"
+import { JobStatus, WorkerStructure } from "~/src/types"
+import Worker from "~/src/Worker"
 
 export type AdapterHandler = (job: Job) => Promise<void>
 export type AdapterKeepSubscribed = () => boolean

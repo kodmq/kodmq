@@ -1,12 +1,12 @@
 import process from "process"
-import Adapter from "@/adapters/Adapter"
-import RedisAdapter from "@/adapters/RedisAdapter"
-import { Config, DefaultConfig } from "@/Config"
-import { KodMQError } from "@/errors"
-import Job from "@/Job"
-import { Pending, Scheduled, Stopped } from "@/statuses"
-import { Handlers, JobStatus, StringKeyOf } from "@/types"
-import Worker from "@/Worker"
+import Adapter from "~/src/adapters/Adapter"
+import RedisAdapter from "~/src/adapters/RedisAdapter"
+import { Config, DefaultConfig } from "~/src/Config"
+import { KodMQError } from "~/src/errors"
+import Job from "~/src/Job"
+import { Pending, Scheduled, Stopped } from "~/src/statuses"
+import { Handlers, JobStatus, StringKeyOf } from "~/src/types"
+import Worker from "~/src/Worker"
 
 export type GetJobsOptions = {
   status: JobStatus
