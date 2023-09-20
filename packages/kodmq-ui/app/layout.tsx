@@ -23,12 +23,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="bg-background text-foreground">
-            <TopBar />
+          <TopBar />
 
-            <div className="container mx-auto pt-4 sm:pt-6">
-              {children}
-            </div>
+          <div className="container mx-auto pt-4 sm:pt-6">
+            {children}
           </div>
         </ThemeProvider>
       </body>

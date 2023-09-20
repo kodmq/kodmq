@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { Handlers } from "@/types"
+import { Handlers } from "~/src/types"
 
 export function welcomeMessage(name: string) {
   console.log(`Welcome, ${name}!`)

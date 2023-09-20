@@ -128,6 +128,18 @@ describe("KodMQ", () => {
 
     expect(promotionMessage).toHaveBeenCalledTimes(1)
     expect(promotionMessage.mock.calls[0][0]).toEqual(job3.data)
+
+    const completedJobs = await kodmq.getJobs({ status: Completed })
+    expect(completedJobs.length).toBe(3)
+    expect(completedJobs[0].id).toBe(job1.id)
+    expect(completedJobs[1].id).toBe(job2.id)
+    expect(completedJobs[2].id).toBe(job3.id)
+    expect(completedJobs[0].startedAt).toBeInstanceOf(Date)
+    expect(completedJobs[0].finishedAt).toBeInstanceOf(Date)
+    expect(completedJobs[1].startedAt).toBeInstanceOf(Date)
+    expect(completedJobs[1].finishedAt).toBeInstanceOf(Date)
+    expect(completedJobs[2].startedAt).toBeInstanceOf(Date)
+    expect(completedJobs[2].finishedAt).toBeInstanceOf(Date)
   })
 
   it("gets information about workers", async () => {

@@ -4,8 +4,19 @@ import { KodMQAdapterError } from "~/src/errors"
 import Job from "~/src/Job"
 import { GetJobsOptions } from "~/src/KodMQ"
 import { Active, Completed, Failed, Pending, Scheduled } from "~/src/statuses"
-import { JobStatus, WorkerStructure } from "~/src/types"
+import { JobStatus, JobStructure, WorkerStructure } from "~/src/types"
 import Worker from "~/src/Worker"
+
+type JobTuple = [
+  JobStructure["id"],
+  JobStructure["name"],
+  JobStructure["data"],
+  JobStructure["startedAt"],
+  JobStructure["finishedAt"],
+  JobStructure["failedAttempts"],
+  JobStructure["errorMessage"],
+  JobStructure["errorStack"],
+]
 
 const GlobalPrefix = "kmq:"
 const WorkersKeyPrefix = `${GlobalPrefix}:w:`
@@ -138,7 +149,18 @@ export default class RedisAdapter extends Adapter {
 
   async serializeJob(job: Job) {
     try {
-      return JSON.stringify([job.id, job.name, job.data, job.failedAttempts, job.errorMessage, job.errorStack])
+      const jobTuple: JobTuple = [
+        job.id,
+        job.name,
+        job.data,
+        job.startedAt,
+        job.finishedAt,
+        job.failedAttempts,
+        job.errorMessage,
+        job.errorStack,
+      ]
+
+      return JSON.stringify(jobTuple)
     } catch (e) {
       throw new KodMQAdapterError("Cannot serialize job", e as Error)
     }
@@ -146,8 +168,8 @@ export default class RedisAdapter extends Adapter {
 
   async deserializeJob(serialized: string) {
     try {
-      const [id, name, data, failedAttempts, errorMessage, errorStack] = JSON.parse(serialized)
-      return new Job(id, name, data, failedAttempts, errorMessage, errorStack)
+      const jobTuple = JSON.parse(serialized) as JobTuple
+      return new Job(...jobTuple)
     } catch (e) {
       throw new KodMQAdapterError("Cannot deserialize job", e as Error)
     }

@@ -9,6 +9,17 @@ export const Idle = 5
 export const Stopping = 6
 export const Stopped = 7
 
+export const Statuses = {
+  Pending,
+  Scheduled,
+  Active,
+  Completed,
+  Failed,
+  Idle,
+  Stopping,
+  Stopped,
+} as const
+
 export const JobStatuses = [
   Pending,
   Scheduled,

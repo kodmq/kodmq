@@ -23,6 +23,8 @@ export type JobStructure<T extends JobData = any> = {
   id: string | number
   name: JobName
   data: T
+  startedAt?: Date
+  finishedAt?: Date
   failedAttempts: number
   errorMessage: string | null
   errorStack: string | null
