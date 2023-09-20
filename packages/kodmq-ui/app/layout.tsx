@@ -19,14 +19,15 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
           <div className="bg-background text-foreground">
             <TopBar />
 
-            {children}
+            <div className="container mx-auto pt-4 sm:pt-6">
+              {children}
+            </div>
           </div>
         </ThemeProvider>
       </body>

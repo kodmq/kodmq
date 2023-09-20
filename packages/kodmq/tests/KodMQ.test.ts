@@ -1,7 +1,7 @@
-import RedisAdapter from "../src/adapters/RedisAdapter.ts"
-import KodMQ from "../src/KodMQ.ts"
-import { Completed, Pending, Scheduled } from "../src/types.ts"
-import { handlers } from "./handlers.ts"
+import { handlers } from "./handlers"
+import RedisAdapter from "@/adapters/RedisAdapter"
+import KodMQ from "@/KodMQ"
+import { Completed, Pending, Scheduled } from "@/statuses"
 
 describe("KodMQ", () => {
   beforeEach(async () => {

@@ -1,5 +1,5 @@
-import { JobData, JobName } from "./types.ts"
-import KodMQ from "./KodMQ.ts"
+import KodMQ from "@/KodMQ"
+import { JobData, JobName } from "@/types"
 
 export default class Job<T extends JobData = any> {
   constructor(

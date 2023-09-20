@@ -1,11 +1,12 @@
 import process from "process"
-import Adapter from "./adapters/Adapter.ts"
-import RedisAdapter from "./adapters/RedisAdapter.ts"
-import { Config, DefaultConfig } from "./Config.ts"
-import { KodMQError } from "./errors.ts"
-import Job from "./Job.ts"
-import { Handlers, JobStatus, Pending, Scheduled, Stopped, StringKeyOf, WorkerStatus } from "./types.ts"
-import Worker from "./Worker.ts"
+import Adapter from "@/adapters/Adapter"
+import RedisAdapter from "@/adapters/RedisAdapter"
+import { Config, DefaultConfig } from "@/Config"
+import { KodMQError } from "@/errors"
+import Job from "@/Job"
+import { Pending, Scheduled, Stopped } from "@/statuses"
+import { Handlers, JobStatus, StringKeyOf } from "@/types"
+import Worker from "@/Worker"
 
 export type GetJobsOptions = {
   status: JobStatus

@@ -98,6 +98,10 @@ module.exports = {
         "allowArray": true
       }
     ],
+    "import/extensions": [
+      "error",
+      "never"
+    ],
     "unused-imports/no-unused-vars": [
       "warn",
       {

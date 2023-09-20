@@ -4,13 +4,15 @@
   "type": "module",
   "description": "A simple message queue",
   "source": "src/index.ts",
+  "browser": "dist/statuses.js",
   "main": "dist/index.js",
   "module": "dist/module.js",
   "types": "dist/types.d.ts",
   "scripts": {
     "lint": "eslint --ext .ts .",
+    "tsc": "tsc --noEmit",
     "test": "jest --detectOpenHandles",
-    "build": "parcel build"
+    "build": "parcel build --no-cache"
   },
   "devDependencies": {
     "@total-typescript/ts-reset": "^0.5.1",

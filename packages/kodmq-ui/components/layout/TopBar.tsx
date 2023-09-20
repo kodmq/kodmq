@@ -35,11 +35,11 @@ export default function TopBar({}: TopBarProps) {
 
       <NavigationMenu className="ml-auto">
         <NavigationMenuList>
-          {NavigationItems.map((item) => (
-            <NavigationMenuItem>
-              <Link href={item.href} legacyBehavior passHref>
+          {NavigationItems.map(({ name, href }) => (
+            <NavigationMenuItem key={name}>
+              <Link href={href} legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  {item.name}
+                  {name}
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>

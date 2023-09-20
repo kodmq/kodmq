@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "tsc": "turbo run tsc",
     "test": "turbo run test",
     "lint": "turbo run lint"
   },

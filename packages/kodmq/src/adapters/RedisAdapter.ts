@@ -1,10 +1,11 @@
 import Redis, { RedisOptions } from "ioredis"
-import { KodMQAdapterError } from "../errors.ts"
-import Job from "../Job.ts"
-import { GetJobsOptions } from "../KodMQ.ts"
-import { Active, Completed, Failed, JobStatus, Pending, Scheduled } from "../types.ts"
-import Worker, { WorkerData } from "../Worker.ts"
-import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "./Adapter.ts"
+import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "@/adapters/Adapter"
+import { KodMQAdapterError } from "@/errors"
+import Job from "@/Job"
+import { GetJobsOptions } from "@/KodMQ"
+import { Active, Completed, Failed, Pending, Scheduled } from "@/statuses"
+import { JobStatus, WorkerStructure } from "@/types"
+import Worker from "@/Worker"
 
 const GlobalPrefix = "kmq:"
 const WorkersKeyPrefix = `${GlobalPrefix}:w:`
@@ -199,7 +200,7 @@ export default class RedisAdapter extends Adapter {
     }
   }
 
-  async deserializeWorker(serialized: string): Promise<WorkerData> {
+  async deserializeWorker(serialized: string): Promise<WorkerStructure> {
     try {
       const [id, startedAtRaw, status, currentJobId, currentJobName, currentJobData] = JSON.parse(serialized)
       const startedAt = new Date(startedAtRaw)

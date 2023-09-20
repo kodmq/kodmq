@@ -1,10 +1,10 @@
-import { Handlers } from "./types.ts"
-import Adapter from "./adapters/Adapter.ts"
-import Job from "./Job.ts"
+import Adapter from "@/adapters/Adapter"
+import Job from "@/Job"
+import { Handlers } from "@/types"
 
 export type Config<
-  TAdapter extends Adapter,
-  THandlers extends Handlers
+  TAdapter extends Adapter = Adapter,
+  THandlers extends Handlers = Handlers
 > = {
   adapter?: TAdapter
   handlers?: THandlers
@@ -14,7 +14,7 @@ export type Config<
   retryType?: "fixed" | "exponential"
 }
 
-export const DefaultConfig: Omit<Config<any, any>, "adapter" | "handlers"> = {
+export const DefaultConfig: Omit<Config, "adapter" | "handlers"> = {
   maxRetries: 3,
   retryDelay: 1000,
   retryType: "exponential",

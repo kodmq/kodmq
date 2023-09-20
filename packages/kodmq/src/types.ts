@@ -1,3 +1,5 @@
+import { JobStatuses, WorkerStatuses } from "@/statuses"
+
 export type StringKeyOf<T> = Extract<keyof T, string>
 
 export type Handler = (data: JobData) => any | Promise<any>
@@ -6,25 +8,21 @@ export type Handlers = Record<JobName, Handler>
 export type JobName = string
 export type JobData = any
 
-export const Pending = 0
-export const Scheduled = 1
-export const Active = 2
-export const Completed = 3
-export const Failed = 4
+export type JobStatus = typeof JobStatuses[number]
+export type WorkerStatus = typeof WorkerStatuses[number]
 
-export const Idle = 5
-export const Stopping = 6
-export const Stopped = 7
+export type WorkerStructure = {
+  id: string | number
+  startedAt: Date
+  status: WorkerStatus
+  currentJob: JobStructure | null
+}
 
-export type JobStatus =
-  | typeof Pending
-  | typeof Scheduled
-  | typeof Active
-  | typeof Completed
-  | typeof Failed
-
-export type WorkerStatus =
-  | typeof Idle
-  | typeof Active
-  | typeof Stopping
-  | typeof Stopped
+export type JobStructure<T extends JobData = any> = {
+  id: string | number
+  name: JobName
+  data: T
+  failedAttempts: number
+  errorMessage: string | null
+  errorStack: string | null
+}

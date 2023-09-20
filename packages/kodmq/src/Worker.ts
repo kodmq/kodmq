@@ -1,14 +1,8 @@
-import KodMQ from "./KodMQ.ts"
-import Job from "./Job.ts"
-import { Active, Completed, Failed, Idle, JobStatus, Stopped, Stopping, WorkerStatus } from "./types.ts"
-import { KodMQError } from "./errors.ts"
-
-export type WorkerData = {
-  id: string | number
-  startedAt: Date
-  status: WorkerStatus
-  currentJob: Job | null
-}
+import { KodMQError } from "@/errors"
+import Job from "@/Job"
+import KodMQ from "@/KodMQ"
+import { Active, Completed, Failed, Idle, Stopped, Stopping } from "@/statuses"
+import { WorkerStructure, WorkerStatus } from "@/types"
 
 export default class Worker<TKodMQ extends KodMQ = KodMQ> {
   id: string | number
@@ -74,7 +68,7 @@ export default class Worker<TKodMQ extends KodMQ = KodMQ> {
    *
    * @param attributes
    */
-  async update(attributes: Partial<WorkerData> = {}) {
+  async update(attributes: Partial<WorkerStructure> = {}) {
     Object.assign(this, attributes)
     await this.kodmq.adapter.saveWorker(this)
   }

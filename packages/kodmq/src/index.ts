@@ -1,4 +1,5 @@
-import KodMQ from "./KodMQ.ts"
+import KodMQ from "@/KodMQ"
 
-export * from "./types.ts"
+export * from "@/types"
+export * from "@/statuses"
 export default KodMQ

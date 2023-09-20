@@ -1,7 +1,7 @@
-import Job from "../Job.ts"
-import { GetJobsOptions } from "../KodMQ.ts"
-import Worker, { WorkerData } from "../Worker.ts"
-import { JobStatus } from "../types.ts"
+import Job from "@/Job"
+import { GetJobsOptions } from "@/KodMQ"
+import { JobStatus, WorkerStructure } from "@/types"
+import Worker from "@/Worker"
 
 export type AdapterHandler = (job: Job) => Promise<void>
 export type AdapterKeepSubscribed = () => boolean
@@ -57,7 +57,7 @@ export default abstract class Adapter {
   /**
    * Get all workers from the database
    */
-  abstract getWorkers(): Promise<WorkerData[]>
+  abstract getWorkers(): Promise<WorkerStructure[]>
 
   /**
    * Create or update a worker in the database

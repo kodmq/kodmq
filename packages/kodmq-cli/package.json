@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "eslint --ext .ts .",
     "test": "jest",
-    "build": "parcel build"
+    "build": "parcel build --no-cache"
   },
   "devDependencies": {
     "dev-config": "workspace:*",
