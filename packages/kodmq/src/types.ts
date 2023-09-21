@@ -4,14 +4,29 @@ import { JobStatuses, WorkerStatuses } from "~/src/statuses"
 export type AllowedAny = any
 export type StringKeyOf<T> = Extract<keyof T, string>
 
+export type ID = string
+
 export type Handler = (payload: JobPayload) => unknown | Promise<unknown>
 export type Handlers = Record<JobName, Handler>
 
-export type JobCallbackName = "onJobActive" | "onJobCompleted" | "onJobFailed" | "onScheduleJobRetry"
 export type JobCallback = (job: Job) => void | Promise<void>
+export type JobCallbackName =
+  | "onJobPending"
+  | "onJobScheduled"
+  | "onJobActive"
+  | "onJobCompleted"
+  | "onJobFailed"
+  | "onJobChanged"
+  | "onScheduleJobRetry"
 
-export type WorkerCallbackName = "onWorkerIdle" | "onWorkerActive" | "onWorkerStopping" | "onWorkerStopped" | "onWorkerChanged" | "onWorkerCurrentJobChanged"
 export type WorkerCallback = (worker: Worker) => void | Promise<void>
+export type WorkerCallbackName =
+  | "onWorkerIdle"
+  | "onWorkerActive"
+  | "onWorkerStopping"
+  | "onWorkerStopped"
+  | "onWorkerChanged"
+  | "onWorkerCurrentJobChanged"
 
 export type Callbacks = {
   [K in JobCallbackName]?: JobCallback
@@ -27,15 +42,16 @@ export type WorkerStatus = typeof WorkerStatuses[number]
 export type Status = JobStatus | WorkerStatus
 
 export type Worker = {
-  id: string | number
+  id: ID
   status: WorkerStatus
-  currentJob?: Job
+  currentJob?: Pick<Job, "id" | "name" | "payload">
   startedAt?: Date
   stoppedAt?: Date
 }
 
 export type Job<T extends JobPayload = AllowedAny> = {
-  id: string | number
+  id: ID
+  status: JobStatus
   name: JobName
   payload: T
   runAt?: Date
@@ -45,5 +61,5 @@ export type Job<T extends JobPayload = AllowedAny> = {
   failedAttempts?: number
   errorMessage?: string
   errorStack?: string
-  retryJobId?: string | number
+  retryJobId?: ID
 }

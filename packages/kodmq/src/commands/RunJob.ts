@@ -1,7 +1,7 @@
 import KodMQ, { Active, Completed, Failed, Job, Worker } from "~/src"
 import Command from "~/src/commands/Command"
 import { RetryJob } from "~/src/commands/RetryJob"
-import { SaveJobTo } from "~/src/commands/SaveJobTo"
+import { SaveJob } from "~/src/commands/SaveJob"
 import { SaveWorker } from "~/src/commands/SaveWorker"
 import { KodMQError } from "~/src/errors"
 import { getErrorMessage } from "~/src/utils"
@@ -23,16 +23,16 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
 
   steps = [
     "makeSureNoOtherWorkerIsWorkingOnJob",
-    "moveJobToActive",
+    "setStatusToActive",
     "setWorkerCurrentJob",
     "runJob",
     "unsetWorkerCurrentJob",
-    "moveJobToCompleted",
+    "setStatusToCompleted",
   ]
 
   alwaysRunSteps = [
     "unsetWorkerCurrentJob",
-    "moveJobToFailed",
+    "setStatusToFailed",
     "retryJob",
   ]
 
@@ -54,11 +54,13 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
     this.markAsFinished()
   }
 
-  async moveJobToActive() {
-    const { job } = await SaveJobTo.run({
+  async setStatusToActive() {
+    const { job } = await SaveJob.run({
       job: this.job,
-      attributes: { startedAt: new Date() },
-      to: Active,
+      attributes: { 
+        status: Active,
+        startedAt: new Date(),
+      },
       kodmq: this.kodmq,
     })
 
@@ -90,8 +92,6 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
       } else {
         this.errorMessage = getErrorMessage(error)
       }
-    } finally {
-      this.job.finishedAt = new Date()
     }
   }
 
@@ -107,28 +107,31 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
     this.worker = worker
   }
 
-  async moveJobToCompleted() {
-    const { job } = await SaveJobTo.run({
+  async setStatusToCompleted() {
+    const { job } = await SaveJob.run({
       job: this.job,
-      to: Completed,
-      from: Active,
+      attributes: {
+        status: Completed,
+        finishedAt: new Date(),
+      },
       kodmq: this.kodmq,
     })
 
     this.job = job
   }
 
-  async moveJobToFailed() {
+  async setStatusToFailed() {
     if (!this.isFailed) return
 
-    this.job.failedAttempts = (this.job.failedAttempts || 0) + 1
-    this.job.errorMessage = this.errorMessage
-    this.job.errorStack = this.errorStack
-
-    const { job } = await SaveJobTo.run({
+    const { job } = await SaveJob.run({
       job: this.job,
-      to: Failed,
-      from: Active,
+      attributes: {
+        status: Failed,
+        failedAt: new Date(),
+        failedAttempts: (this.job.failedAttempts || 0) + 1,
+        errorMessage: this.errorMessage,
+        errorStack: this.errorStack,
+      },
       kodmq: this.kodmq,
     })
 
@@ -146,9 +149,8 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
 
     if (!newJob) return
 
-    const { job } = await SaveJobTo.run({
+    const { job } = await SaveJob.run({
       job: this.job,
-      to: Failed,
       attributes: { retryJobId: newJob.id },
       kodmq: this.kodmq,
     })

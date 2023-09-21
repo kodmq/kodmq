@@ -50,7 +50,6 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
     })
 
     this.worker = worker
-    await this.kodmq.runCallback("onWorkerActive", worker)
   }
 
   async startProcessingJobs() {
@@ -82,6 +81,5 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
     })
 
     this.worker = worker
-    await this.kodmq.runCallback("onWorkerStopped", worker)
   }
 }

@@ -1,5 +1,5 @@
 import { GetJobsOptions, GetWorkersOptions } from "~/src/KodMQ"
-import { Job, JobStatus, Worker } from "~/src/types"
+import { ID, Job, Worker } from "~/src/types"
 
 export type AdapterHandler = (job: Job) => Promise<void>
 export type AdapterKeepSubscribed = () => Promise<boolean>
@@ -8,7 +8,7 @@ export default abstract class Adapter {
   /**
    * Get next job ID
    */
-  abstract getNextJobId(): Promise<number>
+  abstract getNextJobId(): Promise<ID>
 
   /**
    * Get all jobs from the database
@@ -20,26 +20,22 @@ export default abstract class Adapter {
   /**
    * Get a job from the database
    */
-  abstract getJob(id: number | string): Promise<Job | null | void>
-
-  /**
-   * Get a job from the database based on status
-   */
-  abstract getJobFrom(id: number | string, status: JobStatus): Promise<Job | null>
+  abstract getJob(id: ID): Promise<Job | null | void>
 
   /**
    * Save a job to the database. This method is used only to store historical information about job.
    * Do not use it to push a job to the queue.
    *
    * @param job
-   * @param status
    */
-  abstract saveJobTo(job: Job, status: JobStatus): Promise<void>
+  abstract saveJob(job: Job): Promise<void>
 
   /**
    * Delete a job from the database
+   *
+   * @param job
    */
-  abstract removeJobFrom(job: Job, status: JobStatus): Promise<void>
+  abstract removeJob(job: Job): Promise<void>
 
   /**
    * Push a job to the queue
@@ -64,7 +60,7 @@ export default abstract class Adapter {
   /**
    * Get next worker ID
    */
-  abstract getNextWorkerId(): Promise<number>
+  abstract getNextWorkerId(): Promise<ID>
 
   /**
    * Get all workers from the database
@@ -74,7 +70,7 @@ export default abstract class Adapter {
   /**
    * Get a worker from the database
    */
-  abstract getWorker(id: number | string): Promise<Worker | null>
+  abstract getWorker(id: ID): Promise<Worker | null>
 
   /**
    * Create or update a worker in the database

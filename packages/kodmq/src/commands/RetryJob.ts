@@ -1,4 +1,4 @@
-import KodMQ, { Job, Worker } from "~/src"
+import KodMQ, { Job, Scheduled, Worker } from "~/src"
 import Command from "~/src/commands/Command"
 import { KodMQError } from "~/src/errors"
 
@@ -70,6 +70,7 @@ export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {
   async scheduleJob() {
     this.newJob = {
       id: await this.kodmq.adapter.getNextJobId(),
+      status: Scheduled,
       runAt: this.retryAt,
       name: this.job.name,
       payload: this.job.payload,

@@ -3,7 +3,7 @@ import Command from "~/src/commands/Command"
 import { SaveWorker } from "~/src/commands/SaveWorker"
 import { KodMQError } from "~/src/errors"
 
-const StopTimeout = 3 * 1000
+const StopTimeout = 30 * 1000
 const StopPollingInterval = 100
 
 export type StartWorkerArgs<
@@ -21,7 +21,6 @@ export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
   steps = [
     "checkIfWorkerCanBeStopped",
     "setStatusToStopping",
-    "runCallback",
     "waitForStopped",
   ]
 
@@ -51,10 +50,6 @@ export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
     })
 
     this.worker = worker
-  }
-
-  async runCallback() {
-    await this.kodmq.runCallback("onWorkerStopping", this.worker)
   }
 
   async waitForStopped() {

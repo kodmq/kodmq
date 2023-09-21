@@ -10,19 +10,19 @@ import {
   Handlers,
   JobCallbackName,
   Job,
-  JobStatus,
   StringKeyOf,
   WorkerCallbackName,
-  Worker, Callbacks,
+  Worker, Callbacks, ID, JobStatus, WorkerStatus,
 } from "~/src/types"
 
 export type GetJobsOptions = {
-  status: JobStatus
+  status?: JobStatus
   limit?: number
   offset?: number
 }
 
 export type GetWorkersOptions = {
+  status?: WorkerStatus
   limit?: number
   offset?: number
 }
@@ -114,7 +114,7 @@ export default class KodMQ<
    *
    * @param options
    */
-  async getJobs(options: GetJobsOptions) {
+  async getJobs(options: GetJobsOptions = {}) {
     return this.adapter.getJobs(options)
   }
 
@@ -123,28 +123,21 @@ export default class KodMQ<
    *
    * @param id
    */
-  async getJob(id: string | number) {
+  async getJob(id: ID) {
     return this.adapter.getJob(id)
-  }
-
-  /**
-   * Get a specific job based on status
-   */
-  async getJobFrom(id: string | number, status: JobStatus) {
-    return this.adapter.getJobFrom(id, status)
   }
 
   /**
    * Get workers
    */
-  async getWorkers() {
-    return this.adapter.getWorkers()
+  async getWorkers(options: GetWorkersOptions = {}) {
+    return this.adapter.getWorkers(options)
   }
 
   /**
    * Get a specific worker
    */
-  async getWorker(id: string | number) {
+  async getWorker(id: ID) {
     return this.adapter.getWorker(id)
   }
 
@@ -288,10 +281,11 @@ export default class KodMQ<
    * @param job
    * @private
    */
-  private async createJob(job: Omit<Job, "id">): Promise<Job> {
+  private async createJob(job: Omit<Job, "id" | "status">): Promise<Job> {
     return {
       ...job,
       id: await this.adapter.getNextJobId(),
+      status: job.runAt ? Scheduled : Pending,
     }
   }
 }
