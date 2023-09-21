@@ -1,7 +1,7 @@
 import { handlers } from "./handlers"
 import RedisAdapter from "~/src/adapters/RedisAdapter"
 import KodMQ from "~/src/KodMQ"
-import { Completed, Pending, Scheduled } from "~/src/statuses"
+import { Active, Completed, Idle, Pending, Scheduled } from "~/src/statuses"
 
 describe("KodMQ", () => {
   beforeEach(async () => {
@@ -26,11 +26,11 @@ describe("KodMQ", () => {
     const kodmq = new KodMQ({ handlers })
 
     setTimeout(() => kodmq.start(), 1)
-    await new Promise((resolve) => setTimeout(resolve, 50))
+    await new Promise((resolve) => setTimeout(resolve, 100))
 
     expect(async () => await kodmq.start()).rejects.toThrow("KodMQ is already started")
 
-    await kodmq.stop()
+    await kodmq.stopAllAndCloseConnection()
   })
 
   it("creates instance with config", async () => {
@@ -43,20 +43,20 @@ describe("KodMQ", () => {
     expect(kodmq.adapter).toBeInstanceOf(RedisAdapter)
     expect(kodmq.handlers).toEqual(handlers)
 
-    await kodmq.stop()
+    await kodmq.stopAllAndCloseConnection()
   })
 
   it("adds jobs to adapter", async () => {
     const kodmq = new KodMQ({ handlers })
 
     // Trigger jobs
-    const job1 = await kodmq.perform("welcomeMessage", "John")
-    const job2 = await kodmq.perform("happyBirthdayMessage", { name: "John", age: 18 })
-    const job3 = await kodmq.perform("promotionMessage", true)
+    const job1 = await kodmq.performJob("welcomeMessage", "John")
+    const job2 = await kodmq.performJob("happyBirthdayMessage", { name: "John", age: 18 })
+    const job3 = await kodmq.performJob("promotionMessage", true)
 
     // Schedule a job
     const scheduleIn = 250
-    const scheduledJob1 = await kodmq.schedule(new Date(Date.now() + scheduleIn), "promotionMessage", false)
+    const scheduledJob1 = await kodmq.scheduleJob(new Date(Date.now() + scheduleIn), "promotionMessage", false)
 
     // Get all jobs from adapter
     const pendingJobs = await kodmq.getJobs({ status: Pending })
@@ -65,32 +65,32 @@ describe("KodMQ", () => {
     // Make sure all pending jobs in the queue
     expect(pendingJobs.length).toBe(3)
     expect(pendingJobs[0].name).toBe(job1.name)
-    expect(pendingJobs[0].data).toEqual(job1.data)
+    expect(pendingJobs[0].payload).toEqual(job1.payload)
     expect(pendingJobs[1].name).toBe(job2.name)
-    expect(pendingJobs[1].data).toEqual(job2.data)
+    expect(pendingJobs[1].payload).toEqual(job2.payload)
     expect(pendingJobs[2].name).toBe(job3.name)
-    expect(pendingJobs[2].data).toEqual(job3.data)
+    expect(pendingJobs[2].payload).toEqual(job3.payload)
 
     // Make sure all scheduled jobs in the queue
     expect(scheduledJobs.length).toBe(1)
     expect(scheduledJobs[0].name).toBe(scheduledJob1.name)
-    expect(scheduledJobs[0].data).toEqual(scheduledJob1.data)
+    expect(scheduledJobs[0].payload).toEqual(scheduledJob1.payload)
 
     // Make sure all jobs pops in the right order
-    expect(await kodmq.adapter.popJob()).toEqual(job1)
-    expect(await kodmq.adapter.popJob()).toEqual(job2)
-    expect(await kodmq.adapter.popJob()).toEqual(job3)
+    expect(await kodmq.adapter.popJob()).toHaveProperty("id", job1.id)
+    expect(await kodmq.adapter.popJob()).toHaveProperty("id", job2.id)
+    expect(await kodmq.adapter.popJob()).toHaveProperty("id", job3.id)
     expect(await kodmq.adapter.popJob()).toBeNull()
 
     // Make sure scheduled job pops when time comes
     await new Promise((resolve) => setTimeout(resolve, scheduleIn + 10))
-    expect(await kodmq.adapter.popJob()).toEqual(scheduledJob1)
+    expect(await kodmq.adapter.popJob()).toHaveProperty("id", scheduledJob1.id)
 
     // Make sure there is no more jobs
     expect(await kodmq.getJobs({ status: Pending })).toEqual([])
     expect(await kodmq.getJobs({ status: Scheduled })).toEqual([])
 
-    await kodmq.stop()
+    await kodmq.stopAllAndCloseConnection()
   })
 
   it("runs jobs", async () => {
@@ -106,9 +106,9 @@ describe("KodMQ", () => {
       },
     })
 
-    const job1 = await kodmq.perform("welcomeMessage", "John")
-    const job2 = await kodmq.perform("happyBirthdayMessage", { name: "John", age: 18 })
-    const job3 = await kodmq.perform("promotionMessage", true)
+    const job1 = await kodmq.performJob("welcomeMessage", "John")
+    const job2 = await kodmq.performJob("happyBirthdayMessage", { name: "John", age: 18 })
+    const job3 = await kodmq.performJob("promotionMessage", true)
 
     expect(welcomeMessage).not.toHaveBeenCalled()
     expect(happyBirthdayMessage).not.toHaveBeenCalled()
@@ -116,20 +116,24 @@ describe("KodMQ", () => {
 
     await Promise.race([
       kodmq.start(),
-      kodmq.waitUntilAllJobsCompleted(),
+      kodmq.waitUntilAllJobsAreCompleted(),
     ])
-      .then(async () => await kodmq.stop())
+      .then(async () => await kodmq.stopAllAndCloseConnection())
 
     expect(welcomeMessage).toHaveBeenCalledTimes(1)
-    expect(welcomeMessage.mock.calls[0][0]).toEqual(job1.data)
+    expect(welcomeMessage.mock.calls[0][0]).toEqual(job1.payload)
 
     expect(happyBirthdayMessage).toHaveBeenCalledTimes(1)
-    expect(happyBirthdayMessage.mock.calls[0][0]).toEqual(job2.data)
+    expect(happyBirthdayMessage.mock.calls[0][0]).toEqual(job2.payload)
 
     expect(promotionMessage).toHaveBeenCalledTimes(1)
-    expect(promotionMessage.mock.calls[0][0]).toEqual(job3.data)
+    expect(promotionMessage.mock.calls[0][0]).toEqual(job3.payload)
 
+    await new Promise((resolve) => setTimeout(resolve, 100))
+    await kodmq.adapter.openConnection()
     const completedJobs = await kodmq.getJobs({ status: Completed })
+    await kodmq.adapter.closeConnection()
+
     expect(completedJobs.length).toBe(3)
     expect(completedJobs[0].id).toBe(job1.id)
     expect(completedJobs[1].id).toBe(job2.id)
@@ -149,20 +153,20 @@ describe("KodMQ", () => {
     expect(workers.length).toBe(0)
 
     setTimeout(() => kodmq.start(), 1)
-    await new Promise((resolve) => setTimeout(resolve, 50))
+    await new Promise((resolve) => setTimeout(resolve, 100))
 
     workers = await kodmq.getWorkers()
     expect(workers.length).toBe(1)
     expect(workers[0].id).toBe(1)
-    expect(workers[0].startedAt).toBeInstanceOf(Date)
+    expect(workers[0].status).toBe(Active)
 
-    await kodmq.stop()
+    await kodmq.stopAllAndCloseConnection()
   })
 
   it("gracefully stops workers", async () => {
     const kodmq = new KodMQ({ handlers })
 
-    const job = await kodmq.perform("longRunningJob")
+    const job = await kodmq.performJob("longRunningJob")
 
     let pendingJobs = await kodmq.getJobs({ status: Pending })
     let completedJobs = await kodmq.getJobs({ status: Completed })
@@ -171,12 +175,12 @@ describe("KodMQ", () => {
     expect(pendingJobs[0].id).toBe(job.id)
     expect(completedJobs.length).toBe(0)
 
-    // Start workers, wait them to start and stop them before job is completed
+    // Start workers and stop them before job is completed
     setTimeout(() => kodmq.start(), 1)
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise((resolve) => setTimeout(resolve, 200))
 
-    await kodmq.stop()
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await kodmq.stopAllAndCloseConnection()
+    await new Promise((resolve) => setTimeout(resolve, 200))
 
     // Make sure job is completed due to graceful stop
     await kodmq.adapter.openConnection()

@@ -1,13 +1,14 @@
 import Adapter from "~/src/adapters/Adapter"
-import Job from "~/src/Job"
-import { Handlers } from "~/src/types"
+import { Callbacks, Handlers, Job } from "~/src/types"
 
 export type Config<
   TAdapter extends Adapter = Adapter,
-  THandlers extends Handlers = Handlers
+  THandlers extends Handlers = Handlers,
+  TCallbacks extends Callbacks = Callbacks,
 > = {
   adapter?: TAdapter
   handlers?: THandlers
+  callbacks?: TCallbacks
 
   maxRetries?: number
   retryDelay?: number | number[] | ((job: Job) => number)

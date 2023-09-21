@@ -1,31 +1,48 @@
 import { JobStatuses, WorkerStatuses } from "~/src/statuses"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AllowedAny = any
 export type StringKeyOf<T> = Extract<keyof T, string>
 
-export type Handler = (data: JobData) => any | Promise<any>
+export type Handler = (payload: JobPayload) => unknown | Promise<unknown>
 export type Handlers = Record<JobName, Handler>
 
+export type JobCallbackName = "onJobActive" | "onJobCompleted" | "onJobFailed" | "onScheduleJobRetry"
+export type JobCallback = (job: Job) => void | Promise<void>
+
+export type WorkerCallbackName = "onWorkerIdle" | "onWorkerActive" | "onWorkerStopping" | "onWorkerStopped" | "onWorkerCurrentJobChanged"
+export type WorkerCallback = (worker: Worker) => void | Promise<void>
+
+export type Callbacks = {
+  [K in JobCallbackName]?: JobCallback
+} & {
+  [K in WorkerCallbackName]?: WorkerCallback
+}
+
 export type JobName = string
-export type JobData = any
+export type JobPayload = AllowedAny
 
 export type JobStatus = typeof JobStatuses[number]
 export type WorkerStatus = typeof WorkerStatuses[number]
 export type Status = JobStatus | WorkerStatus
 
-export type WorkerStructure = {
+export type Worker = {
   id: string | number
-  startedAt: Date
   status: WorkerStatus
-  currentJob: JobStructure | null
+  currentJob?: Job
+  startedAt?: Date
+  stoppedAt?: Date
 }
 
-export type JobStructure<T extends JobData = any> = {
+export type Job<T extends JobPayload = AllowedAny> = {
   id: string | number
   name: JobName
-  data: T
+  payload: T
+  runAt?: Date
   startedAt?: Date
   finishedAt?: Date
-  failedAttempts: number
-  errorMessage: string | null
-  errorStack: string | null
+  failedAt?: Date
+  failedAttempts?: number
+  errorMessage?: string
+  errorStack?: string
 }

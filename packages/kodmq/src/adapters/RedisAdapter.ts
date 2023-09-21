@@ -1,32 +1,42 @@
 import Redis, { RedisOptions } from "ioredis"
 import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "~/src/adapters/Adapter"
-import { KodMQAdapterError } from "~/src/errors"
-import Job from "~/src/Job"
-import { GetJobsOptions } from "~/src/KodMQ"
+import { KodMQAdapterError, KodMQError } from "~/src/errors"
+import { GetJobsOptions, GetWorkersOptions } from "~/src/KodMQ"
 import { Active, Completed, Failed, Pending, Scheduled } from "~/src/statuses"
-import { JobStatus, JobStructure, WorkerStructure } from "~/src/types"
-import Worker from "~/src/Worker"
+import { JobStatus, Job, Worker } from "~/src/types"
 
 type JobTuple = [
-  JobStructure["id"],
-  JobStructure["name"],
-  JobStructure["data"],
-  JobStructure["startedAt"],
-  JobStructure["finishedAt"],
-  JobStructure["failedAttempts"],
-  JobStructure["errorMessage"],
-  JobStructure["errorStack"],
+  Job["id"],
+  Job["name"],
+  Job["payload"],
+  Job["runAt"] | string,
+  Job["startedAt"] | string,
+  Job["finishedAt"] | string,
+  Job["failedAt"] | string,
+  Job["failedAttempts"],
+  Job["errorMessage"],
+  Job["errorStack"],
 ]
 
-const GlobalPrefix = "kmq:"
-const WorkersKeyPrefix = `${GlobalPrefix}:w:`
+type WorkerTuple = [
+  Worker["id"],
+  Worker["status"],
+  Worker["startedAt"] | string,
+  Worker["stoppedAt"] | string,
+  Job["id"]?,
+  Job["name"]?,
+  Job["payload"]?,
+]
 
-const JobKeys: Record<JobStatus, string> = {
-  [Pending]: `${GlobalPrefix}:j:p`,
-  [Scheduled]: `${GlobalPrefix}:j:s`,
-  [Active]: `${GlobalPrefix}:j:a`,
-  [Completed]: `${GlobalPrefix}:j:c`,
-  [Failed]: `${GlobalPrefix}:j:f`,
+const GlobalPrefix = "kmq::"
+const WorkersKey = `${GlobalPrefix}w`
+
+const StatusKeys: Record<JobStatus, string> = {
+  [Pending]: `${GlobalPrefix}j:p`,
+  [Scheduled]: `${GlobalPrefix}j:s`,
+  [Active]: `${GlobalPrefix}j:a`,
+  [Completed]: `${GlobalPrefix}j:c`,
+  [Failed]: `${GlobalPrefix}j:f`,
 }
 
 export default class RedisAdapter extends Adapter {
@@ -48,7 +58,7 @@ export default class RedisAdapter extends Adapter {
 
   async getNextJobId() {
     try {
-      return this.client.incr(`${GlobalPrefix}:jid`)
+      return this.client.incr(`${GlobalPrefix}jid`)
     } catch (e) {
       throw new KodMQAdapterError("Cannot get next job ID", e as Error)
     }
@@ -60,7 +70,7 @@ export default class RedisAdapter extends Adapter {
       const limit = (options.limit || 0)
       const offset = (options.offset || 0)
 
-      const jobs = await this.getFromSet(JobKeys[status], "-inf", "+inf", offset, limit - 1)
+      const jobs = await this.getAll(StatusKeys[status], "-inf", "+inf", offset, limit - 1)
 
       return Promise.all(jobs.map((job) => this.deserializeJob(job)))
     } catch (e) {
@@ -68,12 +78,35 @@ export default class RedisAdapter extends Adapter {
     }
   }
 
-  async saveJob(job: Job, status: JobStatus) {
+  async getJob(_id: number | string) {
+    throw new Error("This method is not supported in Redis adapter")
+  }
+
+  async getJobFrom(id: number | string, status: JobStatus) {
+    try {
+      const serialized = await this.getOne(StatusKeys[status], id as number)
+      if (!serialized) return null
+
+      return await this.deserializeJob(serialized)
+    } catch (e) {
+      throw new KodMQAdapterError("Cannot get job", e as Error)
+    }
+  }
+
+  async saveJobTo(job: Job, status: JobStatus) {
     try {
       const serialized = await this.serializeJob(job)
-      await this.addToSet(JobKeys[status], job.id as number, serialized)
+      await this.add(StatusKeys[status], job.id as number, serialized)
     } catch (e) {
       throw new KodMQAdapterError("Cannot save job", e as Error)
+    }
+  }
+
+  async removeJobFrom(job: Job, status: JobStatus) {
+    try {
+      await this.remove(StatusKeys[status], job.id as number)
+    } catch (e) {
+      throw new KodMQAdapterError("Cannot remove job", e as Error)
     }
   }
 
@@ -88,14 +121,14 @@ export default class RedisAdapter extends Adapter {
       const serialized = await this.serializeJob(job)
 
       if (runAt) {
-        await this.addToSet(
-          JobKeys[Scheduled],
+        await this.add(
+          StatusKeys[Scheduled],
           runAt.getTime(),
           serialized
         )
       } else {
-        await this.addToSet(
-          JobKeys[Pending],
+        await this.add(
+          StatusKeys[Pending],
           job.id as number,
           serialized
         )
@@ -107,8 +140,8 @@ export default class RedisAdapter extends Adapter {
 
   async popJob() {
     try {
-      const [scheduledJob, score] = await this.getFromSetWithScores(
-        JobKeys[Scheduled],
+      const [scheduledJob, score] = await this.getAllWithScore(
+        StatusKeys[Scheduled],
         "-inf",
         Date.now(),
         0,
@@ -116,13 +149,11 @@ export default class RedisAdapter extends Adapter {
       )
 
       if (scheduledJob) {
-        const job = await this.deserializeJob(scheduledJob)
-        await this.removeFromSet(JobKeys[Scheduled], score)
-
-        return job
+        await this.remove(StatusKeys[Scheduled], score)
+        return await this.deserializeJob(scheduledJob)
       }
 
-      const job = await this.popFromSet(JobKeys[Pending])
+      const job = await this.pop(StatusKeys[Pending])
       if (!job) return null
 
       return this.deserializeJob(job)
@@ -135,7 +166,10 @@ export default class RedisAdapter extends Adapter {
     try {
       // eslint-disable-next-line no-constant-condition
       while (true) {
-        if (!keepSubscribed()) break
+        if (!await keepSubscribed()) break
+
+        // FIXME: This is hack to avoid picking the same job by multiple workers
+        // await new Promise((resolve) => setTimeout(resolve, Math.random() * 30))
 
         const job = await this.popJob()
         if (!job) continue
@@ -143,6 +177,7 @@ export default class RedisAdapter extends Adapter {
         await handler(job)
       }
     } catch (e) {
+      if (e instanceof KodMQError) throw e
       throw new KodMQAdapterError("Cannot subscribe to jobs", e as Error)
     }
   }
@@ -152,9 +187,11 @@ export default class RedisAdapter extends Adapter {
       const jobTuple: JobTuple = [
         job.id,
         job.name,
-        job.data,
+        job.payload,
+        job.runAt,
         job.startedAt,
         job.finishedAt,
+        job.failedAt,
         job.failedAttempts,
         job.errorMessage,
         job.errorStack,
@@ -166,10 +203,33 @@ export default class RedisAdapter extends Adapter {
     }
   }
 
-  async deserializeJob(serialized: string) {
+  async deserializeJob(serialized: string): Promise<Job> {
     try {
-      const jobTuple = JSON.parse(serialized) as JobTuple
-      return new Job(...jobTuple)
+      const [
+        id,
+        name,
+        payload,
+        runAtRaw,
+        startedAtRaw,
+        finishedAtRaw,
+        failedAtRaw,
+        failedAttempts,
+        errorMessage,
+        errorStack,
+      ] = JSON.parse(serialized) as JobTuple
+
+      return {
+        id,
+        name,
+        payload,
+        runAt: runAtRaw ? new Date(runAtRaw) : undefined,
+        startedAt: startedAtRaw ? new Date(startedAtRaw) : undefined,
+        finishedAt: finishedAtRaw ? new Date(finishedAtRaw) : undefined,
+        failedAt: failedAtRaw ? new Date(failedAtRaw) : undefined,
+        failedAttempts,
+        errorMessage,
+        errorStack,
+      }
     } catch (e) {
       throw new KodMQAdapterError("Cannot deserialize job", e as Error)
     }
@@ -181,34 +241,47 @@ export default class RedisAdapter extends Adapter {
 
   async getNextWorkerId() {
     try {
-      return this.client.incr(`${GlobalPrefix}:wid`)
+      return this.client.incr(`${GlobalPrefix}wid`)
     } catch (e) {
       throw new KodMQAdapterError("Cannot get next worker ID", e as Error)
     }
   }
 
-  async getWorkers() {
+  async getWorkers(options: GetWorkersOptions = {}) {
     try {
-      const workersKeys = await this.client.keys(`${WorkersKeyPrefix}*`)
-      const workers = await Promise.all(workersKeys.map((key) => this.client.get(key)))
+      const limit = (options.limit || 0)
+      const offset = (options.offset || 0)
 
-      return Promise.all(workers.filter(Boolean).map((worker) => this.deserializeWorker(worker!)))
+      const workers = await this.getAll(WorkersKey, "-inf", "+inf", offset, limit - 1)
+      return Promise.all(workers.map((worker) => this.deserializeWorker(worker)))
     } catch (e) {
       throw new KodMQAdapterError("Cannot get workers", e as Error)
     }
   }
 
+  async getWorker(id: number | string) {
+    try {
+      const worker = await this.getOne(WorkersKey, id)
+      if (!worker) return null
+
+      return this.deserializeWorker(worker)
+    } catch (e) {
+      throw new KodMQAdapterError("Cannot get worker", e as Error)
+    }
+  }
+
   async saveWorker(worker: Worker) {
     try {
-      await this.client.set(`${WorkersKeyPrefix}${worker.id}`, await this.serializeWorker(worker))
+      const serialized = await this.serializeWorker(worker)
+      await this.add(WorkersKey, worker.id as number, serialized)
     } catch (e) {
       throw new KodMQAdapterError("Cannot save worker", e as Error)
     }
   }
 
-  async deleteWorker(worker: Worker) {
+  async removeWorker(worker: Worker) {
     try {
-      await this.client.del(`${WorkersKeyPrefix}${worker.id}`)
+      await this.remove(WorkersKey, worker.id as number)
     } catch (e) {
       throw new KodMQAdapterError("Cannot delete worker", e as Error)
     }
@@ -216,19 +289,41 @@ export default class RedisAdapter extends Adapter {
 
   async serializeWorker(worker: Worker) {
     try {
-      return JSON.stringify([worker.id, worker.startedAt, worker.status, worker.currentJob?.id, worker.currentJob?.name, worker.currentJob?.data])
+      const workerTuple: WorkerTuple = [
+        worker.id,
+        worker.status,
+        worker.startedAt,
+        worker.stoppedAt,
+        worker.currentJob?.id,
+        worker.currentJob?.name,
+        worker.currentJob?.payload,
+      ]
+
+      return JSON.stringify(workerTuple)
     } catch (e) {
       throw new KodMQAdapterError("Cannot serialize worker", e as Error)
     }
   }
 
-  async deserializeWorker(serialized: string): Promise<WorkerStructure> {
+  async deserializeWorker(serialized: string): Promise<Worker> {
     try {
-      const [id, startedAtRaw, status, currentJobId, currentJobName, currentJobData] = JSON.parse(serialized)
-      const startedAt = new Date(startedAtRaw)
-      const currentJob = currentJobId ? new Job(currentJobId, currentJobName, currentJobData) : null
+      const [
+        id,
+        status,
+        startedAtRaw,
+        stoppedAtRaw,
+        currentJobId,
+        currentJobName,
+        currentJobData,
+      ] = JSON.parse(serialized) as WorkerTuple
 
-      return { id, startedAt, status, currentJob }
+      return {
+        id,
+        status,
+        startedAt: startedAtRaw ? new Date(startedAtRaw) : undefined,
+        stoppedAt: stoppedAtRaw ? new Date(stoppedAtRaw) : undefined,
+        currentJob: currentJobId ? { id: currentJobId, name: currentJobName!, payload: currentJobData! } : undefined,
+      }
     } catch (e) {
       throw new KodMQAdapterError("Cannot deserialize worker", e as Error)
     }
@@ -270,7 +365,7 @@ export default class RedisAdapter extends Adapter {
   // Redis sorted sets
   //
 
-  private async getFromSet(key: string, min: number | string, max: number | string, offset: number, limit: number) {
+  private async getAll(key: string, min: number | string, max: number | string, offset: number, limit: number) {
     try {
       return await this.client.zrangebyscore(key, min, max, "LIMIT", offset, offset + limit)
     } catch (e) {
@@ -278,7 +373,7 @@ export default class RedisAdapter extends Adapter {
     }
   }
 
-  private async getFromSetWithScores(key: string, min: number | string, max: number | string, offset: number, limit: number) {
+  private async getAllWithScore(key: string, min: number | string, max: number | string, offset: number, limit: number) {
     try {
       return await this.client.zrangebyscore(key, min, max, "WITHSCORES", "LIMIT", offset, offset + limit)
     } catch (e) {
@@ -286,15 +381,25 @@ export default class RedisAdapter extends Adapter {
     }
   }
 
-  private async addToSet(key: string, score: number, value: string) {
+  private async getOne(key: string, score: number | string) {
     try {
+      const items = await this.client.zrangebyscore(key, score, score)
+      return items[0] || null
+    } catch (e) {
+      throw new KodMQAdapterError("Cannot get from sorted set", e as Error)
+    }
+  }
+
+  private async add(key: string, score: number, value: string) {
+    try {
+      await this.client.zremrangebyscore(key, score, score)
       await this.client.zadd(key, score, value)
     } catch (e) {
       throw new KodMQAdapterError("Cannot add to sorted set", e as Error)
     }
   }
 
-  private async popFromSet(key: string) {
+  private async pop(key: string) {
     try {
       const item = await this.client.zpopmin(key)
       return item ? item[0] : null
@@ -303,7 +408,7 @@ export default class RedisAdapter extends Adapter {
     }
   }
 
-  private async removeFromSet(key: string, score: number | string) {
+  private async remove(key: string, score: number | string) {
     try {
       await this.client.zremrangebyscore(key, score, score)
     } catch (e) {

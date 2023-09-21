@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import KodMQ from "@/KodMQ"
+import KodMQ from "~/src/KodMQ"
 
 async function processPhoto(data: { photoId: string }) {
   console.log(`Processing photo ${data.photoId}`)

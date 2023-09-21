@@ -12,6 +12,13 @@ export class KodMQError extends Error {
   }
 }
 
+export class KodMQCommandError extends KodMQError {
+  constructor(message: string, originalError?: Error) {
+    super(message, originalError)
+
+    this.name = "KodMQCommandError"
+  }
+}
 
 export class KodMQAdapterError extends KodMQError {
   constructor(message: string, originalError?: Error) {

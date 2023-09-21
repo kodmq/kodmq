@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/components/layout/ThemeProvider"
 
 import "./globals.css"
 import TopBar from "@/components/layout/TopBar"
+import { Toaster } from "@/components/ui/toaster"
 
 export const metadata = {
   title: "KodMQ UI",
@@ -28,6 +29,8 @@ export default function RootLayout({
           <div className="container mx-auto pt-4 sm:pt-6">
             {children}
           </div>
+
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

@@ -1,6 +1,38 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
- 
+import { ZodError } from "zod"
+import { Errors, ErrorWithMessage } from "@/lib/types"
+
+function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as Record<string, unknown>).message === "string"
+  )
+}
+
+function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
+  if (isErrorWithMessage(maybeError)) return maybeError
+
+  try {
+    return new Error(JSON.stringify(maybeError))
+  } catch {
+    return new Error(String(maybeError))
+  }
+}
+
+export function getErrorMessage(error: unknown) {
+  return toErrorWithMessage(error).message
+}
+
+export function zodErrorToErrors(error: ZodError): Errors {
+  return error.errors.reduce<Errors>((acc, curr) => {
+    if (curr.path) acc[curr.path[0] || "base"] = curr.message
+    return acc
+  }, {})
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -43,9 +75,16 @@ export function formatDuration(start: Date | undefined, end: Date | undefined) {
   }
 }
 
-// Convert camelCase to title case
 export function titleize(value: string) {
   return value
     .replace(/([A-Z])/g, " $1")
     .replace(/^./, (string) => string.toUpperCase())
 }
+
+export function numberWithOrdinal(n) {
+  const s = ["th", "st", "nd", "rd"]
+  const v = n % 100
+
+  return n + (s[(v - 20) % 10] || s[v] || s[0])
+}
+

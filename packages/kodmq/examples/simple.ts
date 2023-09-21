@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import process from "process"
-import KodMQ from "@/KodMQ"
+import KodMQ from "~/src/KodMQ"
 
 async function processPhoto(data: { photoId: string }) {
   console.log(`Processing photo ${data.photoId}`)
@@ -14,12 +14,12 @@ const kodmq = new KodMQ({
   },
 })
 
-await kodmq.perform("processPhoto", { photoId: "123" })
-await kodmq.perform("processPhoto", { photoId: "456" })
-await kodmq.perform("processPhoto", { photoId: "789" })
+await kodmq.performJob("processPhoto", { photoId: "123" })
+await kodmq.performJob("processPhoto", { photoId: "456" })
+await kodmq.performJob("processPhoto", { photoId: "789" })
 
 await kodmq.start()
 
 process.on("SIGINT", () => {
-  kodmq.stop()
+  kodmq.stopAllAndCloseConnection()
 })

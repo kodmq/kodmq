@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import kodmq from "@/lib/kodmq"
 import { formatDate, formatDuration, getFromList, titleize } from "@/lib/utils"
 import EmptyValue from "@/components/content/EmptyValue"
+import JobsTable from "@/components/job/JobsTable"
 
 export type JobsPageProps = {
   searchParams: {
@@ -34,40 +35,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
       {jobs.length > 0 ? (
         <Card>
           <CardContent className="pt-6">
-            <Table className="rounded overflow-hidden">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="pl-4">Job ID</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Arguments</TableHead>
-                  <TableHead>Started At</TableHead>
-                  <TableHead>Elapsed Time</TableHead>
-
-                  {status === Failed && (
-                    <>
-                      <TableHead>Error</TableHead>
-                    </>
-                  )}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {jobs.map((job) => (
-                  <TableRow key={job.id}>
-                    <TableCell className="font-medium pl-4">{job.id}</TableCell>
-                    <TableCell>{titleize(job.name)}</TableCell>
-                    <TableCell><pre>{JSON.stringify(job.data)}</pre></TableCell>
-                    <TableCell>{formatDate(job.startedAt) ?? <EmptyValue />}</TableCell>
-                    <TableCell>{formatDuration(job.startedAt, job.finishedAt) ?? <EmptyValue />}</TableCell>
-
-                    {status === Failed && (
-                      <>
-                        <TableCell>{job.errorMessage}</TableCell>
-                      </>
-                    )}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <JobsTable jobs={jobs} status={status} />
           </CardContent>
         </Card>
       ) : (
