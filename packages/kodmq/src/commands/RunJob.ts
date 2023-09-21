@@ -138,10 +138,21 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
   async retryJob() {
     if (!this.isFailed) return
 
-    await RetryJob.run({
+    const { newJob } = await RetryJob.run({
       job: this.job,
       worker: this.worker,
       kodmq: this.kodmq,
     })
+
+    if (!newJob) return
+
+    const { job } = await SaveJobTo.run({
+      job: this.job,
+      to: Failed,
+      attributes: { retryJobId: newJob.id },
+      kodmq: this.kodmq,
+    })
+
+    this.job = job
   }
 }

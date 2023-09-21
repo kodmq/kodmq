@@ -12,14 +12,14 @@
     "build": "parcel build --no-cache"
   },
   "devDependencies": {
-    "dev-config": "workspace:*",
-    "kodmq": "workspace:*"
+    "dev-config": "workspace:*"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
     "chalk": "^5.3.0",
-    "commander": "^11.0.0"
+    "commander": "^11.0.0",
+    "kodmq": "workspace:*"
   }
 }

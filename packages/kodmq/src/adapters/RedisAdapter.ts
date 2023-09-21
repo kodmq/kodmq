@@ -16,6 +16,7 @@ type JobTuple = [
   Job["failedAttempts"],
   Job["errorMessage"],
   Job["errorStack"],
+  Job["retryJobId"],
 ]
 
 type WorkerTuple = [
@@ -194,6 +195,7 @@ export default class RedisAdapter extends Adapter {
         job.failedAttempts,
         job.errorMessage,
         job.errorStack,
+        job.retryJobId,
       ]
 
       return JSON.stringify(jobTuple)
@@ -215,6 +217,7 @@ export default class RedisAdapter extends Adapter {
         failedAttempts,
         errorMessage,
         errorStack,
+        retryJobId,
       ] = JSON.parse(serialized) as JobTuple
 
       return {
@@ -228,6 +231,7 @@ export default class RedisAdapter extends Adapter {
         failedAttempts,
         errorMessage,
         errorStack,
+        retryJobId,
       }
     } catch (e) {
       throw new KodMQAdapterError("Cannot deserialize job", e as Error)

@@ -1,16 +1,13 @@
 import { RocketIcon } from "@radix-ui/react-icons"
 import { Pending, ReadableJobStatuses } from "kodmq"
 import { JobStatus, JobStatuses } from "kodmq"
-import { Failed } from "kodmq"
 import Heading from "@/components/content/Heading"
+import JobsTable from "@/components/job/JobsTable"
 import JobStatusSwitcher from "@/components/job/JobStatusSwitcher"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Card, CardContent } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import kodmq from "@/lib/kodmq"
-import { formatDate, formatDuration, getFromList, titleize } from "@/lib/utils"
-import EmptyValue from "@/components/content/EmptyValue"
-import JobsTable from "@/components/job/JobsTable"
+import { getFromList } from "@/lib/utils"
 
 export type JobsPageProps = {
   searchParams: {

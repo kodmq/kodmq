@@ -18,6 +18,7 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
   const showElapsedTime = ![Pending, Scheduled, Active].includes(status)
   const showAttempt = status === Failed
   const showError = status === Failed
+  const showRetryJobId = status === Failed
   
   return (
     <Table className="rounded overflow-hidden">
@@ -32,6 +33,7 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
           {showStartedAt && <TableHead>Started At</TableHead>}
           {showElapsedTime && <TableHead>Elapsed Time</TableHead>}
           {showError && <TableHead>Error</TableHead>}
+          {showRetryJobId && <TableHead>Retry Job ID</TableHead>}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -86,6 +88,12 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
             {showError && (
               <TableCell>
                 {job.errorMessage}
+              </TableCell>
+            )}
+
+            {showRetryJobId && (
+              <TableCell>
+                {job.retryJobId ?? <EmptyValue />}
               </TableCell>
             )}
           </TableRow>

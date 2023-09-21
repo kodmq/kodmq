@@ -18,6 +18,7 @@ export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {
   kodmq: TArgs["kodmq"]
   retryAt?: Date
   failedAttempts: number
+  newJob?: Job
 
   steps = [
     "checkIfJobShouldBeRetried",
@@ -67,7 +68,7 @@ export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {
   }
 
   async scheduleJob() {
-    const newJob = {
+    this.newJob = {
       id: await this.kodmq.adapter.getNextJobId(),
       runAt: this.retryAt,
       name: this.job.name,
@@ -75,7 +76,7 @@ export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {
       failedAttempts: this.failedAttempts,
     }
 
-    await this.kodmq.adapter.pushJob(newJob)
-    await this.kodmq.runCallback("onScheduleJobRetry", newJob)
+    await this.kodmq.adapter.pushJob(this.newJob)
+    await this.kodmq.runCallback("onScheduleJobRetry", this.newJob)
   }
 }

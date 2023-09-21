@@ -19,6 +19,7 @@ export class SaveWorker<TArgs extends SaveWorkerArgs = SaveWorkerArgs> extends C
     "retrieveLatestState",
     "updateObject",
     "saveToAdapter",
+    "runCallbacks",
   ]
 
   alwaysRunSteps = []
@@ -45,5 +46,13 @@ export class SaveWorker<TArgs extends SaveWorkerArgs = SaveWorkerArgs> extends C
 
   async saveToAdapter() {
     await this.kodmq.adapter.saveWorker(this.worker)
+  }
+
+  async runCallbacks() {
+    await this.kodmq.runCallback("onWorkerChanged", this.worker)
+
+    if ("currentJob" in this.attributes) {
+      await this.kodmq.runCallback("onWorkerCurrentJobChanged", this.worker)
+    }
   }
 }

@@ -10,7 +10,7 @@ export type Handlers = Record<JobName, Handler>
 export type JobCallbackName = "onJobActive" | "onJobCompleted" | "onJobFailed" | "onScheduleJobRetry"
 export type JobCallback = (job: Job) => void | Promise<void>
 
-export type WorkerCallbackName = "onWorkerIdle" | "onWorkerActive" | "onWorkerStopping" | "onWorkerStopped" | "onWorkerCurrentJobChanged"
+export type WorkerCallbackName = "onWorkerIdle" | "onWorkerActive" | "onWorkerStopping" | "onWorkerStopped" | "onWorkerChanged" | "onWorkerCurrentJobChanged"
 export type WorkerCallback = (worker: Worker) => void | Promise<void>
 
 export type Callbacks = {
@@ -45,4 +45,5 @@ export type Job<T extends JobPayload = AllowedAny> = {
   failedAttempts?: number
   errorMessage?: string
   errorStack?: string
+  retryJobId?: string | number
 }
