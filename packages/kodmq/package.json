@@ -9,6 +9,7 @@
   "types": "dist/types.d.ts",
   "scripts": {
     "lint": "eslint --ext .ts .",
+    "lint:fix": "eslint --ext .ts . --fix",
     "tsc": "tsc --noEmit",
     "test": "jest --detectOpenHandles",
     "build": "parcel build --no-cache"

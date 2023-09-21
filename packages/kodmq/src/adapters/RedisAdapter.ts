@@ -111,19 +111,18 @@ export default class RedisAdapter extends Adapter {
   }
 
   /**
-   * Push a job to the queue. Please notice that scheduled jobs are stored in a different key and structure.
+   * Push a job to the queue
    *
    * @param job
-   * @param runAt
    */
-  async pushJob(job: Job, runAt?: Date) {
+  async pushJob(job: Job) {
     try {
       const serialized = await this.serializeJob(job)
 
-      if (runAt) {
+      if (job.runAt) {
         await this.add(
           StatusKeys[Scheduled],
-          runAt.getTime(),
+          job.runAt.getTime(),
           serialized
         )
       } else {

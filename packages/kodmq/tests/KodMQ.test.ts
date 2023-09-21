@@ -1,7 +1,7 @@
 import { handlers } from "./handlers"
 import RedisAdapter from "~/src/adapters/RedisAdapter"
 import KodMQ from "~/src/KodMQ"
-import { Active, Completed, Idle, Pending, Scheduled } from "~/src/statuses"
+import { Active, Completed, Pending, Scheduled } from "~/src/statuses"
 
 describe("KodMQ", () => {
   beforeEach(async () => {
@@ -16,10 +16,11 @@ describe("KodMQ", () => {
     expect(() => new KodMQ({ adapter: "hello", handlers })).toThrow("KodMQ requires adapter to be an instance of Adapter")
   })
 
-  it("does not allow to start worker without handlers", () => {
+  it("does not allow to start worker without handlers", async () => {
     const kodmq = new KodMQ()
 
     expect(async () => await kodmq.start()).rejects.toThrow("KodMQ requires at least one handler to start")
+    await kodmq.stopAllAndCloseConnection()
   })
 
   it("does not allow to start worker twice", async () => {

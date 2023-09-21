@@ -68,12 +68,14 @@ export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {
 
   async scheduleJob() {
     const newJob = {
-      ...this.job,
       id: await this.kodmq.adapter.getNextJobId(),
       runAt: this.retryAt,
+      name: this.job.name,
+      payload: this.job.payload,
+      failedAttempts: this.failedAttempts,
     }
 
-    await this.kodmq.adapter.pushJob(newJob, this.retryAt)
+    await this.kodmq.adapter.pushJob(newJob)
     await this.kodmq.runCallback("onScheduleJobRetry", newJob)
   }
 }

@@ -67,15 +67,18 @@ export default class KodMQ<
    *
    * @param name
    * @param payload
+   * @param runAt
    */
   async performJob<T extends StringKeyOf<THandlers>>(
     name: T,
-    payload?: Parameters<THandlers[T]>[0]
+    payload?: Parameters<THandlers[T]>[0],
+    runAt?: Date,
   ) {
     try {
       const job = await this.createJob({
         name,
         payload,
+        runAt,
       })
 
       await this.adapter.pushJob(job)
@@ -99,15 +102,7 @@ export default class KodMQ<
     payload?: Parameters<THandlers[T]>[0],
   ) {
     try {
-      const job = await this.createJob({
-        name,
-        payload,
-        runAt,
-      })
-
-      await this.adapter.pushJob(job, runAt)
-
-      return job
+      return this.performJob(name, payload, runAt)
     } catch (e) {
       if (e instanceof KodMQError) throw e
       throw new KodMQError(`Failed to schedule job "${name}"`, e as Error)
@@ -290,12 +285,12 @@ export default class KodMQ<
   /**
    * Create a new job using the adapter
    *
-   * @param struct
+   * @param job
    * @private
    */
-  private async createJob(struct: Omit<Job, "id">): Promise<Job> {
+  private async createJob(job: Omit<Job, "id">): Promise<Job> {
     return {
-      ...struct,
+      ...job,
       id: await this.adapter.getNextJobId(),
     }
   }

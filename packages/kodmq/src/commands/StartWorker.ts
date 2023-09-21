@@ -1,4 +1,4 @@
-import KodMQ, { Active, Idle, ReadableStatuses, ReadableWorkerStatuses, Stopped, Worker } from "~/src"
+import KodMQ, { Active, Idle, Stopped, Worker } from "~/src"
 import Command from "~/src/commands/Command"
 import { RunJob } from "~/src/commands/RunJob"
 import { SaveWorker } from "~/src/commands/SaveWorker"

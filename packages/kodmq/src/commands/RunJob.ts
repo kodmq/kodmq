@@ -1,10 +1,10 @@
 import KodMQ, { Active, Completed, Failed, Job, Worker } from "~/src"
 import Command from "~/src/commands/Command"
-import { SaveJobTo } from "~/src/commands/SaveJobTo"
 import { RetryJob } from "~/src/commands/RetryJob"
+import { SaveJobTo } from "~/src/commands/SaveJobTo"
+import { SaveWorker } from "~/src/commands/SaveWorker"
 import { KodMQError } from "~/src/errors"
 import { getErrorMessage } from "~/src/utils"
-import { SaveWorker } from "~/src/commands/SaveWorker"
 
 export type RunJobArgs<
   TJob extends Job = Job,

@@ -45,9 +45,8 @@ export default abstract class Adapter {
    * Push a job to the queue
    *
    * @param job
-   * @param runAt
    */
-  abstract pushJob(job: Job, runAt?: Date): Promise<void>
+  abstract pushJob(job: Job): Promise<void>
 
   /**
    * Pop a job from the queue (including scheduled jobs)
