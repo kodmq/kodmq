@@ -1,4 +1,6 @@
-import chalk, { ColorName } from "chalk"
+import * as colorette from "colorette"
+
+type ForegroundColorName = keyof colorette.Colorette
 
 const Second = 1000
 const Minute = 60 * Second
@@ -11,7 +13,7 @@ export function titleize(value: string) {
     .replace(/^./, (string) => string.toUpperCase())
 }
 
-export function formatDuration(start: Date | undefined, end: Date | undefined, color: ColorName = "blueBright") {
+export function formatDuration(start: Date | undefined, end: Date | undefined, color: ForegroundColorName = "blueBright") {
   if (!start || !end) return
 
   const duration = end.getTime() - start.getTime()
@@ -35,15 +37,15 @@ export function formatDuration(start: Date | undefined, end: Date | undefined, c
     text = `${days}d ${hours}h`
   }
 
-  return chalk[color](text)
+  return colorette[color](text)
 }
 
 export function formatName(name: string) {
-  return chalk.yellowBright(titleize(name))
+  return colorette.yellowBright(titleize(name))
 }
 
 export function formatJobPayload(payload: unknown) {
   if (payload === undefined) return ""
 
-  return ` with arguments ${chalk.gray(JSON.stringify(payload))}`
+  return ` with payload ${colorette.gray(JSON.stringify(payload))}`
 }

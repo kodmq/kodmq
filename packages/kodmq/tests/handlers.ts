@@ -2,28 +2,16 @@
 
 import { Handlers } from "~/src/types"
 
-export function welcomeMessage(name: string) {
-  console.log(`Welcome, ${name}!`)
-}
-
-export function happyBirthdayMessage({ name, age }: { name: string, age: number }) {
-  console.log(`Happy ${age}th birthday, ${name}!`)
-}
-
-export function promotionMessage(promoted: boolean) {
-  if (promoted) {
-    console.log("Congratulations, you've been promoted!")
-  } else {
-    console.log("Sorry, you've not been promoted.")
-  }
-}
+export function welcomeMessage(_name: string) {}
+export function happyBirthdayMessage({ name: _, age: __ }: { name: string, age: number }) {}
+export function promotionMessage(_promoted: boolean) {}
 
 export async function longRunningJob() {
   return await new Promise((resolve) => setTimeout(resolve, 1000))
 }
 
-export async function alwaysFail() {
-  throw new Error("This job always fails")
+export async function iWasBornToFail() {
+  throw new Error("I was born to fail")
 }
 
 export const handlers: Handlers = {
@@ -31,5 +19,5 @@ export const handlers: Handlers = {
   happyBirthdayMessage,
   promotionMessage,
   longRunningJob,
-  alwaysFail,
+  iWasBornToFail,
 }

@@ -40,7 +40,7 @@ export type CallbacksMap = {
 } & {
   [key in WorkerCallbackName]: WorkerCallback
 } & {
-  onScheduleJobRetry: (job: Job, retryAt: Date) => void | Promise<void>
+  onScheduleJobRetry: (job: Job, retryAt: Date, failedJob: Job) => void | Promise<void>
   onWorkerCurrentJobChanged: (worker: Worker, job: Job) => void | Promise<void>
 }
 

@@ -328,4 +328,5 @@ class KodMQ<THandlers extends Handlers = Handlers> {
 export * from "~/src/types"
 export * from "~/src/errors"
 export * from "~/src/statuses"
+export * from "~/src/launcher"
 export default KodMQ

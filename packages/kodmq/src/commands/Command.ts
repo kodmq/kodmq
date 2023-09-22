@@ -1,5 +1,4 @@
-import { KodMQCommandError } from "~/src/errors"
-import { getErrorMessage } from "~/src/utils"
+import { getErrorMessage, KodMQCommandError } from "~/src/errors"
 
 export type RunOptions = {
   allowToFail?: boolean

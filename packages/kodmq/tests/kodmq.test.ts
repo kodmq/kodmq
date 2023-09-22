@@ -4,12 +4,6 @@ import RedisAdapter from "~/src/adapters/RedisAdapter"
 import { Active, Completed, Pending, Scheduled } from "~/src/statuses"
 
 describe("KodMQ", () => {
-  beforeEach(async () => {
-    const adapter = new RedisAdapter()
-    await adapter.clearAll()
-    await adapter.closeConnection()
-  })
-
   it("does not allow to create instance with wrong adapter", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -216,7 +210,7 @@ describe("KodMQ", () => {
     })
 
     kodmq.on("onJobActive", onJobActiveSecond)
-    await kodmq.performJob("alwaysFail")
+    await kodmq.performJob("iWasBornToFail")
 
     expect(onJobActive).toHaveBeenCalledTimes(0)
     expect(onJobActiveSecond).toHaveBeenCalledTimes(0)
