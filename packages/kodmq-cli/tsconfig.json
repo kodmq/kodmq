@@ -15,7 +15,8 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "types": [
-      "jest"
+      "node",
+      "bun-types"
     ]
   }
 }

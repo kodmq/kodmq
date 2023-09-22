@@ -12,12 +12,14 @@
     "build": "parcel build --no-cache"
   },
   "devDependencies": {
+    "@types/node": "20.6.2",
     "dev-config": "workspace:*"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "bun-types": "^1.0.2",
     "chalk": "^5.3.0",
     "commander": "^11.0.0",
     "kodmq": "workspace:*"
