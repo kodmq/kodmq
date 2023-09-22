@@ -19,7 +19,7 @@ describe("KodMQ", () => {
   it("does not allow to start worker without handlers", async () => {
     const kodmq = new KodMQ()
 
-    expect(async () => await kodmq.start()).rejects.toThrow("KodMQ requires at least one handler to start")
+    await expect(kodmq.start()).rejects.toThrow("KodMQ requires at least one handler to start")
     await kodmq.stopAllAndCloseConnection()
   })
 
@@ -29,8 +29,7 @@ describe("KodMQ", () => {
     setTimeout(() => kodmq.start(), 1)
     await new Promise((resolve) => setTimeout(resolve, 100))
 
-    expect(async () => await kodmq.start()).rejects.toThrow("KodMQ is already started")
-
+    await expect(kodmq.start()).rejects.toThrow("KodMQ is already started")
     await kodmq.stopAllAndCloseConnection()
   })
 
@@ -47,7 +46,7 @@ describe("KodMQ", () => {
     await kodmq.stopAllAndCloseConnection()
   })
 
-  it("adds jobs to adapter", async () => {
+  it("push jobs to adapter and pops them", async () => {
     const kodmq = new KodMQ({ handlers })
 
     // Trigger jobs
@@ -60,8 +59,8 @@ describe("KodMQ", () => {
     const scheduledJob1 = await kodmq.scheduleJob(new Date(Date.now() + scheduleIn), "promotionMessage", false)
 
     // Get all jobs from adapter
-    const pendingJobs = await kodmq.getJobs({ status: Pending })
-    const scheduledJobs = await kodmq.getJobs({ status: Scheduled })
+    let pendingJobs = await kodmq.getJobs({ status: Pending })
+    let scheduledJobs = await kodmq.getJobs({ status: Scheduled })
 
     // Make sure all pending jobs in the queue
     expect(pendingJobs.length).toBe(3)
@@ -86,10 +85,7 @@ describe("KodMQ", () => {
     // Make sure scheduled job pops when time comes
     await new Promise((resolve) => setTimeout(resolve, scheduleIn + 10))
     expect(await kodmq.adapter.popJob()).toHaveProperty("id", scheduledJob1.id)
-
-    // Make sure there is no more jobs
-    expect(await kodmq.getJobs({ status: Pending })).toEqual([])
-    expect(await kodmq.getJobs({ status: Scheduled })).toEqual([])
+    expect(await kodmq.adapter.popJob()).toBeNull()
 
     await kodmq.stopAllAndCloseConnection()
   })

@@ -25,13 +25,13 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
       <TableHeader>
         <TableRow>
           <TableHead className="pl-4">Job ID</TableHead>
-          {showAttempt && <TableHead className="text-right">Attempt</TableHead>}
           <TableHead>Name</TableHead>
           <TableHead>Payload</TableHead>
 
           {showRunAt && <TableHead>Run At</TableHead>}
           {showStartedAt && <TableHead>Started At</TableHead>}
           {showElapsedTime && <TableHead>Elapsed Time</TableHead>}
+          {showAttempt && <TableHead />}
           {showError && <TableHead>Error</TableHead>}
           {showRetryJobId && <TableHead>Retry Job ID</TableHead>}
         </TableRow>
@@ -42,18 +42,6 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
             <TableCell className="font-medium pl-4">
               {job.id}
             </TableCell>
-
-            {showAttempt && (
-              <TableCell className="text-right">
-                {job.failedAttempts && job.failedAttempts > 0 ? (
-                  <Badge variant="destructive" className="px-1.5 py-0.5">
-                    {numberWithOrdinal(job.failedAttempts)}
-                  </Badge>
-                ) : (
-                  <EmptyValue />
-                )}
-              </TableCell>
-            )}
 
             <TableCell>
               {titleize(job.name)}
@@ -82,6 +70,18 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
             {showElapsedTime && (
               <TableCell title={job.finishedAt?.toString()}>
                 {formatDuration(job.startedAt, job.finishedAt) ?? <EmptyValue />}
+              </TableCell>
+            )}
+
+            {showAttempt && (
+              <TableCell className="text-right">
+                {job.failedAttempts && job.failedAttempts > 0 ? (
+                  <Badge variant="destructive" className="px-1.5 py-0.5">
+                    {numberWithOrdinal(job.failedAttempts)}
+                  </Badge>
+                ) : (
+                  <EmptyValue />
+                )}
               </TableCell>
             )}
 

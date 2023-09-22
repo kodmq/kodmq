@@ -56,7 +56,7 @@ export default class RedisAdapter extends Adapter {
 
   async getNextJobId() {
     try {
-      return this.client.incr(JobsIDKey).toString()
+      return await this.client.incr(JobsIDKey)
     } catch (e) {
       throw new KodMQAdapterError("Cannot get next job ID", e as Error)
     }
@@ -70,7 +70,7 @@ export default class RedisAdapter extends Adapter {
       const rawJobs = await this.getAll(JobsKey, "-inf", "+inf", offset, limit - 1)
       const jobs = await Promise.all(rawJobs.map((job) => this.deserializeJob(job)))
 
-      if (options.status) {
+      if (options.status !== undefined) {
         return jobs.filter((job) => job.status === options.status)
       } else {
         return jobs
@@ -125,7 +125,7 @@ export default class RedisAdapter extends Adapter {
 
       await this.add(
         job.runAt ? JobsScheduledKey : JobsQueueKey,
-        job.runAt ? job.runAt.getTime().toString() : job.id,
+        job.runAt ? job.runAt.getTime() : job.id,
         job.id,
       )
     } catch (e) {
@@ -138,7 +138,7 @@ export default class RedisAdapter extends Adapter {
       const [scheduledJobId, score] = await this.getAllWithScore(
         JobsScheduledKey,
         "-inf",
-        Date.now().toString(),
+        Date.now(),
         0,
         1,
       )
@@ -148,6 +148,7 @@ export default class RedisAdapter extends Adapter {
         return await this.getJob(scheduledJobId)
       }
 
+      // TODO: Use lpush and rpop to store pending jobs
       const jobId = await this.pop(JobsQueueKey)
       if (!jobId) return null
 
@@ -242,7 +243,7 @@ export default class RedisAdapter extends Adapter {
 
   async getNextWorkerId() {
     try {
-      return this.client.incr(WorkersIDKey).toString()
+      return this.client.incr(WorkersIDKey)
     } catch (e) {
       throw new KodMQAdapterError("Cannot get next worker ID", e as Error)
     }
@@ -390,17 +391,17 @@ export default class RedisAdapter extends Adapter {
 
   private async getOne(key: string, score: ID) {
     try {
-      const items = await this.client.zrangebyscore(key, score, score)
+      const items = await this.client.zrangebyscore(key, Number(score), Number(score))
       return items[0] || null
     } catch (e) {
       throw new KodMQAdapterError("Cannot get from sorted set", e as Error)
     }
   }
 
-  private async add(key: string, score: ID, value: string) {
+  private async add(key: string, score: ID, value: string | number) {
     try {
-      await this.client.zremrangebyscore(key, score, score)
-      await this.client.zadd(key, score, value)
+      await this.client.zremrangebyscore(key, Number(score), Number(score)) // Remove existing item
+      await this.client.zadd(key, Number(score), value)
     } catch (e) {
       throw new KodMQAdapterError("Cannot add to sorted set", e as Error)
     }
@@ -417,7 +418,7 @@ export default class RedisAdapter extends Adapter {
 
   private async remove(key: string, score: ID) {
     try {
-      await this.client.zremrangebyscore(key, score, score)
+      await this.client.zremrangebyscore(key, Number(score), Number(score))
     } catch (e) {
       throw new KodMQAdapterError("Cannot remove from sorted set", e as Error)
     }

@@ -4,7 +4,7 @@ import { JobStatuses, WorkerStatuses } from "~/src/statuses"
 export type AllowedAny = any
 export type StringKeyOf<T> = Extract<keyof T, string>
 
-export type ID = string
+export type ID = string | number
 
 export type Handler = (payload: JobPayload) => unknown | Promise<unknown>
 export type Handlers = Record<JobName, Handler>
