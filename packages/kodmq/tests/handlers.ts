@@ -22,9 +22,14 @@ export async function longRunningJob() {
   return await new Promise((resolve) => setTimeout(resolve, 1000))
 }
 
+export async function alwaysFail() {
+  throw new Error("This job always fails")
+}
+
 export const handlers: Handlers = {
   welcomeMessage,
   happyBirthdayMessage,
   promotionMessage,
   longRunningJob,
+  alwaysFail,
 }

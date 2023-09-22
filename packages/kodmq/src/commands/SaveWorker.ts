@@ -1,10 +1,6 @@
-import KodMQ, {
-  Active, Idle, Stopped, Stopping,
-  Worker,
-  WorkerCallbackName,
-  WorkerStatus,
-} from "~/src"
+import KodMQ, { Worker, WorkerCallbackName, WorkerStatus, Job } from "~/src"
 import Command from "~/src/commands/Command"
+import { Active, Idle, Stopped, Stopping } from "~/src/statuses"
 
 const StatusCallbacks: Record<WorkerStatus, WorkerCallbackName> = {
   [Idle]: "onWorkerIdle",
@@ -61,17 +57,17 @@ export class SaveWorker<TArgs extends SaveWorkerArgs = SaveWorkerArgs> extends C
   }
 
   async runCallbacks() {
-    await this.kodmq.runCallback("onWorkerChanged", this.worker)
+    await this.kodmq.runCallbacks("onWorkerChanged", this.worker)
 
     if (this.attributes?.status !== undefined) {
-      await this.kodmq.runCallback(
+      await this.kodmq.runCallbacks(
         StatusCallbacks[this.attributes.status],
         this.worker,
       )
     }
 
     if ("currentJob" in this.attributes) {
-      await this.kodmq.runCallback("onWorkerCurrentJobChanged", this.worker)
+      await this.kodmq.runCallbacks("onWorkerCurrentJobChanged", this.worker, this.attributes.currentJob as Job)
     }
   }
 }

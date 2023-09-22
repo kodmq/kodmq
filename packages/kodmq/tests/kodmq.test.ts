@@ -1,6 +1,6 @@
 import { handlers } from "./handlers"
+import KodMQ from "~/src"
 import RedisAdapter from "~/src/adapters/RedisAdapter"
-import KodMQ from "~/src/KodMQ"
 import { Active, Completed, Pending, Scheduled } from "~/src/statuses"
 
 describe("KodMQ", () => {
@@ -188,5 +188,45 @@ describe("KodMQ", () => {
     expect(pendingJobs.length).toBe(0)
     expect(completedJobs.length).toBe(1)
     expect(completedJobs[0].id).toBe(job.id)
+  })
+
+  it("runs callbacks", async () => {
+    const onJobActive = jest.fn()
+    const onJobActiveSecond = jest.fn()
+    const onScheduleJobRetry = jest.fn()
+    const onWorkerIdle = jest.fn()
+    const onWorkerCurrentJobChanged = jest.fn()
+
+    const kodmq = new KodMQ({
+      handlers,
+
+      callbacks: {
+        onJobActive: [onJobActive],
+        onScheduleJobRetry: [onScheduleJobRetry],
+        onWorkerIdle: [onWorkerIdle],
+        onWorkerCurrentJobChanged: [onWorkerCurrentJobChanged],
+      },
+
+      maxRetries: 1,
+    })
+
+    kodmq.on("onJobActive", onJobActiveSecond)
+    await kodmq.performJob("alwaysFail")
+
+    expect(onJobActive).toHaveBeenCalledTimes(0)
+    expect(onJobActiveSecond).toHaveBeenCalledTimes(0)
+    expect(onScheduleJobRetry).toHaveBeenCalledTimes(0)
+    expect(onWorkerIdle).toHaveBeenCalledTimes(0)
+    expect(onWorkerCurrentJobChanged).toHaveBeenCalledTimes(0)
+
+    setTimeout(() => kodmq.start(), 1)
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    await kodmq.stopAllAndCloseConnection()
+
+    expect(onJobActive).toHaveBeenCalledTimes(1)
+    expect(onJobActiveSecond).toHaveBeenCalledTimes(1)
+    expect(onScheduleJobRetry).toHaveBeenCalledTimes(1)
+    expect(onWorkerIdle).toHaveBeenCalledTimes(1)
+    expect(onWorkerCurrentJobChanged).toHaveBeenCalledTimes(2)
   })
 })

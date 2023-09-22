@@ -15,6 +15,7 @@
     "build": "parcel build --no-cache"
   },
   "devDependencies": {
+    "@types/node": "20.6.2",
     "dev-config": "workspace:*"
   },
   "peerDependencies": {

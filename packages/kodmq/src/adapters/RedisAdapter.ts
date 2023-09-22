@@ -1,7 +1,7 @@
 import Redis, { RedisOptions } from "ioredis"
+import { GetJobsOptions, GetWorkersOptions } from "~/src"
 import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "~/src/adapters/Adapter"
 import { KodMQAdapterError, KodMQError } from "~/src/errors"
-import { GetJobsOptions, GetWorkersOptions } from "~/src/KodMQ"
 import { Job, Worker, ID } from "~/src/types"
 
 type JobTuple = [
@@ -115,14 +115,6 @@ export default class RedisAdapter extends Adapter {
    */
   async pushJob(job: Job) {
     try {
-      const serialized = await this.serializeJob(job)
-
-      await this.add(
-        JobsKey,
-        job.id,
-        serialized
-      )
-
       await this.add(
         job.runAt ? JobsScheduledKey : JobsQueueKey,
         job.runAt ? job.runAt.getTime() : job.id,

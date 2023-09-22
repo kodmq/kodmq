@@ -41,7 +41,7 @@ export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {
     const failedAttempts = this.failedAttempts
     const maxRetries = this.kodmq.config.maxRetries || 0
 
-    if (failedAttempts < maxRetries) return
+    if (failedAttempts <= maxRetries) return
 
     throw new KodMQError(`Job failed ${failedAttempts} times, max failed attempts reached`)
   }
@@ -78,6 +78,6 @@ export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {
     }
 
     await this.kodmq.adapter.pushJob(this.newJob)
-    await this.kodmq.runCallback("onScheduleJobRetry", this.newJob)
+    await this.kodmq.runCallbacks("onScheduleJobRetry", this.newJob, this.retryAt!)
   }
 }

@@ -1,3 +1,4 @@
+import Adapter from "~/src/adapters/Adapter"
 import { JobStatuses, WorkerStatuses } from "~/src/statuses"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,7 +18,6 @@ export type JobCallbackName =
   | "onJobCompleted"
   | "onJobFailed"
   | "onJobChanged"
-  | "onScheduleJobRetry"
 
 export type WorkerCallback = (worker: Worker) => void | Promise<void>
 export type WorkerCallbackName =
@@ -26,13 +26,30 @@ export type WorkerCallbackName =
   | "onWorkerStopping"
   | "onWorkerStopped"
   | "onWorkerChanged"
+
+export type CallbackName =
+  | JobCallbackName
+  | "onScheduleJobRetry"
+
+  | WorkerCallbackName
   | "onWorkerCurrentJobChanged"
 
-export type Callbacks = {
-  [K in JobCallbackName]?: JobCallback
+export type CallbacksMap = {
+  [key in JobCallbackName]: JobCallback
 } & {
-  [K in WorkerCallbackName]?: WorkerCallback
+  [key in WorkerCallbackName]: WorkerCallback
+} & {
+  onScheduleJobRetry: (job: Job, retryAt: Date) => void | Promise<void>
+  onWorkerCurrentJobChanged: (worker: Worker, job: Job) => void | Promise<void>
 }
+
+export type Callbacks = Partial<{
+  [key in CallbackName]: CallbacksMap[key][]
+}>
+
+// Make sure Callbacks has all the keys from CallbackName
+// eslint-disable-next-line unused-imports/no-unused-vars
+const CallbacksCheck: CallbackName extends StringKeyOf<Callbacks> ? true : false = true
 
 export type JobName = string
 export type JobPayload = AllowedAny
@@ -62,4 +79,16 @@ export type Job<T extends JobPayload = AllowedAny> = {
   errorMessage?: string
   errorStack?: string
   retryJobId?: ID
+}
+
+export type Config<
+  THandlers extends Handlers = Handlers,
+> = {
+  adapter?: Adapter
+  handlers?: THandlers
+  callbacks?: Callbacks
+
+  maxRetries?: number
+  retryDelay?: number | number[] | ((job: Job) => number)
+  retryType?: "fixed" | "exponential"
 }

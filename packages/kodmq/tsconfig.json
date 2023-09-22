@@ -14,6 +14,7 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "types": [
+      "node",
       "jest"
     ],
     "baseUrl": ".",
