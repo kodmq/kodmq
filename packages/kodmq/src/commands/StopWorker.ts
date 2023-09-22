@@ -1,9 +1,10 @@
-import KodMQ, { Active, ReadableStatuses, Stopped, Stopping, Worker } from "~/src"
+import KodMQ, { Active, Killed, Pending, ReadableStatuses, Stopped, Stopping, Worker } from "~/src"
 import Command from "~/src/commands/Command"
+import { SaveJob } from "~/src/commands/SaveJob"
 import { SaveWorker } from "~/src/commands/SaveWorker"
 import { KodMQError } from "~/src/errors"
 
-const StopTimeout = 30 * 1000
+const DefaultStopTimeout = 30 * 1000
 const StopPollingInterval = 100
 
 export type StartWorkerArgs<
@@ -44,7 +45,7 @@ export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
 
   async setStatusToStopping() {
     const { worker } = await SaveWorker.run({
-      worker: this.worker,
+      workerId: this.worker.id,
       attributes: { status: Stopping },
       kodmq: this.kodmq,
     })
@@ -61,9 +62,29 @@ export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
       if (!this.worker || this.worker.status === Stopped) break
 
       const waitDuration = Date.now() - waitStartedAt
-      if (waitDuration > StopTimeout) {
-        // TODO: Move current job to pending
-        throw new KodMQError(`Worker ${this.worker.id} is not stopped after ${StopTimeout}ms`)
+      const stopTimeout = this.kodmq.config.stopTimeout ?? DefaultStopTimeout
+
+      if (waitDuration > stopTimeout) {
+        // TODO: Maybe we should requeue the job earlier when settings status to stopping and then remove it if it was stopped successfully
+        // We can't just requeue job earlier as it would be immediately picked up by another worker
+        // We need to create a temporary queue for such jobs (?)
+        if (this.worker.currentJob) {
+          const { job } = await SaveJob.run({
+            jobId: this.worker.currentJob.id,
+            attributes: { status: Pending },
+            kodmq: this.kodmq,
+          })
+
+          await this.kodmq.adapter.prependJobToQueue(job.id)
+        }
+
+        await SaveWorker.run({
+          workerId: this.worker.id,
+          attributes: { status: Killed },
+          kodmq: this.kodmq,
+        })
+
+        throw new KodMQError(`Worker ${this.worker.id} is not stopped after ${stopTimeout}ms`)
       }
 
       await new Promise((resolve) => setTimeout(resolve, StopPollingInterval))

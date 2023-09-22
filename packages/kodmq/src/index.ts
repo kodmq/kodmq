@@ -89,12 +89,12 @@ class KodMQ<THandlers extends Handlers = Handlers> {
       })
 
       await SaveJob.run({
-        job,
-        attributes: job, // We include attributes to trigger callbacks
+        jobId: job.id,
+        attributes: job,
         kodmq: this,
       })
 
-      await this.adapter.pushJob(job)
+      await this.adapter.pushJobToQueue(job.id, runAt)
       return job
     } catch (e) {
       if (e instanceof KodMQError) throw e
@@ -172,8 +172,8 @@ class KodMQ<THandlers extends Handlers = Handlers> {
         this.workers.push(worker)
 
         await SaveWorker.run({
-          worker,
-          attributes: worker, // We include attributes to trigger callbacks
+          workerId: worker.id,
+          attributes: worker,
           kodmq: this,
         })
 
@@ -239,10 +239,11 @@ class KodMQ<THandlers extends Handlers = Handlers> {
       }
 
       await Promise.all(promises)
-      await this.adapter.closeConnection()
     } catch (e) {
       if (e instanceof KodMQError) throw e
       throw new KodMQError("Failed to stop queue", e as Error)
+    } finally {
+      await this.adapter.closeConnection()
     }
   }
 

@@ -1,4 +1,4 @@
-import KodMQ, { Worker, WorkerCallbackName, WorkerStatus, Job } from "~/src"
+import KodMQ, { Worker, WorkerCallbackName, WorkerStatus, Job, Killed, ID } from "~/src"
 import Command from "~/src/commands/Command"
 import { Active, Idle, Stopped, Stopping } from "~/src/statuses"
 
@@ -7,24 +7,26 @@ const StatusCallbacks: Record<WorkerStatus, WorkerCallbackName> = {
   [Active]: "onWorkerActive",
   [Stopping]: "onWorkerStopping",
   [Stopped]: "onWorkerStopped",
+  [Killed]: "onWorkerKilled",
 }
 
 export type SaveWorkerArgs<
   TWorker extends Worker = Worker,
   TKodMQ extends KodMQ = KodMQ,
 > = {
-  worker: TWorker,
+  workerId: ID,
   attributes: Partial<TWorker>,
   kodmq: TKodMQ,
 }
 
 export class SaveWorker<TArgs extends SaveWorkerArgs = SaveWorkerArgs> extends Command<TArgs> {
-  worker: TArgs["worker"]
+  workerId: TArgs["workerId"]
+  worker: Worker
   attributes: TArgs["attributes"]
   kodmq: TArgs["kodmq"]
 
   steps = [
-    "retrieveLatestState",
+    "getLatestState",
     "updateObject",
     "saveToAdapter",
     "runCallbacks",
@@ -36,16 +38,17 @@ export class SaveWorker<TArgs extends SaveWorkerArgs = SaveWorkerArgs> extends C
     super(args)
     this.verify()
 
-    this.worker = args.worker
+    this.workerId = args.workerId
+    this.worker = {} as Worker
     this.attributes = args.attributes
     this.kodmq = args.kodmq
   }
 
-  async retrieveLatestState() {
-    const latestWorkerState = await this.kodmq.adapter.getWorker(this.worker.id) as TArgs["worker"]
-    if (!latestWorkerState) return
+  async getLatestState() {
+    const worker = await this.kodmq.adapter.getWorker(this.workerId)
+    if (!worker) return
 
-    this.worker = latestWorkerState
+    this.worker = worker
   }
 
   async updateObject() {

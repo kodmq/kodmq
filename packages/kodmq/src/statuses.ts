@@ -8,6 +8,7 @@ export const Failed = 4
 export const Idle = 5
 export const Stopping = 6
 export const Stopped = 7
+export const Killed = 8
 
 export const Statuses = {
   Pending,
@@ -33,6 +34,7 @@ export const WorkerStatuses = [
   Active,
   Stopping,
   Stopped,
+  Killed,
 ] as const
 
 export const ReadableStatuses: Record<Status, string> = {
@@ -44,6 +46,7 @@ export const ReadableStatuses: Record<Status, string> = {
   [Idle]: "Idle",
   [Stopping]: "Stopping",
   [Stopped]: "Stopped",
+  [Killed]: "Killed",
 }
 
 export const ReadableJobStatuses = JobStatuses.reduce((acc, status) => {

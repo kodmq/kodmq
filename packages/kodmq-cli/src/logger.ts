@@ -3,6 +3,9 @@ import chalk, { ForegroundColorName } from "chalk"
 
 const GlobalPrefix = "[KodMQ]"
 const GlobalPrefixLength = GlobalPrefix.length
+const GlobalPrefixColor: ForegroundColorName = "blueBright"
+
+type Prefix = string | [ForegroundColorName, string]
 
 export function log(...messages: unknown[]) {
   console.log(
@@ -13,12 +16,12 @@ export function log(...messages: unknown[]) {
 
 export function logWithPrefix(...messages: unknown[]) {
   console.log(
-    chalk.blueBright(GlobalPrefix),
+    chalk[GlobalPrefixColor](GlobalPrefix),
     ...messages,
   )
 }
 
-export function logWithMultiplePrefixes(prefix: string | [ForegroundColorName, string], ...messages: unknown[]) {
+export function logWithMultiplePrefixes(prefix: Prefix, ...messages: unknown[]) {
   const [color, text] = Array.isArray(prefix) ? prefix : ["gray", prefix]
 
   console.log(
@@ -49,4 +52,21 @@ export function logError(...messages: unknown[]) {
 
 export function logPlain(...messages: unknown[]) {
   console.log(...messages)
+}
+
+export function logTimeline(prefix: Prefix | Prefix[] | null, ...messages: unknown[]) {
+  const prefixes = []
+
+  prefixes.push(chalk[GlobalPrefixColor](GlobalPrefix))
+  prefixes.push(chalk.gray(`[${new Date().toLocaleTimeString()}]`))
+
+  if (prefix !== null) {
+    const [color, text] = Array.isArray(prefix) ? prefix : ["gray", prefix]
+    prefixes.push(chalk[color as ForegroundColorName](`[${text}]`))
+  }
+
+  console.log(
+    ...prefixes,
+    ...messages,
+  )
 }

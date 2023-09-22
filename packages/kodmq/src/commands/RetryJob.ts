@@ -77,7 +77,7 @@ export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {
       failedAttempts: this.failedAttempts,
     }
 
-    await this.kodmq.adapter.pushJob(this.newJob)
+    await this.kodmq.adapter.pushJobToQueue(this.newJob.id, this.newJob.runAt)
     await this.kodmq.runCallbacks("onScheduleJobRetry", this.newJob, this.retryAt!)
   }
 }

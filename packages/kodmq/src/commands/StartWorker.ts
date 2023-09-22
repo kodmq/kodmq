@@ -41,7 +41,7 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
 
   async setStatusToActive() {
     const { worker } = await SaveWorker.run({
-      worker: this.worker,
+      workerId: this.worker.id,
       attributes: {
         status: Active,
         startedAt: new Date(),
@@ -72,7 +72,7 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
 
   async setStatusToStopped() {
     const { worker } = await SaveWorker.run({
-      worker: this.worker,
+      workerId: this.worker.id,
       attributes: {
         status: Stopped,
         stoppedAt: new Date(),

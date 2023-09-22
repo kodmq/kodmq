@@ -6,6 +6,8 @@ import { Job, Worker, ID } from "~/src/types"
 
 type JobTuple = [
   Job["id"],
+  Job["workerId"],
+  Job["retryJobId"],
   Job["status"],
   Job["name"],
   Job["payload"],
@@ -16,7 +18,6 @@ type JobTuple = [
   Job["failedAttempts"],
   Job["errorMessage"],
   Job["errorStack"],
-  Job["retryJobId"],
 ]
 
 type WorkerTuple = [
@@ -100,32 +101,39 @@ export default class RedisAdapter extends Adapter {
     }
   }
 
-  async removeJob(job: Job) {
-    try {
-      await this.remove(JobsKey, job.id)
-    } catch (e) {
-      throw new KodMQAdapterError("Cannot remove job", e as Error)
-    }
-  }
-
-  /**
-   * Push a job to the queue
-   *
-   * @param job
-   */
-  async pushJob(job: Job) {
+  async pushJobToQueue(id: ID, runAt?: Date) {
     try {
       await this.add(
-        job.runAt ? JobsScheduledKey : JobsQueueKey,
-        job.runAt ? job.runAt.getTime() : job.id,
-        job.id,
+        runAt ? JobsScheduledKey : JobsQueueKey,
+        runAt ? runAt.getTime() : id,
+        id,
       )
     } catch (e) {
       throw new KodMQAdapterError("Cannot push job to queue", e as Error)
     }
   }
 
-  async popJob() {
+  async prependJobToQueue(id: ID) {
+    try {
+      const [score] = await this.getAllWithScore(JobsQueueKey, "-inf", "+inf", 0, 1)
+      await this.add(JobsQueueKey, (Number(score) || 1) - 1, id)
+    } catch (e) {
+      throw new KodMQAdapterError("Cannot prepend job to queue", e as Error)
+    }
+  }
+
+  async removeJobFromQueue(job: Job) {
+    try {
+      await this.remove(
+        JobsQueueKey,
+        job.runAt ? job.runAt.getTime() : job.id,
+      )
+    } catch (e) {
+      throw new KodMQAdapterError("Cannot remove job from queue", e as Error)
+    }
+  }
+
+  async popJobFromQueue() {
     try {
       const [scheduledJobId, score] = await this.getAllWithScore(
         JobsScheduledKey,
@@ -159,7 +167,7 @@ export default class RedisAdapter extends Adapter {
         // FIXME: This is hack to avoid picking the same job by multiple workers
         // await new Promise((resolve) => setTimeout(resolve, Math.random() * 30))
 
-        const job = await this.popJob()
+        const job = await this.popJobFromQueue()
         if (!job) continue
 
         await handler(job)
@@ -174,6 +182,8 @@ export default class RedisAdapter extends Adapter {
     try {
       const jobTuple: JobTuple = [
         job.id,
+        job.workerId,
+        job.retryJobId,
         job.status,
         job.name,
         job.payload,
@@ -184,7 +194,6 @@ export default class RedisAdapter extends Adapter {
         job.failedAttempts,
         job.errorMessage,
         job.errorStack,
-        job.retryJobId,
       ]
 
       return JSON.stringify(jobTuple)
@@ -197,6 +206,8 @@ export default class RedisAdapter extends Adapter {
     try {
       const [
         id,
+        workerId,
+        retryJobId,
         status,
         name,
         payload,
@@ -207,11 +218,12 @@ export default class RedisAdapter extends Adapter {
         failedAttempts,
         errorMessage,
         errorStack,
-        retryJobId,
       ] = JSON.parse(serialized) as JobTuple
 
       return {
         id,
+        workerId,
+        retryJobId,
         status,
         name,
         payload,
@@ -222,7 +234,6 @@ export default class RedisAdapter extends Adapter {
         failedAttempts,
         errorMessage,
         errorStack,
-        retryJobId,
       }
     } catch (e) {
       throw new KodMQAdapterError("Cannot deserialize job", e as Error)
@@ -276,14 +287,6 @@ export default class RedisAdapter extends Adapter {
       await this.add(WorkersKey, worker.id, serialized)
     } catch (e) {
       throw new KodMQAdapterError("Cannot save worker", e as Error)
-    }
-  }
-
-  async removeWorker(worker: Worker) {
-    try {
-      await this.remove(WorkersKey, worker.id)
-    } catch (e) {
-      throw new KodMQAdapterError("Cannot delete worker", e as Error)
     }
   }
 

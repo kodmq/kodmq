@@ -1,4 +1,4 @@
-import KodMQ, { JobCallbackName, JobStatus, Job } from "~/src"
+import KodMQ, { JobCallbackName, JobStatus, Job, ID } from "~/src"
 import Command from "~/src/commands/Command"
 import { Active, Completed, Failed, Pending, Scheduled } from "~/src/statuses"
 
@@ -14,18 +14,19 @@ export type SaveJobArgs<
   TJob extends Job = Job,
   TKodMQ extends KodMQ = KodMQ,
 > = {
-  job: TJob
+  jobId: ID
   attributes?: Partial<TJob>
   kodmq: TKodMQ
 }
 
 export class SaveJob<TArgs extends SaveJobArgs> extends Command<TArgs> {
-  job: TArgs["job"]
+  jobId: TArgs["jobId"]
+  job: Job
   attributes?: TArgs["attributes"]
   kodmq: TArgs["kodmq"]
 
   steps = [
-    "retrieveLatestState",
+    "getLatestState",
     "updateObject",
     "saveToAdapter",
     "runCallbacks",
@@ -35,16 +36,17 @@ export class SaveJob<TArgs extends SaveJobArgs> extends Command<TArgs> {
     super(args)
     this.verify()
 
-    this.job = args.job
+    this.jobId = args.jobId
+    this.job = {} as Job
     this.attributes = args.attributes
     this.kodmq = args.kodmq
   }
 
-  async retrieveLatestState() {
-    const latestJobState = await this.kodmq.adapter.getJob(this.job.id) as TArgs["job"]
-    if (!latestJobState) return
+  async getLatestState() {
+    const job = await this.kodmq.adapter.getJob(this.jobId)
+    if (!job) return
 
-    this.job = latestJobState
+    this.job = job
   }
 
   updateObject() {
@@ -54,16 +56,16 @@ export class SaveJob<TArgs extends SaveJobArgs> extends Command<TArgs> {
   }
   
   async saveToAdapter() {
-    await this.kodmq.adapter.saveJob(this.job)
+    await this.kodmq.adapter.saveJob(this.job!)
   }
   
   async runCallbacks() {
-    await this.kodmq.runCallbacks("onJobChanged", this.job)
+    await this.kodmq.runCallbacks("onJobChanged", this.job!)
 
     if (this.attributes?.status !== undefined) {
       await this.kodmq.runCallbacks(
         StatusCallbacks[this.attributes.status],
-        this.job,
+        this.job!,
       )
     }
   }

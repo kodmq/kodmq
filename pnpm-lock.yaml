@@ -81,12 +81,18 @@ importers:
         specifier: ^5.0.0
         version: 5.2.2
     devDependencies:
+      '@types/node':
+        specifier: 20.6.2
+        version: 20.6.2
       dev-config:
         specifier: workspace:*
         version: link:../dev-config
 
   packages/kodmq-cli:
     dependencies:
+      bun-types:
+        specifier: ^1.0.2
+        version: 1.0.2
       chalk:
         specifier: ^5.3.0
         version: 5.3.0
@@ -96,10 +102,16 @@ importers:
       kodmq:
         specifier: workspace:*
         version: link:../kodmq
+      node-graceful-shutdown:
+        specifier: ^1.1.5
+        version: 1.1.5
       typescript:
         specifier: ^5.0.0
         version: 5.2.2
     devDependencies:
+      '@types/node':
+        specifier: 20.6.2
+        version: 20.6.2
       dev-config:
         specifier: workspace:*
         version: link:../dev-config
@@ -3037,6 +3049,10 @@ packages:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
     dev: true
 
+  /bun-types@1.0.2:
+    resolution: {integrity: sha512-yqBp2SX9cqr5/GReb56uCfM+YP+Hntx3XPjbqX1VJXqOBu+Yqw8iWRFLKFIsz9uEfykLgflhramQ8a5Jgo+Tlg==}
+    dev: false
+
   /busboy@1.6.0:
     resolution: {integrity: sha512-8SFQbg/0hQ9xy3UNTB0YEnsNBbWfhf7RtnzpL7TkBiTBRfrQ9Fxcnz7VJsleJpyp6rVLvXiuORqjlHi5q+PYuA==}
     engines: {node: '>=10.16.0'}
@@ -5260,6 +5276,11 @@ packages:
   /node-addon-api@7.0.0:
     resolution: {integrity: sha512-vgbBJTS4m5/KkE16t5Ly0WW9hz46swAstv0hYYwMtbG7AznRhNyfLRe8HZAiWIpcHzoO7HxhLuBQj9rJ/Ho0ZA==}
     dev: true
+
+  /node-graceful-shutdown@1.1.5:
+    resolution: {integrity: sha512-tlz8XpPr+pqrEGWFNLtMwd0HdFsCAKp5NCmMvwcTZTA0hyrVd7gkKbivDcSM5uYB1331/cEjNTtmVtqKy8OSBw==}
+    engines: {node: '>=6'}
+    dev: false
 
   /node-gyp-build-optional-packages@5.0.6:
     resolution: {integrity: sha512-2ZJErHG4du9G3/8IWl/l9Bp5BBFy63rno5GVmjQijvTuUZKsl6g8RB4KH/x3NLcV5ZBb4GsXmAuTYr6dRml3Gw==}

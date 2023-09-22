@@ -2,8 +2,17 @@ import { resolve } from "path"
 import * as process from "process"
 import chalk from "chalk"
 import { program } from "commander"
-import KodMQ from "kodmq/src"
-import { log, logBlankLine, logError, logPlain, logWithCheckmark, logWithPrefix } from "./logger.ts"
+import KodMQ from "kodmq"
+import {
+  log,
+  logBlankLine,
+  logError, logTimeline,
+  logPlain,
+  logWithCheckmark,
+  logWithPrefix,
+} from "./logger.ts"
+import { formatDuration, formatJobPayload, formatName } from "./utils.ts"
+import { onShutdown } from "node-graceful-shutdown"
 
 program
   .name("kodmq-cli")
@@ -11,6 +20,7 @@ program
   .version("0.5.0")
   .argument("[path]", "Path to KodMQ file (defaults to KODMQ_PATH environment variable, then ./jobs/index.(ts|js))")
   .option("-c, --concurrency <number>", "Number of jobs to run concurrently (defaults to KODMQ_CONCURRENCY environment variable, then 1)")
+  .exitOverride()
   .parse()
 
 const args = program.args
@@ -89,18 +99,53 @@ const concurrency =  [
   1,
 ].find((c) => c !== undefined)
 
-logWithCheckmark("Starting KodMQ with concurrency", chalk.bold.yellowBright(concurrency))
+logWithCheckmark("Starting KodMQ with concurrency", chalk.yellowBright(concurrency))
+logBlankLine()
 
-// Handle exit
-const handleExit = async () => {
-  logWithPrefix("Stopping...")
-  await kodmq?.stop()
-  process.exit(0)
-}
+kodmq.on("onWorkerActive", (worker) => {
+  logTimeline(`Worker #${worker.id}`, "Worker is active and waiting for jobs")
+})
 
-process.on("SIGINT", handleExit)
-process.on("SIGQUIT", handleExit)
-process.on("SIGTERM", handleExit)
+kodmq.on("onWorkerStopping", (worker) => {
+  logTimeline(`Worker #${worker.id}`, "Worker is stopping")
+})
+
+kodmq.on("onWorkerStopped", (worker) => {
+  logTimeline(`Worker #${worker.id}`, "Worker has stopped")
+})
+
+kodmq.on("onWorkerKilled", (worker) => {
+  if (worker.currentJob) {
+    logTimeline(`Worker #${worker.id}`, `Worker has been killed. Job #${worker.currentJob.id} ${formatName(worker.currentJob.name)} has been requeued`)
+  } else {
+    logTimeline(`Worker #${worker.id}`, "Worker has been killed")
+  }
+})
+
+kodmq.on("onJobPending", (job) => {
+  logTimeline(`Job #${job.id}`, `Queued ${formatName(job.name)}${formatJobPayload(job.payload)}`)
+})
+
+kodmq.on("onJobScheduled", (job) => {
+  logTimeline(`Job #${job.id}`, `Scheduled ${formatName(job.name)} to run in ${formatDuration(new Date(), job.runAt, "greenBright")}${formatJobPayload(job.payload)}`)
+})
+
+kodmq.on("onJobActive", (job) => {
+  logTimeline(`Job #${job.id}`, `Running ${formatName(job.name)}…`)
+})
+
+kodmq.on("onJobCompleted", (job) => {
+  logTimeline(`Job #${job.id}`, `Completed ${formatName(job.name)} in ${formatDuration(job.startedAt, job.finishedAt, "greenBright")}`)
+})
+
+kodmq.on("onJobFailed", (job) => {
+  logTimeline(`Job #${job.id}`, `Failed ${formatName(job.name)} in ${formatDuration(job.startedAt, job.failedAt, "redBright")}`)
+})
+
+onShutdown(async () => {
+  logTimeline("Bye", "Stopping KodMQ")
+  await kodmq?.stopAllAndCloseConnection()
+})
 
 try {
   await kodmq.start(concurrency)

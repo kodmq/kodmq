@@ -25,6 +25,7 @@ export type WorkerCallbackName =
   | "onWorkerActive"
   | "onWorkerStopping"
   | "onWorkerStopped"
+  | "onWorkerKilled"
   | "onWorkerChanged"
 
 export type CallbackName =
@@ -68,6 +69,8 @@ export type Worker = {
 
 export type Job<T extends JobPayload = AllowedAny> = {
   id: ID
+  workerId?: ID
+  retryJobId?: ID
   status: JobStatus
   name: JobName
   payload: T
@@ -78,7 +81,6 @@ export type Job<T extends JobPayload = AllowedAny> = {
   failedAttempts?: number
   errorMessage?: string
   errorStack?: string
-  retryJobId?: ID
 }
 
 export type Config<
@@ -91,4 +93,6 @@ export type Config<
   maxRetries?: number
   retryDelay?: number | number[] | ((job: Job) => number)
   retryType?: "fixed" | "exponential"
+
+  stopTimeout?: number
 }

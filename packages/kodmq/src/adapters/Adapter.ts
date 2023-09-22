@@ -31,23 +31,31 @@ export default abstract class Adapter {
   abstract saveJob(job: Job): Promise<void>
 
   /**
-   * Delete a job from the database
-   *
-   * @param job
-   */
-  abstract removeJob(job: Job): Promise<void>
-
-  /**
    * Push a job to the queue
    *
+   * @param id
+   * @param runAt
+   */
+  abstract pushJobToQueue(id: ID, runAt?: Date): Promise<void>
+
+  /**
+   * Prepend a job to the queue
+   *
+   * @param id
+   */
+  abstract prependJobToQueue(id: ID): Promise<void>
+
+  /**
+   * Remove a jobs from the queue
+   *
    * @param job
    */
-  abstract pushJob(job: Job): Promise<void>
+  abstract removeJobFromQueue(job: Job): Promise<void>
 
   /**
    * Pop a job from the queue (including scheduled jobs)
    */
-  abstract popJob(): Promise<Job | null>
+  abstract popJobFromQueue(): Promise<Job | null>
 
   /**
    * Subscribe to new jobs. It should be used to retrieve and run jobs from the queue.
@@ -77,13 +85,6 @@ export default abstract class Adapter {
    * @param worker
    */
   abstract saveWorker(worker: Worker): Promise<void>
-
-  /**
-   * Delete a worker from the database
-   *
-   * @param worker
-   */
-  abstract removeWorker(worker: Worker): Promise<void>
 
   /**
    * Erase all data from the database

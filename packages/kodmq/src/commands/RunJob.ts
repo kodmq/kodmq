@@ -56,8 +56,9 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
 
   async setStatusToActive() {
     const { job } = await SaveJob.run({
-      job: this.job,
-      attributes: { 
+      jobId: this.job.id,
+      attributes: {
+        workerId: this.worker.id,
         status: Active,
         startedAt: new Date(),
       },
@@ -69,7 +70,7 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
 
   async setWorkerCurrentJob() {
     const { worker } = await SaveWorker.run({
-      worker: this.worker,
+      workerId: this.worker.id,
       attributes: { currentJob: this.job },
       kodmq: this.kodmq,
     })
@@ -99,7 +100,7 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
     if (!this.worker.currentJob) return
 
     const { worker } = await SaveWorker.run({
-      worker: this.worker,
+      workerId: this.worker.id,
       attributes: { currentJob: undefined },
       kodmq: this.kodmq,
     })
@@ -109,7 +110,7 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
 
   async setStatusToCompleted() {
     const { job } = await SaveJob.run({
-      job: this.job,
+      jobId: this.job.id,
       attributes: {
         status: Completed,
         finishedAt: new Date(),
@@ -124,7 +125,7 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
     if (!this.isFailed) return
 
     const { job } = await SaveJob.run({
-      job: this.job,
+      jobId: this.job.id,
       attributes: {
         status: Failed,
         failedAt: new Date(),
@@ -150,7 +151,7 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
     if (!newJob) return
 
     const { job } = await SaveJob.run({
-      job: this.job,
+      jobId: this.job.id,
       attributes: { retryJobId: newJob.id },
       kodmq: this.kodmq,
     })
