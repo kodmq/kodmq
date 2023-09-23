@@ -1,12 +1,13 @@
 <div style="text-align: center;">
-  ![KodMQ Logo](./apps/web/src/images/logo-dark.png#gh-dark-mode-only) <!-- width="256" height="256" -->
+  <picture>
+    <source srcset="./apps/web/src/images/logo-light.png" media="(prefers-color-scheme: light)" />
+    <source srcset="./apps/web/src/images/logo-dark.png" media="(prefers-color-scheme: dark)" />
+    <img src="./apps/web/src/images/logo-light.png" alt="KodMQ Logo" width="256" height="256" />
 </div>
 
-<div style="text-align: center;">
-  ![KodMQ Logo](./apps/web/src/images/logo-light.png#gh-light-mode-only) <!-- width="256" height="256" -->
-</div>
+# KodMQ
 
-# KodMQ <sub><sup>Because development must be simple</sup></sub>
+💛 Because development must be simple
 
 ## What is KodMQ?
 
