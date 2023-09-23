@@ -3,33 +3,64 @@ layout: ../layouts/Layout.astro
 title: KodMQ
 ---
 
-# KodMQ
+<h1 className="text-center font-black">
+  KodMQ
+</h1>
 
 ## Getting Started
 
+In this example, we will create a simple worker that sends an email.
+
 ### Installation
 
-This is text
+1. Install packages
 
-```bash
-npm install kodmq kodmq-ui
-yarn install kodmq kodmq-ui
-pnpm install kodmq kodmq-ui
-```
+    ```bash
+    pnpm install kodmq kodmq-ui
+    ```
 
-### Usage
+2. Create file `./jobs/index.ts`
 
-```tsx
-import KodMQ from "kodmq"
-import kodmqLauncher from "kodmq/launcher"
+    ```ts
+    import KodMQ, { Handlers } from "kodmq"
 
-const kodmq = new KodMQ({
-  handlers: {
-    sendEmail: async ({ to, subject, body }) => {
-      // Logic to send email
-    },
-  }
-})
+    const handlers: Handlers = {
+      sendEmail: async ({ to, subject, body }) => {
+        // Logic to send email
+      },
+    }
 
-await kodmqLauncher(kodmq)
-```
+    const kodmq = new KodMQ({ handlers })
+
+    export default kodmq
+    ```
+
+3. Create file `./jobs/launch.ts`
+
+    ```ts
+    import kodmq from "./index"
+    import kodmqLauncher from "kodmq/launcher"
+
+    await kodmqLauncher(kodmq)
+    ```
+
+4. Add these scripts to your `package.json`
+
+    ```json5
+    {
+      // ...
+      "scripts": {
+        "workers": "ts-node ./jobs/launch.ts",
+        "workers:ui": "kodmq-ui"
+      },
+      // ...
+    }
+    ```
+
+4. Launch your workers 🎉
+
+    ```bash
+    pnpm run workers
+    pnpm run workers:ui
+    ```
+

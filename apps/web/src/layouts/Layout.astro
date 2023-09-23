@@ -18,11 +18,9 @@ const { title, description } = Astro.props;
 		<title>{title}</title>
 	</head>
 	<body class="text-sans antialiased py-24 bg-neutral-950 text-neutral-100 px-4">
-		<div class="container mx-auto">
-			<div class="prose prose-invert">
-				<slot />
-			</div>
-		</div>
+	<div class="prose prose-invert mx-auto">
+		<slot />
+	</div>
 	</body>
 </html>
 
