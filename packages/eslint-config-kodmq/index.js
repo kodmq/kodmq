@@ -10,6 +10,7 @@ module.exports = {
     "jest",
     "import",
     "unused-imports",
+    "import-newlines",
     "@typescript-eslint"
   ],
 
@@ -72,6 +73,10 @@ module.exports = {
           }
         }
       }
+    ],
+    "import-newlines/enforce": [
+      "error",
+      128
     ],
     "import/order": [
       "error",

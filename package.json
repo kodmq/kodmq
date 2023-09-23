@@ -2,6 +2,7 @@
   "name": "kodmq-monorepo",
   "private": true,
   "workspaces": [
+    "apps/*",
     "packages/*"
   ],
   "scripts": {

@@ -12,36 +12,36 @@ export type Handlers = Record<JobName, Handler>
 
 export type JobCallback = (job: Job) => void | Promise<void>
 export type JobCallbackName =
-  | "onJobPending"
-  | "onJobScheduled"
-  | "onJobActive"
-  | "onJobCompleted"
-  | "onJobFailed"
-  | "onJobChanged"
+  | "jobPending"
+  | "jobScheduled"
+  | "jobActive"
+  | "jobCompleted"
+  | "jobFailed"
+  | "jobChanged"
 
 export type WorkerCallback = (worker: Worker) => void | Promise<void>
 export type WorkerCallbackName =
-  | "onWorkerIdle"
-  | "onWorkerActive"
-  | "onWorkerStopping"
-  | "onWorkerStopped"
-  | "onWorkerKilled"
-  | "onWorkerChanged"
+  | "workerIdle"
+  | "workerActive"
+  | "workerStopping"
+  | "workerStopped"
+  | "workerKilled"
+  | "workerChanged"
 
 export type CallbackName =
   | JobCallbackName
-  | "onScheduleJobRetry"
+  | "scheduleJobRetry"
 
   | WorkerCallbackName
-  | "onWorkerCurrentJobChanged"
+  | "workerCurrentJobChanged"
 
 export type CallbacksMap = {
   [key in JobCallbackName]: JobCallback
 } & {
   [key in WorkerCallbackName]: WorkerCallback
 } & {
-  onScheduleJobRetry: (job: Job, retryAt: Date, failedJob: Job) => void | Promise<void>
-  onWorkerCurrentJobChanged: (worker: Worker, job: Job) => void | Promise<void>
+  scheduleJobRetry: (job: Job, retryAt: Date, failedJob: Job) => void | Promise<void>
+  workerCurrentJobChanged: (worker: Worker, job: Job) => void | Promise<void>
 }
 
 export type Callbacks = Partial<{

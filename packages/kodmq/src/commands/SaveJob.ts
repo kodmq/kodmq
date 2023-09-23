@@ -1,14 +1,14 @@
-import KodMQ from "../kodmq"
 import { Active, Completed, Failed, Pending, Scheduled } from "../constants"
+import KodMQ from "../kodmq"
 import { JobCallbackName, JobStatus, Job, ID } from "../types"
 import Command from "./Command"
 
 const StatusCallbacks: Record<JobStatus, JobCallbackName> = {
-  [Pending]: "onJobPending",
-  [Scheduled]: "onJobScheduled",
-  [Active]: "onJobActive",
-  [Completed]: "onJobCompleted",
-  [Failed]: "onJobFailed",
+  [Pending]: "jobPending",
+  [Scheduled]: "jobScheduled",
+  [Active]: "jobActive",
+  [Completed]: "jobCompleted",
+  [Failed]: "jobFailed",
 }
 
 export type SaveJobArgs<
@@ -61,7 +61,7 @@ export class SaveJob<TArgs extends SaveJobArgs> extends Command<TArgs> {
   }
   
   async runCallbacks() {
-    await this.kodmq.runCallbacks("onJobChanged", this.job!)
+    await this.kodmq.runCallbacks("jobChanged", this.job!)
 
     if (this.attributes?.status !== undefined) {
       await this.kodmq.runCallbacks(

@@ -1,6 +1,6 @@
+import { Scheduled } from "../constants"
 import { KodMQError } from "../errors"
 import KodMQ from "../kodmq"
-import { Scheduled } from "../constants"
 import { Job, Worker } from "../types"
 import Command from "./Command"
 
@@ -80,6 +80,6 @@ export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {
     }
 
     await this.kodmq.adapter.pushJobToQueue(this.newJob.id, this.newJob.runAt)
-    await this.kodmq.runCallbacks("onScheduleJobRetry", this.newJob, this.retryAt!, this.job)
+    await this.kodmq.runCallbacks("scheduleJobRetry", this.newJob, this.retryAt!, this.job)
   }
 }

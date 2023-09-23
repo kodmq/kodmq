@@ -5,8 +5,8 @@ import { SaveJob } from "./commands/SaveJob"
 import { SaveWorker } from "./commands/SaveWorker"
 import { StartWorker } from "./commands/StartWorker"
 import { StopWorker } from "./commands/StopWorker"
-import { KodMQError } from "./errors"
 import { Idle, Pending, Scheduled } from "./constants"
+import { KodMQError } from "./errors"
 import { Handlers, Job, StringKeyOf, Worker, Callbacks, ID, JobStatus, WorkerStatus, CallbacksMap, Config } from "./types"
 
 let DefaultConcurrency: number

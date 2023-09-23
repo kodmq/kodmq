@@ -38,19 +38,19 @@ export default async function launcher(kodmq: KodMQ, options: LaunchOptions = {}
   logger.logWithCheckmark("Starting KodMQ with concurrency", colorette.yellowBright(concurrency!.toString()))
   logger.logBlankLine()
 
-  kodmq.on("onWorkerActive", (worker) => {
+  kodmq.on("workerActive", (worker) => {
     logger.logTimeline(`Worker #${worker.id}`, "Worker is active and waiting for jobs")
   })
 
-  kodmq.on("onWorkerStopping", (worker) => {
+  kodmq.on("workerStopping", (worker) => {
     logger.logTimeline(`Worker #${worker.id}`, "Worker is stopping")
   })
 
-  kodmq.on("onWorkerStopped", (worker) => {
+  kodmq.on("workerStopped", (worker) => {
     logger.logTimeline(`Worker #${worker.id}`, "Worker has stopped")
   })
 
-  kodmq.on("onWorkerKilled", (worker) => {
+  kodmq.on("workerKilled", (worker) => {
     if (worker.currentJob) {
       logger.logTimeline(`Worker #${worker.id}`, `Worker has been killed. Job #${worker.currentJob.id} ${formatName(worker.currentJob.name)} has been requeued`)
     } else {
@@ -58,27 +58,27 @@ export default async function launcher(kodmq: KodMQ, options: LaunchOptions = {}
     }
   })
 
-  kodmq.on("onJobPending", (job) => {
+  kodmq.on("jobPending", (job) => {
     logger.logTimeline(`Job #${job.id}`, `Queued ${formatName(job.name)}${formatJobPayload(job.payload)}`)
   })
 
-  kodmq.on("onJobScheduled", (job) => {
+  kodmq.on("jobScheduled", (job) => {
     logger.logTimeline(`Job #${job.id}`, `Scheduled ${formatName(job.name)} to run in ${formatDuration(new Date(), job.runAt, "greenBright")}${formatJobPayload(job.payload)}`)
   })
 
-  kodmq.on("onJobActive", (job) => {
+  kodmq.on("jobActive", (job) => {
     logger.logTimeline(`Job #${job.id}`, `Running ${formatName(job.name)}…`)
   })
 
-  kodmq.on("onJobCompleted", (job) => {
+  kodmq.on("jobCompleted", (job) => {
     logger.logTimeline(`Job #${job.id}`, `Completed ${formatName(job.name)} in ${formatDuration(job.startedAt, job.finishedAt, "greenBright")}`)
   })
 
-  kodmq.on("onJobFailed", (job) => {
+  kodmq.on("jobFailed", (job) => {
     logger.logTimeline(`Job #${job.id}`, `Failed ${formatName(job.name)} in ${formatDuration(job.startedAt, job.failedAt, "redBright")}`)
   })
 
-  kodmq.on("onScheduleJobRetry", (job, retryAt, failedJob) => {
+  kodmq.on("scheduleJobRetry", (job, retryAt, failedJob) => {
     logger.logTimeline(`Job #${failedJob.id}`, `Retrying ${formatName(job.name)} with new ID #${job.id} in ${formatDuration(new Date(), retryAt, "yellowBright")}`)
   })
 

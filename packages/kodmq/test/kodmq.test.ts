@@ -1,6 +1,6 @@
 import RedisAdapter from "../src/adapters/RedisAdapter"
-import KodMQ from "../src/kodmq"
 import { Active, Completed, Pending, Scheduled } from "../src/constants"
+import KodMQ from "../src/kodmq"
 import { handlers } from "./handlers"
 
 describe("KodMQ", () => {
@@ -200,16 +200,16 @@ describe("KodMQ", () => {
       handlers,
 
       callbacks: {
-        onJobActive: [onJobActive],
-        onScheduleJobRetry: [onScheduleJobRetry],
-        onWorkerIdle: [onWorkerIdle],
-        onWorkerCurrentJobChanged: [onWorkerCurrentJobChanged],
+        jobActive: [onJobActive],
+        scheduleJobRetry: [onScheduleJobRetry],
+        workerIdle: [onWorkerIdle],
+        workerCurrentJobChanged: [onWorkerCurrentJobChanged],
       },
 
       maxRetries: 1,
     })
 
-    kodmq.on("onJobActive", onJobActiveSecond)
+    kodmq.on("jobActive", onJobActiveSecond)
     await kodmq.performJob("iWasBornToFail")
 
     expect(onJobActive).toHaveBeenCalledTimes(0)

@@ -1,6 +1,6 @@
+import { Active, Idle, Stopped } from "../constants"
 import { KodMQError } from "../errors"
 import KodMQ from "../kodmq"
-import { Active, Idle, Stopped } from "../constants"
 import { Worker } from "../types"
 import Command from "./Command"
 import { RunJob } from "./RunJob"

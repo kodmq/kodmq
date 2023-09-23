@@ -1,6 +1,6 @@
+import { Active, Completed, Failed } from "../constants"
 import { KodMQError, getErrorMessage } from "../errors"
 import KodMQ from "../kodmq"
-import { Active, Completed, Failed } from "../constants"
 import { Job, Worker } from "../types"
 import Command from "./Command"
 import { RetryJob } from "./RetryJob"

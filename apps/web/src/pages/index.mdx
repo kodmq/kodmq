@@ -1,0 +1,35 @@
+---
+layout: ../layouts/Layout.astro
+title: KodMQ
+---
+
+# KodMQ
+
+## Getting Started
+
+### Installation
+
+This is text
+
+```bash
+npm install kodmq kodmq-ui
+yarn install kodmq kodmq-ui
+pnpm install kodmq kodmq-ui
+```
+
+### Usage
+
+```tsx
+import KodMQ from "kodmq"
+import kodmqLauncher from "kodmq/launcher"
+
+const kodmq = new KodMQ({
+  handlers: {
+    sendEmail: async ({ to, subject, body }) => {
+      // Logic to send email
+    },
+  }
+})
+
+await kodmqLauncher(kodmq)
+```

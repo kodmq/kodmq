@@ -1,0 +1,33 @@
+---
+interface Props {
+	title: string
+	description: string
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content={description} />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body class="text-sans antialiased py-24 bg-neutral-950 text-neutral-100">
+		<div class="container mx-auto">
+			<div class="prose prose-invert">
+				<slot />
+			</div>
+		</div>
+	</body>
+</html>
+
+<style is:global>
+	.astro-code {
+		@apply bg-neutral-900 !important;
+	}
+</style>

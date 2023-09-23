@@ -1,6 +1,6 @@
+import { Active, Pending, Stopping, Stopped, Killed, ReadableStatuses } from "../constants"
 import { KodMQError } from "../errors"
 import KodMQ from "../kodmq"
-import { Active, Pending, Stopping, Stopped, Killed, ReadableStatuses } from "../constants"
 import { Worker } from "../types"
 import Command from "./Command"
 import { SaveJob } from "./SaveJob"
