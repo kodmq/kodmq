@@ -9,12 +9,14 @@ fs.rmSync("dist", { recursive: true, force: true })
 
 const bundleFiles = [
   "index",
+  "types",
+  "kodmq",
   "errors",
-  "statuses",
+  "constants",
 ]
 
 const plugins = [
-  terser(),
+  // terser(),
   typescript(),
   bundleSize(),
 ]
@@ -30,16 +32,15 @@ export default [
     input: `src/${file}.ts`,
 
     output: [
-      { file: `dist/${file}.js`, format: "cjs", sourcemap: true },
-      { file: `dist/${file}.es.js`, format: "es", sourcemap: true },
+      {
+        name: file,
+        file: `dist/${file}.js`,
+        format: "cjs",
+        sourcemap: true,
+      },
     ],
 
     plugins,
     external,
   })),
-  // {
-  //   input: "dist/dts/src/index.d.ts",
-  //   output: [{ file: pkg.types, format: "es" }],
-  //   plugins: [dts()],
-  // },
 ]

@@ -1,4 +1,4 @@
-import RedisAdapter from "~/src/adapters/RedisAdapter"
+import RedisAdapter from "../src/adapters/RedisAdapter"
 
 beforeEach(async () => {
   const adapter = new RedisAdapter()

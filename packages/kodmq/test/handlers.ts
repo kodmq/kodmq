@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { Handlers } from "~/src/types"
+import { Handlers } from "../src/types"
 
 export function welcomeMessage(_name: string) {}
 export function happyBirthdayMessage({ name: _, age: __ }: { name: string, age: number }) {}

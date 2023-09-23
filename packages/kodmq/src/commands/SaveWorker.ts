@@ -1,7 +1,7 @@
-import KodMQ from "~/src"
-import Command from "~/src/commands/Command"
-import { Active, Idle, Stopped, Stopping, Killed } from "~/src/statuses"
-import { Worker, WorkerCallbackName, WorkerStatus, Job, ID } from "~/src/types"
+import KodMQ from "../kodmq"
+import { Active, Idle, Stopped, Stopping, Killed } from "../constants"
+import { Worker, WorkerCallbackName, WorkerStatus, Job, ID } from "../types"
+import Command from "./Command"
 
 const StatusCallbacks: Record<WorkerStatus, WorkerCallbackName> = {
   [Idle]: "onWorkerIdle",

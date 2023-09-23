@@ -1,16 +1,16 @@
 import * as colorette from "colorette"
 import { onShutdown } from "node-graceful-shutdown"
+import { KodMQLauncherError } from "../errors"
+import KodMQ from "../kodmq"
 import Logger from "./logger"
 import { formatDuration, formatJobPayload, formatName } from "./utils"
-import { KodMQLauncherError } from "~/src/errors"
-import KodMQ from "~/src/kodmq"
 
 export type LaunchOptions = {
   concurrency?: number
   logger?: typeof console.log
 }
 
-export default async function launch(kodmq: KodMQ, options: LaunchOptions = {}) {
+export default async function launcher(kodmq: KodMQ, options: LaunchOptions = {}) {
   if (!kodmq || !kodmq.isKodMQ()) {
     throw new KodMQLauncherError("You must pass a KodMQ instance to launch()")
   }

@@ -1,23 +1,18 @@
-import KodMQ from "kodmq"
-import chalk from "chalk"
+import { KodMQ, kodmqLauncher } from "kodmq"
 
-async function sendEmail({ subject, body }: { subject: string, body: string }) {
-  // console.log(`Sending email with subject "${subject}" and body "${body}"`)
+async function sendEmail({ subject: _, body: __ }: { subject: string, body: string }) {
   await new Promise((resolve) => setTimeout(resolve, Math.random() * 10000))
 }
 
-async function processPayment({ amount }: { amount: number }) {
-  // console.log(`Processing payment for ${amount} USD`)
+async function processPayment({ amount: _ }: { amount: number }) {
   await new Promise((resolve) => setTimeout(resolve, Math.random() * 10000))
 }
 
-async function renewSubscription({ user }: { user: string }) {
-  // console.log(`Renewing subscription for user ${user}`)
+async function renewSubscription({ user: _ }: { user: string }) {
   await new Promise((resolve) => setTimeout(resolve, Math.random() * 10000))
 }
 
-async function sendInvoice({ user }: { user: string }) {
-  // console.log(`Sending invoice to user ${user}`)
+async function sendInvoice({ user: _ }: { user: string }) {
   await new Promise((resolve) => setTimeout(resolve, Math.random() * 10000))
 
   if (Math.random() < 0.5) throw new Error("Failed to send invoice")
@@ -35,34 +30,6 @@ const kodmq = new KodMQ({
     renewSubscription,
     sendInvoice,
     fireJim,
-  },
-
-  callbacks: {
-    // onJobActive: (job) => {
-    //   console.log(chalk.blueBright("[DevApp]"), `Job ${job.name} (${JSON.stringify(job.payload)}) is active`)
-    // },
-
-    onWorkerCurrentJobChanged: (worker) => {
-      if (!worker.currentJob) return
-      console.log(chalk.blueBright("[DevApp]"), `Worker ${worker.id} is now working on job #${worker.currentJob.id} ${worker.currentJob.name}`)
-    },
-
-    onJobCompleted: (job) => {
-      const duration = job.startedAt && job.finishedAt ? (job.finishedAt.getTime() - job.startedAt.getTime()) / 1000 : undefined
-      console.log(chalk.greenBright("[DevApp]"), `Job ${job.name} is completed in ${duration?.toFixed(2) ?? "-"} seconds`)
-    },
-
-    onJobFailed: (job) => {
-      console.log(chalk.redBright("[DevApp]"), `Job ${job.name} has failed with error: ${job.errorMessage}`)
-    },
-
-    onWorkerStopping: (worker) => {
-      console.log(chalk.yellowBright("[DevApp]"), `Worker ${worker.id} is stopping`)
-    },
-
-    onWorkerStopped: (worker) => {
-      console.log(chalk.redBright("[DevApp]"), `Worker ${worker.id} has stopped`)
-    }
   },
 })
 
@@ -109,9 +76,4 @@ for (const user of users) {
 }
 
 await kodmq.performJob("fireJim")
-await kodmq.start({ concurrency: 2 })
-
-process.on("SIGINT", async () => {
-  await kodmq.stopAllAndCloseConnection()
-  process.exit(0)
-})
+await kodmqLauncher(kodmq)

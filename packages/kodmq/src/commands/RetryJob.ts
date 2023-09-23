@@ -1,8 +1,8 @@
-import KodMQ from "~/src"
-import Command from "~/src/commands/Command"
-import { KodMQError } from "~/src/errors"
-import { Scheduled } from "~/src/statuses"
-import { Job, Worker } from "~/src/types"
+import { KodMQError } from "../errors"
+import KodMQ from "../kodmq"
+import { Scheduled } from "../constants"
+import { Job, Worker } from "../types"
+import Command from "./Command"
 
 export type RetryJobArgs<
   TJob extends Job = Job,

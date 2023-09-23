@@ -1,7 +1,7 @@
+import RedisAdapter from "../src/adapters/RedisAdapter"
+import KodMQ from "../src/kodmq"
+import { Active, Completed, Pending, Scheduled } from "../src/constants"
 import { handlers } from "./handlers"
-import KodMQ from "~/src"
-import RedisAdapter from "~/src/adapters/RedisAdapter"
-import { Active, Completed, Pending, Scheduled } from "~/src/statuses"
 
 describe("KodMQ", () => {
   it("does not allow to create instance with wrong adapter", () => {

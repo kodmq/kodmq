@@ -3,6 +3,7 @@
   "pipeline": {
     "dev": {},
     "lint": {},
+    "lint:fix": {},
     "tsc": {},
     "test": {},
     "build": {

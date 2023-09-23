@@ -1,4 +1,4 @@
-import { JobStatus, Status, WorkerStatus } from "~/src/types"
+import { JobStatus, Status, WorkerStatus } from "./types"
 
 export const Pending = 0
 export const Scheduled = 1
@@ -10,7 +10,7 @@ export const Stopping = 6
 export const Stopped = 7
 export const Killed = 8
 
-export const Statuses = {
+export const Constants = {
   Pending,
   Scheduled,
   Active,

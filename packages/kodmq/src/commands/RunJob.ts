@@ -1,11 +1,11 @@
-import Command from "~/src/commands/Command"
-import { RetryJob } from "~/src/commands/RetryJob"
-import { SaveJob } from "~/src/commands/SaveJob"
-import { SaveWorker } from "~/src/commands/SaveWorker"
-import { KodMQError, getErrorMessage } from "~/src/errors"
-import KodMQ from "~/src/kodmq"
-import { Active, Completed, Failed } from "~/src/statuses"
-import { Job, Worker } from "~/src/types"
+import { KodMQError, getErrorMessage } from "../errors"
+import KodMQ from "../kodmq"
+import { Active, Completed, Failed } from "../constants"
+import { Job, Worker } from "../types"
+import Command from "./Command"
+import { RetryJob } from "./RetryJob"
+import { SaveJob } from "./SaveJob"
+import { SaveWorker } from "./SaveWorker"
 
 export type RunJobArgs<
   TJob extends Job = Job,

@@ -1,18 +1,13 @@
 import process from "process"
-import Adapter from "~/src/adapters/Adapter"
-import RedisAdapter from "~/src/adapters/RedisAdapter"
-import { SaveJob } from "~/src/commands/SaveJob"
-import { SaveWorker } from "~/src/commands/SaveWorker"
-import { StartWorker } from "~/src/commands/StartWorker"
-import { StopWorker } from "~/src/commands/StopWorker"
-import { KodMQError } from "~/src/errors"
-import { Idle, Pending, Scheduled } from "~/src/statuses"
-import {
-  Handlers,
-  Job,
-  StringKeyOf,
-  Worker, Callbacks, ID, JobStatus, WorkerStatus, CallbacksMap, Config,
-} from "~/src/types"
+import Adapter from "./adapters/Adapter"
+import RedisAdapter from "./adapters/RedisAdapter"
+import { SaveJob } from "./commands/SaveJob"
+import { SaveWorker } from "./commands/SaveWorker"
+import { StartWorker } from "./commands/StartWorker"
+import { StopWorker } from "./commands/StopWorker"
+import { KodMQError } from "./errors"
+import { Idle, Pending, Scheduled } from "./constants"
+import { Handlers, Job, StringKeyOf, Worker, Callbacks, ID, JobStatus, WorkerStatus, CallbacksMap, Config } from "./types"
 
 let DefaultConcurrency: number
 

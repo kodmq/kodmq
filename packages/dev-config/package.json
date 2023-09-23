@@ -1,7 +1,0 @@
-{
-  "name": "dev-config",
-  "private": true,
-  "publishConfig": {
-    "access": "public"
-  }
-}

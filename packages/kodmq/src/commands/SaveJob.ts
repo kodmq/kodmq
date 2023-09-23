@@ -1,7 +1,7 @@
-import KodMQ from "~/src"
-import Command from "~/src/commands/Command"
-import { Active, Completed, Failed, Pending, Scheduled } from "~/src/statuses"
-import { JobCallbackName, JobStatus, Job, ID } from "~/src/types"
+import KodMQ from "../kodmq"
+import { Active, Completed, Failed, Pending, Scheduled } from "../constants"
+import { JobCallbackName, JobStatus, Job, ID } from "../types"
+import Command from "./Command"
 
 const StatusCallbacks: Record<JobStatus, JobCallbackName> = {
   [Pending]: "onJobPending",

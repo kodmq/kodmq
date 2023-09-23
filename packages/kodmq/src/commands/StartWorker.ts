@@ -1,10 +1,10 @@
-import KodMQ from "~/src"
-import Command from "~/src/commands/Command"
-import { RunJob } from "~/src/commands/RunJob"
-import { SaveWorker } from "~/src/commands/SaveWorker"
-import { KodMQError } from "~/src/errors"
-import { Active, Idle, Stopped } from "~/src/statuses"
-import { Worker } from "~/src/types"
+import { KodMQError } from "../errors"
+import KodMQ from "../kodmq"
+import { Active, Idle, Stopped } from "../constants"
+import { Worker } from "../types"
+import Command from "./Command"
+import { RunJob } from "./RunJob"
+import { SaveWorker } from "./SaveWorker"
 
 export type StartWorkerArgs<
   TWorker extends Worker = Worker,
