@@ -3,17 +3,23 @@ layout: ../layouts/Layout.astro
 title: KodMQ
 ---
 import H2 from "../components/H2.astro"
+import logo from "../images/logo.svg"
 import tsLogo from "../images/ts-logo.svg"
 
 export const components = { h2: H2 }
 
-<div className="not-prose">
-  <h1 className="text-center font-black text-white text-4xl mb-1 translate-x-6">
-    KodMQ
-    <sup className="font-normal text-indigo-500">βeta</sup>
-  </h1>
+<div className="not-prose mb-16">
+  <div className="flex items-center justify-center gap-4">
+    <img src={logo.src} alt="KodMQ Logo" className="fill-white w-24 h-24" />
+    <div>
+      <h1 className="font-black text-white text-4xl -mb-0.5">
+        KodMQ
+        <sup className="font-normal text-indigo-500">βeta</sup>
+      </h1>
 
-  <p className="text-center text-gray-500">Because development must be simple</p>
+      <p className="text-gray-500">Because development must be simple</p>
+    </div>
+  </div>
 </div>
 
 ## Overview
