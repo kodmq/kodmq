@@ -1,4 +1,4 @@
-import { GetJobsOptions, GetWorkersOptions } from "~/src"
+import { GetJobsOptions, GetWorkersOptions } from "~/src/kodmq"
 import { ID, Job, Worker } from "~/src/types"
 
 export type AdapterHandler = (job: Job) => Promise<void>

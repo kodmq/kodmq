@@ -100,7 +100,10 @@ module.exports = {
     ],
     "import/extensions": [
       "error",
-      "never"
+      "never",
+      {
+        "json": "always",
+      }
     ],
     "unused-imports/no-unused-vars": [
       "warn",

@@ -1,7 +1,7 @@
 import Redis, { RedisOptions } from "ioredis"
-import { GetJobsOptions, GetWorkersOptions } from "~/src"
 import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "~/src/adapters/Adapter"
 import { KodMQAdapterError, KodMQError } from "~/src/errors"
+import { GetJobsOptions, GetWorkersOptions } from "~/src/kodmq"
 import { Job, Worker, ID } from "~/src/types"
 
 type JobTuple = [

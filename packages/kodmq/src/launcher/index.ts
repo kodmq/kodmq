@@ -2,7 +2,8 @@ import * as colorette from "colorette"
 import { onShutdown } from "node-graceful-shutdown"
 import Logger from "./logger"
 import { formatDuration, formatJobPayload, formatName } from "./utils"
-import KodMQ, { KodMQLauncherError } from "~/src"
+import { KodMQLauncherError } from "~/src/errors"
+import KodMQ from "~/src/kodmq"
 
 export type LaunchOptions = {
   concurrency?: number

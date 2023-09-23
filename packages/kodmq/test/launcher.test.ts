@@ -1,6 +1,6 @@
 import KodMQ from "~/src"
 import launcher from "~/src/launcher"
-import { handlers } from "~/tests/handlers"
+import { handlers } from "~/test/handlers"
 
 describe("Launcher", () => {
   let consoleOutput = ""

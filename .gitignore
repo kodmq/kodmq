@@ -173,4 +173,5 @@ dist
 
 build/
 .turbo/
+.rollup.cache
 !/packages/kodmq/src/launcher/index.ts

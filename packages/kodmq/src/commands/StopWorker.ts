@@ -1,8 +1,10 @@
-import KodMQ, { Active, Killed, Pending, ReadableStatuses, Stopped, Stopping, Worker } from "~/src"
+import KodMQ from "~/src"
 import Command from "~/src/commands/Command"
 import { SaveJob } from "~/src/commands/SaveJob"
 import { SaveWorker } from "~/src/commands/SaveWorker"
 import { KodMQError } from "~/src/errors"
+import { Active, Pending, Stopping, Stopped, Killed, ReadableStatuses } from "~/src/statuses"
+import { Worker } from "~/src/types"
 
 const DefaultStopTimeout = 30 * 1000
 const StopPollingInterval = 100
