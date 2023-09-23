@@ -9,6 +9,7 @@ import { SaveWorker } from "./SaveWorker"
 const DefaultStopTimeout = 30 * 1000
 const StopPollingInterval = 100
 
+// TODO: Stop worker by id
 export type StartWorkerArgs<
   TWorker extends Worker = Worker,
   TKodMQ extends KodMQ = KodMQ,

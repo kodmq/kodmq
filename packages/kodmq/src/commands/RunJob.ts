@@ -1,5 +1,5 @@
-import { Active, Completed, Failed } from "../constants"
-import { KodMQError, getErrorMessage } from "../errors"
+import { Active, Completed, Failed, Idle } from "../constants"
+import { getErrorMessage, KodMQError } from "../errors"
 import KodMQ from "../kodmq"
 import { Job, Worker } from "../types"
 import Command from "./Command"
@@ -72,7 +72,10 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
   async setWorkerCurrentJob() {
     const { worker } = await SaveWorker.run({
       workerId: this.worker.id,
-      attributes: { currentJob: this.job },
+      attributes: {
+        status: Active,
+        currentJob: this.job,
+      },
       kodmq: this.kodmq,
     })
 
@@ -98,11 +101,12 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
   }
 
   async unsetWorkerCurrentJob() {
-    if (!this.worker.currentJob) return
-
     const { worker } = await SaveWorker.run({
       workerId: this.worker.id,
-      attributes: { currentJob: undefined },
+      attributes: {
+        status: Idle,
+        currentJob: undefined,
+      },
       kodmq: this.kodmq,
     })
 

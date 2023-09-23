@@ -2,14 +2,32 @@
 layout: ../layouts/Layout.astro
 title: KodMQ
 ---
+import H2 from "../components/H2.astro"
+import tsLogo from "../images/ts-logo.svg"
 
-<h1 className="text-center font-black">
-  KodMQ
-</h1>
+export const components = { h2: H2 }
 
-## Introduction
+<div className="not-prose">
+  <h1 className="text-center font-black text-white text-4xl mb-1 translate-x-6">
+    KodMQ
+    <sup className="font-normal text-indigo-500">βeta</sup>
+  </h1>
 
-This package is a background job queue for Node.js. It is designed to be simple and easy to use.
+  <p className="text-center text-gray-500">Because development must be simple</p>
+</div>
+
+## Overview
+
+**KodMQ** is a handy tool for Node.js to help you manage background jobs using either Redis or Prisma.
+
+## Features
+
+- 👍 **Simple**: KodMQ is designed to be simple to use and easy to understand
+- 🔋 **Batteries Included**: KodMQ comes with a **built-in UI** to manage your jobs
+- 🧘‍♀️ **Flexible**: KodMQ can be used with **Redis** or **Prisma (In Development)**
+- <img src={tsLogo.src} alt="TypeScript Logo" className="w-4 h-4 inline-block not-prose -translate-y-px" /> **TypeScript**: KodMQ is written in **TypeScript** and provides type definitions
+
+## Contents
 
 ## Installation (Recommended)
 
@@ -19,13 +37,19 @@ pnpm create kodmq@latest
 
 ## Installation (Manual)
 
+This installation guide assumes that you are using [pnpm](https://pnpm.io/) and [TypeScript](https://www.typescriptlang.org/).
+
+**If you are using JavaScript**, you will need to change the file extension from `.ts` to `.js`, remove type annotations and use `node` instead of `ts-node` in the scripts.
+
+Let's get started!
+
 1. Install packages
 
     ```bash
     pnpm install kodmq kodmq-ui
     ```
 
-2. Create file `./jobs/index.ts`
+2. Create configuration file `./jobs/index.ts`. Ideally, to keep your code organized, you should create a separate file for each handler and put them under `./jobs/handlers` directory.
 
     ```ts
     import KodMQ, { Handlers } from "kodmq"
@@ -41,7 +65,7 @@ pnpm create kodmq@latest
     export default kodmq
     ```
 
-3. Create file `./jobs/launch.ts`
+3. Create file `./jobs/launch.ts`. This file will be used to launch your workers.
 
     ```ts
     import kodmq from "./index"
@@ -63,7 +87,7 @@ pnpm create kodmq@latest
     }
     ```
 
-5. Launch your workers 🎉
+5. Launch your workers and UI 🎉
 
     ```bash
     pnpm run workers
@@ -72,7 +96,11 @@ pnpm create kodmq@latest
 
 ## Usage
 
-Perform a job:
+Okay, now you have your workers running. Let's see how you can run some jobs.
+
+### Perform a job
+
+When you're performing a job, it will be pushed to the queue and performed by the first available worker.
 
 ```ts
 import kodmq from "./jobs"
@@ -81,7 +109,9 @@ const job = await kodmq.performJob("sendEmail", { to: "Andrew Kodkod", text: "Ha
 console.log(job)
 ```
 
-Schedule a job:
+### Schedule a job
+
+When you're scheduling a job, it will be saved to the database and performed by the first available worker at the specified time.
 
 ```ts
 import kodmq from "./jobs"
@@ -91,11 +121,118 @@ const job = await kodmq.scheduleJob(runAt, "sendEmail", { to: "Andrew Kodkod", t
 console.log(job)
 ```
 
-Get list of jobs:
+## Core Concepts
+
+### Job
+
+A job is a task that needs to be performed. It can be performed immediately or scheduled to be performed later.
+
+Job may have one of the following statuses:
+- `Pending` – Job is waiting to be performed
+- `Scheduled` – Job is scheduled to be performed later
+- `Active` – Job is being performed
+- `Completed` – Job has been performed successfully
+- `Failed` – Job has failed to be performed
+
+### Worker
+
+A worker is a process that performs jobs.
+
+Workers can be launched using `kodmq/launcher` package or just by calling `await kodmq.start()`.
+
+Worker may have one of the following statuses:
+- `Idle` – Worker is waiting for jobs
+- `Active` – Worker is performing a job
+- `Stopping` – Worker is in the process of stopping (waiting for the current job to be completed)
+- `Stopped` – Worker is stopped
+
+### Concurrency
+
+Concept of concurrency in KodMQ is a bit different from other libraries.
+As we're trying to keep things simple, we don't have concept of worker threads.
+What does it mean? It means **1 thread = 1 worker**.
+
+Let me explain it with an example.
+
+When you're launching your application with concurrency of 5:
+```ts
+kodmqLauncher(kodmq, { concurrency: 5 })
+// or
+pnpm run workers --concurrency 5
+```
+
+It runs a single process that can handle 5 jobs simultaneously, and you'll see 5 workers in the UI.
+
+If you want to run multiple processes, you can just run the launcher multiple times:
+```ts
+pnpm run workers --concurrency 2
+pnpm run workers --concurrency 3
+```
+
+To make sure things don't get messy in KodMQ UI, or you want to benchmark performance of different servers, you can specify a name for each "cluster":
+```ts
+// Command to run locally
+pnpm run workers --concurrency 5 --name "Local"
+
+// Command to run on server 1
+pnpm run workers --concurrency 5 --name "AWS 4vCPU"
+
+// Command to run on server 2
+pnpm run workers --concurrency 5 --name "DigitalOcean 4vCPU"
+```
+
+All this data, will be saved to the database and shown in the KodMQ UI.
+
+**By default**, KodMQ uses `os.cpus().length - 1` as concurrency, so you don't need to specify it manually.
+
+## Environment Variables
+
+You can use environment variables to configure KodMQ
+
+```bash
+KODMQ_REDIS_URL=redis://localhost:6379
+KODMQ_DATABASE_URL=postgresql://localhost:5432/kodmq
+KODMQ_CONCURRENCY=5
+```
+
+## Jobs API
 
 ```ts
-import kodmq, { Completed } from "./jobs"
+import kodmq, { Pending, Completed } from "./jobs"
 
-const jobs = await kodmq.getJobs({ status: Completed })
-console.log(jobs)
+// Get all jobs
+const jobs = await kodmq.getJobs()
+
+// Get jobs by status
+const pendingJobs = await kodmq.getJobs({ status: Pending })
+const completedJobs = await kodmq.getJobs({ status: Completed })
+
+// Get specific job
+const job = await kodmq.getJob(1)
 ```
+
+## Workers API
+
+```ts
+import kodmq, { Idle, Active } from "./jobs"
+
+// Get all workers
+const workers = await kodmq.getWorkers()
+
+// Get workers by status
+const idleWorkers = await kodmq.getWorkers({ status: Idle })
+const activeWorkers = await kodmq.getWorkers({ status: Active })
+
+// Get specific worker
+const worker = await kodmq.getWorker(1)
+
+// Stop specific worker
+await kodmq.stopWorker(worker)
+```
+
+## That's it!
+
+I hope you'll find **KodMQ** useful and enjoy using it!
+If you have any questions or suggestions, feel free to [open an issue](https://github.com/kodmq/kodmq/issues/new).
+
+Have a good day! 🐈 🐈‍⬛
