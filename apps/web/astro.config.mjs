@@ -15,6 +15,8 @@ export default defineConfig({
       theme: "github-dark",
     },
 
-    remarkPlugins: [remarkToc],
+    remarkPlugins: [
+      [remarkToc, {  }]
+    ],
   }
 });
