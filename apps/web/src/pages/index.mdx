@@ -7,11 +7,17 @@ title: KodMQ
   KodMQ
 </h1>
 
-## Getting Started
+## Introduction
 
-In this example, we will create a simple worker that sends an email.
+This package is a background job queue for Node.js. It is designed to be simple and easy to use.
 
-### Installation
+## Installation (Recommended)
+
+```bash
+pnpm create kodmq@latest
+```
+
+## Installation (Manual)
 
 1. Install packages
 
@@ -25,7 +31,7 @@ In this example, we will create a simple worker that sends an email.
     import KodMQ, { Handlers } from "kodmq"
 
     const handlers: Handlers = {
-      sendEmail: async ({ to, subject, body }) => {
+      sendEmail: async ({ to, text }) => {
         // Logic to send email
       },
     }
@@ -57,10 +63,39 @@ In this example, we will create a simple worker that sends an email.
     }
     ```
 
-4. Launch your workers 🎉
+5. Launch your workers 🎉
 
     ```bash
     pnpm run workers
     pnpm run workers:ui
     ```
 
+## Usage
+
+Perform a job:
+
+```ts
+import kodmq from "./jobs"
+
+const job = await kodmq.performJob("sendEmail", { to: "Andrew Kodkod", text: "Have a good day!" })
+console.log(job)
+```
+
+Schedule a job:
+
+```ts
+import kodmq from "./jobs"
+
+const runAt = new Date(Date.now() + 1000 * 60 * 60 * 24) // 1 day later
+const job = await kodmq.scheduleJob(runAt, "sendEmail", { to: "Andrew Kodkod", text: "I hope you had a good day!" })
+console.log(job)
+```
+
+Get list of jobs:
+
+```ts
+import kodmq, { Completed } from "./jobs"
+
+const jobs = await kodmq.getJobs({ status: Completed })
+console.log(jobs)
+```
