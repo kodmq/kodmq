@@ -21,6 +21,7 @@ export type JobCallbackName =
 
 export type WorkerCallback = (worker: Worker) => void | Promise<void>
 export type WorkerCallbackName =
+  | "workerStarted"
   | "workerIdle"
   | "workerActive"
   | "workerStopping"
@@ -30,10 +31,8 @@ export type WorkerCallbackName =
 
 export type CallbackName =
   | JobCallbackName
-  | "scheduleJobRetry"
-
   | WorkerCallbackName
-  | "workerCurrentJobChanged"
+  | "scheduleJobRetry"
 
 export type CallbacksMap = {
   [key in JobCallbackName]: JobCallback
@@ -41,7 +40,6 @@ export type CallbacksMap = {
   [key in WorkerCallbackName]: WorkerCallback
 } & {
   scheduleJobRetry: (job: Job, retryAt: Date, failedJob: Job) => void | Promise<void>
-  workerCurrentJobChanged: (worker: Worker, job: Job) => void | Promise<void>
 }
 
 export type Callbacks = Partial<{
@@ -62,6 +60,7 @@ export type Status = JobStatus | WorkerStatus
 export type Worker = {
   id: ID
   status: WorkerStatus
+  clusterName?: string
   currentJob?: Pick<Job, "id" | "name" | "payload">
   startedAt?: Date
   stoppedAt?: Date

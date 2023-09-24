@@ -17,24 +17,18 @@ export function formatDuration(start: Date | undefined, end: Date | undefined, c
   if (!start || !end) return
 
   const duration = end.getTime() - start.getTime()
-  const minutes = Math.floor(duration / 1000 / 60)
-  const seconds = Math.floor(duration / 1000) % 60
-  const hours = Math.floor(duration / 1000 / 60 / 60)
-  const days = Math.floor(duration / 1000 / 60 / 60 / 24)
-
   let text
 
-  // If less than 1 minute, show seconds
   if (duration < Second) {
     text = `${duration}ms`
   } else if (duration < Minute) {
-    text = `${seconds}s`
+    text = `${Math.round(duration / Second)}s`
   } else if (duration < Hour) {
-    text = `${minutes}m ${seconds}s`
+    text = `${Math.round(duration / Minute)}m`
   } else if (duration < Day) {
-    text = `${hours}h ${minutes}m`
+    text = `${Math.round(duration / Hour)}h ${Math.round((duration % Hour) / Minute)}m`
   } else {
-    text = `${days}d ${hours}h`
+    text = `${Math.round(duration / Day)}d ${Math.round((duration % Day) / Hour)}h`
   }
 
   return colorette[color](text)

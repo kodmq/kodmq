@@ -7,6 +7,7 @@ import { formatDuration, formatJobPayload, formatName } from "./utils.js"
 
 export type LaunchOptions = {
   concurrency?: number
+  clusterName?: string
   logger?: typeof console.log
 }
 
@@ -23,22 +24,36 @@ export default async function launcher(kodmq: KodMQ, options: LaunchOptions = {}
     throw new KodMQLauncherError("Concurrency must be a number")
   }
 
-  const logger = new Logger(options.logger)
   const envConcurrencyName = "KODMQ_CONCURRENCY"
-  const envConcurrency = process ? process.env[envConcurrencyName] : undefined
-
-  logger.logWithPrefix("Starting...")
+  const concurrencyEnv = process.env[envConcurrencyName]
+  const concurrencyArg = process.argv.find((arg) => arg.startsWith("--concurrency="))
+  const concurrencyArgValue = concurrencyArg ? concurrencyArg.split("=")[1] : undefined
 
   const concurrency =  [
+    concurrencyArgValue ? parseInt(concurrencyArgValue) : undefined,
     options.concurrency,
-    envConcurrency ? parseInt(envConcurrency) : undefined,
+    concurrencyEnv ? parseInt(concurrencyEnv) : undefined,
     1,
   ].find((c) => c !== undefined)
 
-  logger.logWithCheckmark("Starting KodMQ with concurrency", colorette.yellowBright(concurrency!.toString()))
+  const envClusterName = "KODMQ_CLUSTER_NAME"
+  const clusterNameEnv = process.env[envClusterName]
+  const clusterNameArg = process.argv.find((arg) => arg.startsWith("--cluster-name="))
+  const clusterNameArgValue = clusterNameArg ? clusterNameArg.split("=")[1] : undefined
+
+  const clusterName = [
+    clusterNameArgValue,
+    options.clusterName,
+    clusterNameEnv,
+  ].find((c) => c !== undefined)
+
+  const logger = new Logger(options.logger)
+  logger.logWithPrefix("Starting KodMQ...")
+  logger.logWithCheckmark("Concurrency:", colorette.yellowBright(concurrency!.toString()))
+  if (clusterName) logger.logWithCheckmark("Cluster name:", colorette.yellowBright(clusterName))
   logger.logBlankLine()
 
-  kodmq.on("workerActive", (worker) => {
+  kodmq.on("workerStarted", (worker) => {
     logger.logTimeline(`Worker #${worker.id}`, "Worker is active and waiting for jobs")
   })
 
@@ -88,7 +103,10 @@ export default async function launcher(kodmq: KodMQ, options: LaunchOptions = {}
   })
 
   try {
-    await kodmq.start({ concurrency })
+    await kodmq.start({
+      concurrency,
+      clusterName,
+    })
   } catch (e) {
     throw new KodMQLauncherError("Error starting KodMQ", e as Error)
   }

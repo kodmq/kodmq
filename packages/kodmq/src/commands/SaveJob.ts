@@ -57,16 +57,16 @@ export class SaveJob<TArgs extends SaveJobArgs> extends Command<TArgs> {
   }
   
   async saveToAdapter() {
-    await this.kodmq.adapter.saveJob(this.job!)
+    await this.kodmq.adapter.saveJob(this.job)
   }
   
   async runCallbacks() {
-    await this.kodmq.runCallbacks("jobChanged", this.job!)
+    await this.kodmq.runCallbacks("jobChanged", this.job)
 
     if (this.attributes?.status !== undefined) {
       await this.kodmq.runCallbacks(
         StatusCallbacks[this.attributes.status],
-        this.job!,
+        this.job,
       )
     }
   }

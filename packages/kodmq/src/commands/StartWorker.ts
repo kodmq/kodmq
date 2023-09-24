@@ -20,7 +20,8 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
 
   steps = [
     "checkIfWorkerCanBeStarted",
-    "setStatusToActive",
+    "setStartedAt",
+    "triggerWorkerStartedCallback",
     "startProcessingJobs",
     "setStatusToStopped",
   ]
@@ -41,11 +42,10 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
     throw new KodMQError(`Worker ${this.worker.id} can't be started because it's not in Idle or Stopped status`)
   }
 
-  async setStatusToActive() {
+  async setStartedAt() {
     const { worker } = await SaveWorker.run({
       workerId: this.worker.id,
       attributes: {
-        status: Active,
         startedAt: new Date(),
       },
       kodmq: this.kodmq,
@@ -54,7 +54,19 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
     this.worker = worker
   }
 
+  async triggerWorkerStartedCallback() {
+    await this.kodmq.runCallbacks("workerStarted", this.worker)
+  }
+
   async startProcessingJobs() {
+    const keepProcessing = async () => {
+      const updatedWorker = await this.kodmq.adapter.getWorker(this.worker.id)
+      if (!updatedWorker) return false
+
+      this.worker = updatedWorker as TArgs["worker"]
+      return [Idle, Active].includes(this.worker.status)
+    }
+
     await this.kodmq.adapter.subscribeToJobs(async (job) => {
       await RunJob.run({
         job,
@@ -63,13 +75,7 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
       }, { 
         allowToFail: true, 
       })
-    }, async () => {
-      const updatedWorker = await this.kodmq.adapter.getWorker(this.worker.id)
-      if (!updatedWorker) return false
-
-      this.worker = updatedWorker as TArgs["worker"]
-      return this.worker.status === Active
-    })
+    }, keepProcessing)
   }
 
   async setStatusToStopped() {

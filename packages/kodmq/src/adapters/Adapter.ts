@@ -61,9 +61,9 @@ export default abstract class Adapter {
    * Subscribe to new jobs. It should be used to retrieve and run jobs from the queue.
    *
    * @param handler
-   * @param keepAlive
+   * @param keepSubscribed
    */
-  abstract subscribeToJobs(handler: AdapterHandler, keepAlive: AdapterKeepSubscribed): Promise<void>
+  abstract subscribeToJobs(handler: AdapterHandler, keepSubscribed: AdapterKeepSubscribed): Promise<void>
 
   /**
    * Get next worker ID

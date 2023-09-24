@@ -1,6 +1,6 @@
-import { Active, Idle, Stopped, Stopping, Killed } from "../constants.js"
+import { Active, Idle, Killed, Stopped, Stopping } from "../constants.js"
 import KodMQ from "../kodmq.js"
-import { Worker, WorkerCallbackName, WorkerStatus, Job, ID } from "../types.js"
+import { ID, Worker, WorkerCallbackName, WorkerStatus } from "../types.js"
 import Command from "./Command.js"
 
 const StatusCallbacks: Record<WorkerStatus, WorkerCallbackName> = {
@@ -68,10 +68,6 @@ export class SaveWorker<TArgs extends SaveWorkerArgs = SaveWorkerArgs> extends C
         StatusCallbacks[this.attributes.status],
         this.worker,
       )
-    }
-
-    if ("currentJob" in this.attributes) {
-      await this.kodmq.runCallbacks("workerCurrentJobChanged", this.worker, this.attributes.currentJob as Job)
     }
   }
 }

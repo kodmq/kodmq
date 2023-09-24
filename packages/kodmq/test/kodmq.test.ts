@@ -197,7 +197,7 @@ describe("KodMQ", () => {
     const onJobActiveSecond = jest.fn((_) => {})
     const onScheduleJobRetry = jest.fn((_) => {})
     const onWorkerIdle = jest.fn((_) => {})
-    const onWorkerCurrentJobChanged = jest.fn((_) => {})
+    const onWorkerActive = jest.fn((_) => {})
 
     const kodmq = new KodMQ({
       handlers,
@@ -206,7 +206,7 @@ describe("KodMQ", () => {
         jobActive: [onJobActive],
         scheduleJobRetry: [onScheduleJobRetry],
         workerIdle: [onWorkerIdle],
-        workerCurrentJobChanged: [onWorkerCurrentJobChanged],
+        workerActive: [onWorkerActive],
       },
 
       maxRetries: 1,
@@ -219,7 +219,7 @@ describe("KodMQ", () => {
     expect(onJobActiveSecond).toHaveBeenCalledTimes(0)
     expect(onScheduleJobRetry).toHaveBeenCalledTimes(0)
     expect(onWorkerIdle).toHaveBeenCalledTimes(0)
-    expect(onWorkerCurrentJobChanged).toHaveBeenCalledTimes(0)
+    expect(onWorkerActive).toHaveBeenCalledTimes(0)
 
     setTimeout(() => kodmq.start(), 1)
     await new Promise((resolve) => setTimeout(resolve, 500))
@@ -228,8 +228,8 @@ describe("KodMQ", () => {
     expect(onJobActive).toHaveBeenCalledTimes(1)
     expect(onJobActiveSecond).toHaveBeenCalledTimes(1)
     expect(onScheduleJobRetry).toHaveBeenCalledTimes(1)
-    expect(onWorkerIdle).toHaveBeenCalledTimes(1)
-    expect(onWorkerCurrentJobChanged).toHaveBeenCalledTimes(2)
+    expect(onWorkerIdle).toHaveBeenCalledTimes(2)
+    expect(onWorkerActive).toHaveBeenCalledTimes(1)
   })
 
   it("kills worker and puts job back to queue", async () => {

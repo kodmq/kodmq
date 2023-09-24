@@ -9,11 +9,11 @@ async function processPayment({ amount: _ }: { amount: number }) {
   await new Promise((resolve) => setTimeout(resolve, Math.random() * 10000))
 }
 
-async function renewSubscription({ user: _ }: { user: string }) {
+async function renewSubscription({ userId: _ }: { userId: number }) {
   await new Promise((resolve) => setTimeout(resolve, Math.random() * 10000))
 }
 
-async function sendInvoice({ user: _ }: { user: string }) {
+async function sendReward({ user: _ }: { user: string }) {
   await new Promise((resolve) => setTimeout(resolve, Math.random() * 10000))
 
   if (Math.random() < 0.5) throw new Error("Failed to send invoice")
@@ -29,15 +29,20 @@ const kodmq = new KodMQ({
     sendEmail,
     processPayment,
     renewSubscription,
-    sendInvoice,
+    sendReward,
     fireJim,
   },
 })
 
-await kodmq.adapter.clearAll()
+if (!process.argv.includes("--no-clear")) {
+  await kodmq.adapter.clearAll()
+} else {
+  console.log("Skipping clearAll()")
+  console.log()
+}
 
 const emails = [
-  { subject: "Hello, World!", body: "This is a test email." },
+  { subject: "Woody Harrelson", body: "You won!" },
   { subject: "Wow, it works!", body: "This is a test email." },
   { subject: "Amazing!", body: "This is a test email." },
   { subject: "Awesome!", body: "This is a test email." },
@@ -45,7 +50,7 @@ const emails = [
 ]
 
 for (const email of emails) {
-  await kodmq.performJob("sendEmail", email)
+  setTimeout(() => kodmq.performJob("sendEmail", email), 1000)
 }
 
 const payments = [
@@ -57,7 +62,7 @@ const payments = [
 ]
 
 for (const amount of payments) {
-  await kodmq.performJob("processPayment", { amount })
+  setTimeout(() => kodmq.performJob("processPayment", { amount }), 1000)
 }
 
 const users = [
@@ -72,9 +77,16 @@ const users = [
 ]
 
 for (const user of users) {
-  await kodmq.performJob("sendInvoice", { user })
-  await kodmq.scheduleJob(new Date(Date.now() + 1000 * 60 * 60 * (Math.random() * 10)), "renewSubscription", { user })
+  setTimeout(() => kodmq.performJob("sendReward", { user }), 1000)
 }
 
-await kodmq.performJob("fireJim")
+const userIds = [
+  451,
+]
+
+for (const userId of userIds) {
+  setTimeout(() => kodmq.scheduleJob(new Date(Date.now() + 1000 * 60 * 60 * (Math.random() * 10)), "renewSubscription", { userId }), 1000)
+}
+
+setTimeout(() => kodmq.performJob("fireJim"), 1000)
 await kodmqLauncher(kodmq)

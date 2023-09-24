@@ -28,6 +28,7 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
     "setWorkerCurrentJob",
     "runJob",
     "unsetWorkerCurrentJob",
+    "setWorkerStatusToIdle",
     "setStatusToCompleted",
   ]
 
@@ -103,10 +104,20 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
   async unsetWorkerCurrentJob() {
     const { worker } = await SaveWorker.run({
       workerId: this.worker.id,
-      attributes: {
-        status: Idle,
-        currentJob: undefined,
-      },
+      attributes: { currentJob: undefined },
+      kodmq: this.kodmq,
+    })
+
+    this.worker = worker
+  }
+
+  async setWorkerStatusToIdle() {
+    // Do not set status Idle if worker in status Stopping or any other status
+    if (this.worker.status !== Active) return
+
+    const { worker } = await SaveWorker.run({
+      workerId: this.worker.id,
+      attributes: { status: Idle },
       kodmq: this.kodmq,
     })
 

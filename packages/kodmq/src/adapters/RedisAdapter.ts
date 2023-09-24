@@ -23,6 +23,7 @@ type JobTuple = [
 type WorkerTuple = [
   Worker["id"],
   Worker["status"],
+  Worker["clusterName"],
   Worker["startedAt"] | string,
   Worker["stoppedAt"] | string,
   Job["id"]?,
@@ -295,6 +296,7 @@ export default class RedisAdapter extends Adapter {
       const workerTuple: WorkerTuple = [
         worker.id,
         worker.status,
+        worker.clusterName,
         worker.startedAt,
         worker.stoppedAt,
         worker.currentJob?.id,
@@ -313,6 +315,7 @@ export default class RedisAdapter extends Adapter {
       const [
         id,
         status,
+        clusterName,
         startedAtRaw,
         stoppedAtRaw,
         currentJobId,
@@ -323,6 +326,7 @@ export default class RedisAdapter extends Adapter {
       return {
         id,
         status,
+        clusterName,
         startedAt: startedAtRaw ? new Date(startedAtRaw) : undefined,
         stoppedAt: stoppedAtRaw ? new Date(stoppedAtRaw) : undefined,
         currentJob: currentJobId ? { id: currentJobId, name: currentJobName!, payload: currentJobData! } : undefined,

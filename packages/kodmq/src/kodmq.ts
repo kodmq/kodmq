@@ -37,6 +37,7 @@ export type GetWorkersOptions = {
 
 export type StartOptions = {
   concurrency?: number
+  clusterName?: string
 }
 
 export default class KodMQ<THandlers extends Handlers = Handlers> {
@@ -163,7 +164,7 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
       const concurrency = options.concurrency || DefaultConcurrency
 
       for (let i = 0; i < concurrency; i++) {
-        const worker = await this.createWorker()
+        const worker = await this.createWorker({ clusterName: options.clusterName })
         this.workers.push(worker)
 
         await SaveWorker.run({
@@ -297,9 +298,13 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
 
   /**
    * Create a new worker using the adapter
+   *
+   * @param attributes
+   * @private
    */
-  private async createWorker(): Promise<Worker> {
+  private async createWorker(attributes: Pick<Worker, "clusterName">): Promise<Worker> {
     return {
+      ...attributes,
       id: await this.adapter.getNextWorkerId(),
       status: Idle,
     }
@@ -308,14 +313,14 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
   /**
    * Create a new job using the adapter
    *
-   * @param job
+   * @param attributes
    * @private
    */
-  private async createJob(job: Omit<Job, "id" | "status">): Promise<Job> {
+  private async createJob(attributes: Omit<Job, "id" | "status">): Promise<Job> {
     return {
-      ...job,
+      ...attributes,
       id: await this.adapter.getNextJobId(),
-      status: job.runAt ? Scheduled : Pending,
+      status: attributes.runAt ? Scheduled : Pending,
     }
   }
 }
