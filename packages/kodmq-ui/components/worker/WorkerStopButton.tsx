@@ -1,6 +1,6 @@
 "use client"
 
-import { Worker } from "kodmq"
+import { Worker } from "kodmq/types"
 import { ComponentProps, useCallback, useState } from "react"
 import stopWorker from "@/actions/stopWorker"
 import { ServerAction } from "@/actions/withServerAction"

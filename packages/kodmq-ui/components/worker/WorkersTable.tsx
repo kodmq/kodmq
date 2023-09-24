@@ -1,7 +1,9 @@
-import { Worker } from "kodmq"
+import { RocketIcon } from "@radix-ui/react-icons"
+import { Worker } from "kodmq/types"
 import EmptyValue from "@/components/content/EmptyValue"
 import Payload from "@/components/content/Payload"
 import StatusBadge from "@/components/content/StatusBadge"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import WorkersTableRowActions from "@/components/worker/WorkersTableRowActions"
 import { formatDate, formatDuration, titleize } from "@/lib/utils"
@@ -11,6 +13,18 @@ export type WorkersTableProps = {
 }
 
 export default function WorkersTable({ workers }: WorkersTableProps) {
+  if (!workers.length) {
+    return (
+      <Alert>
+        <RocketIcon className="h-4 w-4" />
+        <AlertTitle>No workers</AlertTitle>
+        <AlertDescription>
+          There are no workers 🤷
+        </AlertDescription>
+      </Alert>
+    )
+  }
+
   return (
     <Table className="rounded overflow-hidden">
       <TableHeader>

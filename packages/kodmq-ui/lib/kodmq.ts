@@ -1,4 +1,4 @@
-import { KodMQ, kodmqLauncher } from "kodmq"
+import KodMQ from "kodmq"
 
 const kodmq = new KodMQ()
 

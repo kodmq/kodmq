@@ -4,9 +4,9 @@
   "compilerOptions": {
     "noEmit": false,
     "declaration": true,
-    "emitDeclarationOnly": true,
+    "declarationMap": true,
     "rootDir": "./src",
-    "declarationDir": "./dist",
+    "outDir": "./dist",
   },
   "include": ["src"]
 }

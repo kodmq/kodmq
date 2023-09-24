@@ -1,5 +1,6 @@
 import { cva } from "class-variance-authority"
-import { Status, Statuses, ReadableStatuses } from "kodmq"
+import { Statuses, ReadableStatuses } from "kodmq/constants"
+import { Status } from "kodmq/types"
 import { Badge } from "@/components/ui/badge"
 
 export type StatusBadgeProps = {
@@ -28,6 +29,7 @@ const indicatorVariants = cva([
       [Statuses.Idle]: "bg-gray-500",
       [Statuses.Stopping]: "bg-yellow-500",
       [Statuses.Stopped]: "bg-red-500",
+      [Statuses.Killed]: "bg-red-500",
     },
   },
 })

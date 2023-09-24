@@ -1,4 +1,5 @@
-import { KodMQ, kodmqLauncher } from "kodmq"
+import KodMQ from "kodmq"
+import kodmqLauncher from "kodmq/launcher"
 
 async function sendEmail({ subject: _, body: __ }: { subject: string, body: string }) {
   await new Promise((resolve) => setTimeout(resolve, Math.random() * 10000))

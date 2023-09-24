@@ -1,13 +1,13 @@
 import process from "process"
-import Adapter from "./adapters/Adapter"
-import RedisAdapter from "./adapters/RedisAdapter"
-import { SaveJob } from "./commands/SaveJob"
-import { SaveWorker } from "./commands/SaveWorker"
-import { StartWorker } from "./commands/StartWorker"
-import { StopWorker } from "./commands/StopWorker"
-import { Idle, Pending, Scheduled } from "./constants"
-import { KodMQError } from "./errors"
-import { Handlers, Job, StringKeyOf, Worker, Callbacks, ID, JobStatus, WorkerStatus, CallbacksMap, Config } from "./types"
+import Adapter from "./adapters/Adapter.js"
+import RedisAdapter from "./adapters/RedisAdapter.js"
+import { SaveJob } from "./commands/SaveJob.js"
+import { SaveWorker } from "./commands/SaveWorker.js"
+import { StartWorker } from "./commands/StartWorker.js"
+import { StopWorker } from "./commands/StopWorker.js"
+import { Idle, Pending, Scheduled } from "./constants.js"
+import { KodMQError } from "./errors.js"
+import { Handlers, Job, StringKeyOf, Worker, Callbacks, ID, JobStatus, WorkerStatus, CallbacksMap, Config } from "./types.js"
 
 let DefaultConcurrency: number
 

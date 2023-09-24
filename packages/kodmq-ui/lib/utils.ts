@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { ZodError } from "zod"
-import { Errors, ErrorWithMessage } from "@/lib/types"
+import { Errors, ErrorWithMessage, StringKeys } from "@/lib/types"
 
 function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
   return (
@@ -88,3 +88,21 @@ export function numberWithOrdinal(n) {
   return n + (s[(v - 20) % 10] || s[v] || s[0])
 }
 
+type Filters<T extends Record<string, unknown>> = {
+  [K in keyof T]?: T[K]
+} & {
+  [K in StringKeys<T> as `${K}In`]?: T[K][]
+}
+
+export function filter<T extends Record<string, unknown>>(jobs: T[], filters: Filters<T>) {
+  return jobs.filter((job) => {
+    return Object.entries(filters).every(([key, value]) => {
+      if (key.endsWith("In")) {
+        const realKey = key.slice(0, -2) as StringKeys<T>
+        return (value as T[StringKeys<T>][]).includes(job[realKey])
+      } else {
+        return job[key as StringKeys<T>] === value
+      }
+    })
+  })
+}

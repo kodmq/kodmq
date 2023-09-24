@@ -35,7 +35,7 @@ export default [
       {
         name: file,
         file: `dist/${file}.js`,
-        format: "cjs",
+        format: "esm",
         sourcemap: true,
       },
     ],

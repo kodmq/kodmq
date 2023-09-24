@@ -1,7 +1,10 @@
-import RedisAdapter from "../src/adapters/RedisAdapter"
-import { Active, Completed, Pending, Scheduled } from "../src/constants"
-import KodMQ from "../src/kodmq"
-import { handlers } from "./handlers"
+import { jest } from "@jest/globals"
+import RedisAdapter from "../dist/adapters/RedisAdapter.js"
+import { Active, Completed, Pending, Scheduled } from "../dist/constants.js"
+import KodMQ from "../dist/kodmq.js"
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { handlers } from "./handlers.ts"
 
 describe("KodMQ", () => {
   it("does not allow to create instance with wrong adapter", () => {
@@ -190,11 +193,11 @@ describe("KodMQ", () => {
   })
 
   it("runs callbacks", async () => {
-    const onJobActive = jest.fn()
-    const onJobActiveSecond = jest.fn()
-    const onScheduleJobRetry = jest.fn()
-    const onWorkerIdle = jest.fn()
-    const onWorkerCurrentJobChanged = jest.fn()
+    const onJobActive = jest.fn((_) => {})
+    const onJobActiveSecond = jest.fn((_) => {})
+    const onScheduleJobRetry = jest.fn((_) => {})
+    const onWorkerIdle = jest.fn((_) => {})
+    const onWorkerCurrentJobChanged = jest.fn((_) => {})
 
     const kodmq = new KodMQ({
       handlers,

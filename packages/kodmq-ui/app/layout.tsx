@@ -1,9 +1,8 @@
 import { ReactNode } from "react"
 import { ThemeProvider } from "@/components/layout/ThemeProvider"
-
-import "./globals.css"
 import TopBar from "@/components/layout/TopBar"
 import { Toaster } from "@/components/ui/toaster"
+import "./globals.css"
 
 export const metadata = {
   title: "KodMQ UI",

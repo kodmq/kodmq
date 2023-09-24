@@ -1,6 +1,8 @@
-import KodMQ from "../src/kodmq"
-import launcher from "../src/launcher"
-import { handlers } from "./handlers"
+import KodMQ from "../dist/kodmq.js"
+import launcher from "../dist/launcher/index.js"
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { handlers } from "./handlers.ts"
 
 describe("Launcher", () => {
   let consoleOutput = ""

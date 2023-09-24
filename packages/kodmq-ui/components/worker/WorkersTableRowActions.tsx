@@ -1,5 +1,5 @@
-import { Worker } from "kodmq"
-import { Active } from "kodmq"
+import { Active } from "kodmq/constants"
+import { Worker } from "kodmq/types"
 import WorkerStopButton from "@/components/worker/WorkerStopButton"
 
 export type WorkersTableRowActionsProps = {
