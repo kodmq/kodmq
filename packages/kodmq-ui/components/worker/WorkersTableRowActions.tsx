@@ -5,8 +5,8 @@ import { Worker } from "kodmq/types"
 import { useCallback, useState } from "react"
 import stopWorker from "@/actions/stopWorker"
 import { ServerAction } from "@/actions/withServerAction"
-import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
+import Button from "@/components/ui/Button"
+import { toast } from "@/stores/toast"
 
 export type WorkersTableRowActionsProps = {
   worker: Worker
@@ -15,7 +15,6 @@ export type WorkersTableRowActionsProps = {
 export default function WorkersTableRowActions({ worker }: WorkersTableRowActionsProps) {
   const workerIsRunning = [Idle, Active].includes(worker.status)
 
-  const { toast } = useToast()
   const [performingAction, setPerformingAction] = useState(false)
 
   const handleStop = useCallback(async () => {
@@ -28,7 +27,6 @@ export default function WorkersTableRowActions({ worker }: WorkersTableRowAction
       toast({
         title: "Failed to stop worker",
         description: errors.base || "Unknown reason",
-        variant: "destructive",
       })
     } else {
       toast({
@@ -44,8 +42,8 @@ export default function WorkersTableRowActions({ worker }: WorkersTableRowAction
     <div>
       {workerIsRunning && (
         <Button
-          variant="destructive"
-          size="sm"
+          variant="redGlassy"
+          size="xs"
           disabled={performingAction}
           onClick={handleStop}
         >

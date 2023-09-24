@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority"
 import { Statuses, ReadableStatuses } from "kodmq/constants"
 import { Status } from "kodmq/types"
-import { Badge } from "@/components/ui/badge"
+import Badge from "@/components/ui/Badge"
 
 export type StatusBadgeProps = {
   status: Status
@@ -9,7 +9,7 @@ export type StatusBadgeProps = {
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
   return (
-    <Badge variant="secondary">
+    <Badge variant="primary">
       <span className={indicatorVariants({ status })} />
       {ReadableStatuses[status]}
     </Badge>
@@ -17,7 +17,7 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
 }
 
 const indicatorVariants = cva([
-  "inline-block w-2 h-2 rounded-full mr-1.5",
+  "mr-1.5 inline-block h-2 w-2 rounded-full",
 ], {
   variants: {
     status: {

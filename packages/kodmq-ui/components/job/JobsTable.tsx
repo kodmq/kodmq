@@ -1,12 +1,10 @@
-import { RocketIcon } from "@radix-ui/react-icons"
-import { Active, Failed, Pending, ReadableJobStatuses, Scheduled } from "kodmq/constants"
+import { Active, Failed, Pending, Scheduled } from "kodmq/constants"
 import { JobStatus, Job } from "kodmq/types"
 import EmptyValue from "@/components/content/EmptyValue"
 import Payload from "@/components/content/Payload"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import Badge from "@/components/ui/Badge"
+import { Card, CardPadding } from "@/components/ui/Card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
 import { formatDate, formatDuration, numberWithOrdinal, titleize } from "@/lib/utils"
 
 export type JobsTableProps = {
@@ -15,17 +13,7 @@ export type JobsTableProps = {
 }
 
 export default function JobsTable({ jobs, status }: JobsTableProps) {
-  if (!jobs.length) {
-    return (
-      <Alert>
-        <RocketIcon className="h-4 w-4" />
-        <AlertTitle>No jobs</AlertTitle>
-        <AlertDescription>
-          There are no jobs with status <strong>{ReadableJobStatuses[status]}</strong>.
-        </AlertDescription>
-      </Alert>
-    )
-  }
+  if (!jobs.length) return null
   
   const showRunAt = status == Scheduled
   const showStartedAt = ![Pending, Scheduled].includes(status)
@@ -36,8 +24,8 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
   
   return (
     <Card>
-      <CardContent className="pt-6">
-        <Table className="rounded overflow-hidden">
+      <CardPadding>
+        <Table className="overflow-hidden rounded">
           <TableHeader>
             <TableRow>
               <TableHead className="pl-4">Job ID</TableHead>
@@ -55,7 +43,7 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
           <TableBody>
             {jobs.map((job) => (
               <TableRow key={job.id}>
-                <TableCell className="font-medium pl-4">
+                <TableCell className="pl-4 font-medium">
                   {job.id}
                 </TableCell>
 
@@ -92,7 +80,7 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
                 {showAttempt && (
                   <TableCell className="text-right">
                     {job.failedAttempts && job.failedAttempts > 0 ? (
-                      <Badge variant="destructive" className="px-1.5 py-0.5">
+                      <Badge>
                         {numberWithOrdinal(job.failedAttempts)}
                       </Badge>
                     ) : (
@@ -116,7 +104,7 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
             ))}
           </TableBody>
         </Table>
-      </CardContent>
+      </CardPadding>
     </Card>
   )
 }

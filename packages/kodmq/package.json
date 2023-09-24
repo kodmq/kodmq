@@ -32,10 +32,18 @@
   },
   "typesVersions": {
     "*": {
-      "launcher": ["./dist/launcher/index.d.ts"],
-      "errors": ["./dist/errors.d.ts"],
-      "constants": ["./dist/constants.d.ts"],
-      "types": ["./dist/types.d.ts"]
+      "launcher": [
+        "./dist/launcher/index.d.ts"
+      ],
+      "errors": [
+        "./dist/errors.d.ts"
+      ],
+      "constants": [
+        "./dist/constants.d.ts"
+      ],
+      "types": [
+        "./dist/types.d.ts"
+      ]
     }
   },
   "files": [
