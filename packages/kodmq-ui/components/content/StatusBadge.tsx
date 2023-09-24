@@ -17,7 +17,7 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
 }
 
 const indicatorVariants = cva([
-  "inline-block w-2 h-2 rounded-full mr-1",
+  "inline-block w-2 h-2 rounded-full mr-1.5",
 ], {
   variants: {
     status: {
@@ -26,7 +26,7 @@ const indicatorVariants = cva([
       [Statuses.Active]: "bg-green-500",
       [Statuses.Completed]: "bg-green-500",
       [Statuses.Failed]: "bg-red-500",
-      [Statuses.Idle]: "bg-gray-500",
+      [Statuses.Idle]: "bg-sky-500",
       [Statuses.Stopping]: "bg-yellow-500",
       [Statuses.Stopped]: "bg-red-500",
       [Statuses.Killed]: "bg-red-500",

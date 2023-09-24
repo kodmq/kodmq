@@ -1,4 +1,4 @@
-import { Active, Pending, Stopping, Stopped, Killed, ReadableStatuses } from "../constants.js"
+import { Active, Idle, Killed, Pending, ReadableStatuses, Stopped, Stopping } from "../constants.js"
 import { KodMQError } from "../errors.js"
 import KodMQ from "../kodmq.js"
 import { Worker } from "../types.js"
@@ -40,8 +40,12 @@ export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
 
   async checkIfWorkerCanBeStopped() {
     const worker = await this.kodmq.getWorker(this.worker.id)
+
+    // If worker is not found, we assume it was stopped
     if (!worker) return this.markAsFinished()
-    if (worker.status === Active) return
+
+    // Check if worker is in one of the running statuses
+    if ([Idle, Active].includes(worker.status)) return
 
     throw new KodMQError(`Worker ${this.worker.id} cannot be stopped because it is ${ReadableStatuses[worker.status]}`)
   }
