@@ -43,9 +43,9 @@ describe("Launcher", () => {
   it("launches KodMQ", async () => {
     const kodmq = new KodMQ({ handlers })
 
-    setTimeout(async () => await kodmq.performJob("welcomeMessage", "John"), 100)
-    setTimeout(async () => await kodmq.performJob("happyBirthdayMessage", { name: "John", age: 30 }), 200)
-    setTimeout(async () => await kodmq.performJob("iWasBornToFail"), 300)
+    setTimeout(async () => await kodmq.perform("welcomeMessage", "John"), 100)
+    setTimeout(async () => await kodmq.perform("happyBirthdayMessage", { name: "John", age: 30 }), 200)
+    setTimeout(async () => await kodmq.perform("iWasBornToFail"), 300)
     setTimeout(async () => await kodmq.stopAllAndCloseConnection(), 1500)
     await launcher(kodmq, { concurrency: 2, logger: consoleLogger })
 
@@ -73,5 +73,47 @@ describe("Launcher", () => {
     expect(consoleOutput).toContain("[Job #3] Running I Was Born To Fail…")
     expect(consoleOutput).toContain("[Job #3] Failed I Was Born To Fail in")
     expect(consoleOutput).toContain("[Job #3] Retrying I Was Born To Fail with new ID #4 in")
+  })
+
+  it("loads parameters from environment variables", async () => {
+    const desiredConcurrency = 4
+    const desiredClusterName = "Fantastic"
+    const kodmq = new KodMQ({ handlers })
+
+    // Set environment variable
+    process.env.KODMQ_CONCURRENCY = desiredConcurrency.toString()
+    process.env.KODMQ_CLUSTER_NAME = desiredClusterName
+
+    setTimeout(async () => await kodmq.stopAllAndCloseConnection(), 500)
+    await launcher(kodmq, { logger: consoleLogger })
+    await kodmq.waitUntilAllWorkersAreStopped()
+
+    expect(consoleOutput).toContain("Starting KodMQ...")
+    expect(consoleOutput).toContain(`Concurrency: ${desiredConcurrency}`)
+    expect(consoleOutput).toContain(`Cluster name: ${desiredClusterName}`)
+
+    delete process.env.KODMQ_CONCURRENCY
+    delete process.env.KODMQ_CLUSTER_NAME
+  })
+
+  it("loads parameters from CLI arguments", async () => {
+    const desiredConcurrency = 3
+    const desiredClusterName = "Nice"
+    const kodmq = new KodMQ({ handlers })
+
+    // Set CLI argument
+    process.argv.push("--concurrency=3")
+    process.argv.push("--cluster-name=Nice")
+
+    setTimeout(async () => await kodmq.stopAllAndCloseConnection(), 500)
+    await launcher(kodmq, { concurrency: desiredConcurrency, logger: consoleLogger })
+    await kodmq.waitUntilAllWorkersAreStopped()
+
+    expect(consoleOutput).toContain("Starting KodMQ...")
+    expect(consoleOutput).toContain(`Concurrency: ${desiredConcurrency}`)
+    expect(consoleOutput).toContain(`Cluster name: ${desiredClusterName}`)
+
+    process.argv.pop()
+    process.argv.pop()
   })
 })

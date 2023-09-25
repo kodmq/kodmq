@@ -29,7 +29,7 @@ export default function WorkersTable({ workers }: WorkersTableProps) {
 
   return (
     <Card>
-      <Table className="overflow-hidden rounded">
+      <Table>
         <TableHeader>
           <TableHeaderRow>
             <TableHead

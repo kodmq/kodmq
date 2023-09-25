@@ -82,9 +82,7 @@ export type Job<T extends JobPayload = AllowedAny> = {
   errorStack?: string
 }
 
-export type Config<
-  THandlers extends Handlers = Handlers,
-> = {
+export type Config<THandlers extends Handlers = Handlers> = {
   adapter?: Adapter
   handlers?: THandlers
   callbacks?: Callbacks

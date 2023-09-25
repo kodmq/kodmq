@@ -47,13 +47,13 @@ describe("KodMQ", () => {
     const kodmq = new KodMQ({ handlers })
 
     // Trigger jobs
-    const job1 = await kodmq.performJob("welcomeMessage", "John")
-    const job2 = await kodmq.performJob("happyBirthdayMessage", { name: "John", age: 18 })
-    const job3 = await kodmq.performJob("promotionMessage", true)
+    const job1 = await kodmq.perform("welcomeMessage", "John")
+    const job2 = await kodmq.perform("happyBirthdayMessage", { name: "John", age: 18 })
+    const job3 = await kodmq.perform("promotionMessage", true)
 
     // Schedule a job
     const scheduleIn = 250
-    const scheduledJob1 = await kodmq.scheduleJob(new Date(Date.now() + scheduleIn), "promotionMessage", false)
+    const scheduledJob1 = await kodmq.performAt(new Date(Date.now() + scheduleIn), "promotionMessage", false)
 
     // Get all jobs from adapter
     let pendingJobs = await kodmq.getJobs({ status: Pending })
@@ -100,9 +100,9 @@ describe("KodMQ", () => {
       },
     })
 
-    const job1 = await kodmq.performJob("welcomeMessage", "John")
-    const job2 = await kodmq.performJob("happyBirthdayMessage", { name: "John", age: 18 })
-    const job3 = await kodmq.performJob("promotionMessage", true)
+    const job1 = await kodmq.perform("welcomeMessage", "John")
+    const job2 = await kodmq.perform("happyBirthdayMessage", { name: "John", age: 18 })
+    const job3 = await kodmq.perform("promotionMessage", true)
 
     expect(welcomeMessage).not.toHaveBeenCalled()
     expect(happyBirthdayMessage).not.toHaveBeenCalled()
@@ -165,7 +165,7 @@ describe("KodMQ", () => {
   it("gracefully stops workers", async () => {
     const kodmq = new KodMQ({ handlers })
 
-    const job = await kodmq.performJob("longRunningJob")
+    const job = await kodmq.perform("longRunningJob")
 
     let pendingJobs = await kodmq.getJobs({ status: Pending })
     let completedJobs = await kodmq.getJobs({ status: Completed })
@@ -213,7 +213,7 @@ describe("KodMQ", () => {
     })
 
     kodmq.on("jobActive", onJobActiveSecond)
-    await kodmq.performJob("iWasBornToFail")
+    await kodmq.perform("iWasBornToFail")
 
     expect(onJobActive).toHaveBeenCalledTimes(0)
     expect(onJobActiveSecond).toHaveBeenCalledTimes(0)
@@ -238,7 +238,7 @@ describe("KodMQ", () => {
       stopTimeout: 1,
     })
 
-    const job = await kodmq.performJob("longRunningJob")
+    const job = await kodmq.perform("longRunningJob")
 
     setTimeout(() => kodmq.start(), 1)
     await new Promise((resolve) => setTimeout(resolve, 100))

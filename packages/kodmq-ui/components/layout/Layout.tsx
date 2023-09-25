@@ -17,7 +17,7 @@ export default function Layout({ children }: LayoutProps) {
       <div className="relative flex-1">
         <HeroPattern />
 
-        <div className="w-full max-w-screen-xl p-12">
+        <div className="w-full max-w-screen-lg p-12">
           {children}
         </div>
         

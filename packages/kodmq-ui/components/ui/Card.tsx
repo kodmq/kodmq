@@ -67,7 +67,7 @@ export function Card({ href, pattern = 0, animated = false, children }: CardProp
     <div
       onMouseMove={onMouseMove}
       className={cn(
-        "group relative flex rounded-2xl bg-zinc-50 transition-shadow dark:bg-white/2.5",
+        "overflow-hidden group relative flex rounded-2xl bg-zinc-50 transition-shadow dark:bg-white/2.5",
         animated && "hover:shadow-md hover:shadow-zinc-900/5 dark:hover:shadow-black/5",
       )}
     >

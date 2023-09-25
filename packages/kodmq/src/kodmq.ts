@@ -46,7 +46,7 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
   handlers: THandlers
   callbacks: Callbacks
 
-  workers: Worker[] = []
+  workersIds: ID[] = []
 
   /**
    * Create a new KodMQ instance
@@ -62,7 +62,7 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
     this.config = { ...DefaultConfig, ...config }
     this.adapter = config.adapter || new RedisAdapter()
     this.handlers = config.handlers || {} as THandlers
-    this.callbacks = config.callbacks || {} as Callbacks
+    this.callbacks = config.callbacks || {}
   }
 
   /**
@@ -72,7 +72,7 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
    * @param payload
    * @param runAt
    */
-  async performJob<T extends StringKeyOf<THandlers>>(
+  async perform<T extends StringKeyOf<THandlers>>(
     name: T,
     payload?: Parameters<THandlers[T]>[0],
     runAt?: Date,
@@ -105,15 +105,34 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
    * @param payload
    * @param runAt
    */
-  async scheduleJob<T extends StringKeyOf<THandlers>>(
+  async performAt<T extends StringKeyOf<THandlers>>(
     runAt: Date,
     name: T,
     payload?: Parameters<THandlers[T]>[0],
   ) {
     try {
-      return this.performJob(name, payload, runAt)
+      return this.perform(name, payload, runAt)
     } catch (e) {
-      if (e instanceof KodMQError) throw e
+      throw new KodMQError(`Failed to schedule job "${name}"`, e as Error)
+    }
+  }
+
+  /**
+   * Schedule a job to run after a specific delay
+   *
+   * @param delay
+   * @param name
+   * @param payload
+   */
+  async performIn<T extends StringKeyOf<THandlers>>(
+    delay: number,
+    name: T,
+    payload?: Parameters<THandlers[T]>[0],
+  ) {
+    try {
+      const runAt = new Date(Date.now() + delay)
+      return this.perform(name, payload, runAt)
+    } catch (e) {
       throw new KodMQError(`Failed to schedule job "${name}"`, e as Error)
     }
   }
@@ -156,7 +175,7 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
    * @param options
    */
   async start(options: StartOptions = {}) {
-    if (this.workers.length > 0) throw new KodMQError("KodMQ is already started")
+    if (this.workersIds.length > 0) throw new KodMQError("KodMQ is already started")
     if (Object.keys(this.handlers).length === 0) throw new KodMQError("KodMQ requires at least one handler to start")
 
     try {
@@ -165,7 +184,7 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
 
       for (let i = 0; i < concurrency; i++) {
         const worker = await this.createWorker({ clusterName: options.clusterName })
-        this.workers.push(worker)
+        this.workersIds.push(worker.id)
 
         await SaveWorker.run({
           workerId: worker.id,
@@ -224,14 +243,44 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
   }
 
   /**
+   * Wait until all workers are stopped
+   */
+  async waitUntilAllWorkersAreStopped(interval = 300) {
+    try {
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        if (!await this.adapter.isConnected()) break
+
+        let allStopped = true
+
+        for (const id of this.workersIds) {
+          const worker = await this.getWorker(id)
+
+          if (worker?.status !== Idle) {
+            allStopped = false
+            break
+          }
+        }
+
+        if (allStopped) break
+
+        await new Promise((resolve) => setTimeout(resolve, interval))
+      }
+    } catch (e) {
+      if (e instanceof KodMQError) throw e
+      throw new KodMQError("Failed to wait until all workers are stopped", e as Error)
+    }
+  }
+
+  /**
    * Stop all workers
    */
   async stopAllAndCloseConnection() {
     try {
       const promises = []
 
-      for (const worker of this.workers) {
-        promises.push(this.stopWorker(worker.id))
+      for (const id of this.workersIds) {
+        promises.push(this.stopWorker(id))
       }
 
       await Promise.all(promises)

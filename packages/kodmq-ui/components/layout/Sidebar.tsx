@@ -45,7 +45,10 @@ export default function Sidebar() {
         className="flex -translate-x-1 items-center gap-2 px-7 py-6 text-lg font-extrabold"
       >
         <Logo className="inline-block h-7 w-7" />
-        <span>KodMQ</span>
+        <span>
+          KodMQ
+          <sup className="font-medium text-indigo-500"> βeta</sup>
+        </span>
       </Link>
 
       <nav className="mt-2">

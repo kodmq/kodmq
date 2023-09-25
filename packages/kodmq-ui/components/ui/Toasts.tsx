@@ -2,7 +2,7 @@
 
 import * as Toast from "@radix-ui/react-toast"
 import { motion, AnimatePresence } from "framer-motion"
-import Card, { CardPadding, CardDescription, CardTitle } from "@/components/ui/Card"
+import { Card, CardPadding, CardDescription, CardTitle } from "@/components/ui/Card"
 import { closeToast, useToasts } from "@/stores/toast"
 
 export default function Toasts() {

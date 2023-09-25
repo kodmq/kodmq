@@ -86,7 +86,7 @@ export default async function launcher(kodmq: KodMQ, options: LaunchOptions = {}
 
   kodmq.on("workerKilled", (worker) => {
     if (worker.currentJob) {
-      logger.logTimeline(`Worker #${worker.id}`, `Worker has been killed. Job #${worker.currentJob.id} ${formatName(worker.currentJob.name)} has been requeued`)
+      logger.logTimeline(`Worker #${worker.id}`, `Worker has been killed. Job ${colorette.gray(`#${worker.currentJob.id}`)} ${formatName(worker.currentJob.name)} has been requeued`)
     } else {
       logger.logTimeline(`Worker #${worker.id}`, "Worker has been killed")
     }

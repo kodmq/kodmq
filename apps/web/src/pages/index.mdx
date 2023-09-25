@@ -26,7 +26,7 @@ export const components = { h2: H2 }
 
 ## Overview
 
-**KodMQ** is a simple and easy to use Node.js message queue system that allows you to perform and schedule jobs.
+**KodMQ** is a simple and easy to use Node.js background jobs. Everything is included, scheduling, CLI, UI and much more 🎉
 
 <div className="w-[150%] sm:w-[130%] md:w-[124%] md:left-[-12%] lg:w-[150%] lg:left-[-22%] relative -mt-2 -mb-4 lg:-mb-8">
   <img src={terminal.src} alt="Terminal Example" className="w-full" />
@@ -119,7 +119,7 @@ When you're performing a job, it will be pushed to the queue and performed by th
 ```ts
 import kodmq from "./jobs"
 
-const job = await kodmq.performJob("sendEmail", { to: "Andrew Kodkod", text: "Have a good day!" })
+const job = await kodmq.perform("sendEmail", { to: "Andrew Kodkod", text: "Have a good day!" })
 console.log(job)
 ```
 
@@ -131,7 +131,7 @@ When you're scheduling a job, it will be saved to the database and performed by 
 import kodmq from "./jobs"
 
 const runAt = new Date(Date.now() + 1000 * 60 * 60 * 24) // 1 day later
-const job = await kodmq.scheduleJob(runAt, "sendEmail", { to: "Andrew Kodkod", text: "I hope you had a good day!" })
+const job = await kodmq.performAt(runAt, "sendEmail", { to: "Andrew Kodkod", text: "I hope you had a good day!" })
 console.log(job)
 ```
 

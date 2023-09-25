@@ -2,7 +2,7 @@ export class KodMQError extends Error {
   public originalError?: Error
 
   constructor(message: string, originalError?: Error) {
-    if (originalError) message += `: ${originalError.message}`
+    if (originalError) message += ` → ${originalError.message}`
 
     super(message)
 

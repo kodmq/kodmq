@@ -50,7 +50,7 @@ const emails = [
 ]
 
 for (const email of emails) {
-  setTimeout(() => kodmq.performJob("sendEmail", email), 1000)
+  setTimeout(() => kodmq.perform("sendEmail", email), 1000)
 }
 
 const payments = [
@@ -62,7 +62,7 @@ const payments = [
 ]
 
 for (const amount of payments) {
-  setTimeout(() => kodmq.performJob("processPayment", { amount }), 1000)
+  setTimeout(() => kodmq.perform("processPayment", { amount }), 1000)
 }
 
 const users = [
@@ -77,7 +77,7 @@ const users = [
 ]
 
 for (const user of users) {
-  setTimeout(() => kodmq.performJob("sendReward", { user }), 1000)
+  setTimeout(() => kodmq.perform("sendReward", { user }), 1000)
 }
 
 const userIds = [
@@ -85,8 +85,8 @@ const userIds = [
 ]
 
 for (const userId of userIds) {
-  setTimeout(() => kodmq.scheduleJob(new Date(Date.now() + 1000 * 60 * 60 * (Math.random() * 10)), "renewSubscription", { userId }), 1000)
+  setTimeout(() => kodmq.performAt(new Date(Date.now() + 1000 * 60 * 60 * (Math.random() * 10)), "renewSubscription", { userId }), 1000)
 }
 
-setTimeout(() => kodmq.performJob("fireJim"), 1000)
+setTimeout(() => kodmq.perform("fireJim"), 1000)
 await kodmqLauncher(kodmq)
