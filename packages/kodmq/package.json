@@ -1,6 +1,6 @@
 {
   "name": "kodmq",
-  "version": "0.5.0",
+  "version": "0.1.0",
   "type": "module",
   "description": "A simple message queue",
   "main": "./dist/kodmq.js",
@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "@types/node": "20.6.2",
-    "eslint-config-kodmq": "workspace:*",
+    "eslint-config-kodmq": "0.5.0",
     "jest": "^29.7.0",
     "rollup": "^3.29.2",
     "rollup-plugin-bundle-size": "^1.0.3",

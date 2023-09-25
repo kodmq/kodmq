@@ -1,5 +1,6 @@
 {
   "name": "kodmq-ui",
+  "private": true,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
@@ -14,12 +15,12 @@
     "autoprefixer": "^10.4.15",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
-    "eslint-config-kodmq": "workspace:*",
+    "eslint-config-kodmq": "0.5.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-tailwindcss": "^3.13.0",
     "framer-motion": "^10.16.4",
     "ioredis": "^5.3.2",
-    "kodmq": "workspace:*",
+    "kodmq": "0.5.0",
     "next": "^13.5.1",
     "next-themes": "^0.2.1",
     "pluralize": "^8.0.0",

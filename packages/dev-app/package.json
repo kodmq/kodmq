@@ -1,5 +1,6 @@
 {
   "name": "dev-app",
+  "private": true,
   "module": "index.ts",
   "type": "module",
   "scripts": {
@@ -9,12 +10,13 @@
   },
   "devDependencies": {
     "@types/node": "20.6.2",
-    "eslint-config-kodmq": "workspace:*"
+    "eslint-config-kodmq": "0.5.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "kodmq": "workspace:*"
-  }
+    "kodmq": "0.5.0"
+  },
+  "version": "0.5.0"
 }
