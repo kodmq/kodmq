@@ -1,4 +1,5 @@
-import RedisAdapter from "../dist/adapters/RedisAdapter.js"
+import { beforeEach } from "@jest/globals"
+import RedisAdapter from "../src/adapters/RedisAdapter"
 
 beforeEach(async () => {
   const adapter = new RedisAdapter()

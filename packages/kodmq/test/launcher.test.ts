@@ -1,5 +1,5 @@
-import KodMQ from "../dist/kodmq.js"
-import launcher from "../dist/launcher/index.js"
+import KodMQ from "../src/kodmq"
+import launcher from "../src/launcher/index"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { handlers } from "./handlers.ts"
@@ -49,8 +49,8 @@ describe("Launcher", () => {
     setTimeout(async () => await kodmq.stopAllAndCloseConnection(), 1500)
     await launcher(kodmq, { concurrency: 2, logger: consoleLogger })
 
-    expect(consoleOutput).toContain("Starting...")
-    expect(consoleOutput).toContain("Starting KodMQ with concurrency 2")
+    expect(consoleOutput).toContain("Starting KodMQ...")
+    expect(consoleOutput).toContain("Concurrency: 2")
     expect(consoleOutput).toContain("[Worker #1] Worker is active and waiting for jobs")
     expect(consoleOutput).toContain("[Worker #2] Worker is active and waiting for jobs")
     expect(consoleOutput).toContain("[Worker #1] Worker is stopping")

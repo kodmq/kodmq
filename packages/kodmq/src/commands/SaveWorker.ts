@@ -1,7 +1,7 @@
-import { Active, Idle, Killed, Stopped, Stopping } from "../constants.js"
-import KodMQ from "../kodmq.js"
-import { ID, Worker, WorkerCallbackName, WorkerStatus } from "../types.js"
-import Command from "./Command.js"
+import { Active, Idle, Killed, Stopped, Stopping } from "../constants"
+import KodMQ from "../kodmq"
+import { ID, Worker, WorkerCallbackName, WorkerStatus } from "../types"
+import Command from "./Command"
 
 const StatusCallbacks: Record<WorkerStatus, WorkerCallbackName> = {
   [Idle]: "workerIdle",

@@ -53,16 +53,17 @@
     "lint": "eslint --ext .ts .",
     "lint:fix": "eslint --ext .ts . --fix",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles",
-    "build": "tsc -p ./tsconfig.build.json"
+    "tsc": "tsc -p ./tsconfig.build.json",
+    "build": "rollup -c && tsc"
   },
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.3",
-    "@rollup/plugin-typescript": "^11.1.3",
     "@types/node": "20.6.2",
     "eslint-config-kodmq": "workspace:*",
     "jest": "^29.7.0",
     "rollup": "^3.29.2",
     "rollup-plugin-bundle-size": "^1.0.3",
+    "rollup-plugin-esbuild": "6.0.1",
     "ts-jest": "^29.1.1"
   },
   "peerDependencies": {

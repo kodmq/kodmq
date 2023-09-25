@@ -1,11 +1,11 @@
-import { Active, Completed, Failed, Idle } from "../constants.js"
-import { getErrorMessage, KodMQError } from "../errors.js"
-import KodMQ from "../kodmq.js"
-import { Job, Worker } from "../types.js"
-import Command from "./Command.js"
-import { RetryJob } from "./RetryJob.js"
-import { SaveJob } from "./SaveJob.js"
-import { SaveWorker } from "./SaveWorker.js"
+import { Active, Completed, Failed, Idle } from "../constants"
+import { getErrorMessage, KodMQError } from "../errors"
+import KodMQ from "../kodmq"
+import { Job, Worker } from "../types"
+import Command from "./Command"
+import { RetryJob } from "./RetryJob"
+import { SaveJob } from "./SaveJob"
+import { SaveWorker } from "./SaveWorker"
 
 export type RunJobArgs<
   TJob extends Job = Job,

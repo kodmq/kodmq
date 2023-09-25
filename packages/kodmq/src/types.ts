@@ -1,5 +1,5 @@
-import Adapter from "./adapters/Adapter.js"
-import { JobStatuses, WorkerStatuses } from "./constants.js"
+import Adapter from "./adapters/Adapter"
+import { JobStatuses, WorkerStatuses } from "./constants"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AllowedAny = any

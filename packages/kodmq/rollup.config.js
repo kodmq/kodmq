@@ -1,24 +1,17 @@
 import * as fs from "fs"
-import terser from "@rollup/plugin-terser"
-import typescript from "@rollup/plugin-typescript"
+import * as path from "path"
 import bundleSize from "rollup-plugin-bundle-size"
+import esBuild from "rollup-plugin-esbuild"
 import pkg from "./package.json" assert { type: "json" }
 
 // Clean up the `dist` directory
 fs.rmSync("dist", { recursive: true, force: true })
 
 const bundleFiles = [
-  "index",
-  "types",
   "kodmq",
   "errors",
   "constants",
-]
-
-const plugins = [
-  // terser(),
-  typescript(),
-  bundleSize(),
+  "launcher/index",
 ]
 
 const external = [
@@ -30,17 +23,20 @@ const external = [
 export default [
   ...bundleFiles.map((file) => ({
     input: `src/${file}.ts`,
-
     output: [
       {
-        name: file,
         file: `dist/${file}.js`,
         format: "esm",
         sourcemap: true,
       },
     ],
-
-    plugins,
+    plugins: [
+      bundleSize(),
+      esBuild({
+        minify: true,
+        tsconfig: path.resolve("./tsconfig.json"),
+      }),
+    ],
     external,
   })),
 ]
