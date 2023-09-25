@@ -15,7 +15,7 @@
     "autoprefixer": "^10.4.15",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
-    "eslint-config-kodmq": "0.5.0",
+    "eslint-config-kodmq": "workspace:*",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-tailwindcss": "^3.13.0",
     "framer-motion": "^10.16.4",

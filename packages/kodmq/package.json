@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "@types/node": "20.6.2",
-    "eslint-config-kodmq": "0.5.0",
+    "eslint-config-kodmq": "workspace:*",
     "jest": "^29.7.0",
     "rollup": "^3.29.2",
     "rollup-plugin-bundle-size": "^1.0.3",

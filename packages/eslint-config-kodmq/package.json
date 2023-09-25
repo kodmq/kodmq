@@ -1,5 +1,6 @@
 {
   "name": "eslint-config-kodmq",
+  "version": "0.1.0",
   "main": "index.js",
   "private": true,
   "publishConfig": {
@@ -12,6 +13,5 @@
     "eslint-plugin-jest": "^27.4.0",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-unused-imports": "^3.0.0"
-  },
-  "version": "0.5.0"
+  }
 }
