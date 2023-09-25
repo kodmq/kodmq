@@ -7,14 +7,10 @@ import { RetryJob } from "./RetryJob"
 import { SaveJob } from "./SaveJob"
 import { SaveWorker } from "./SaveWorker"
 
-export type RunJobArgs<
-  TJob extends Job = Job,
-  TWorker extends Worker = Worker,
-  TKodMQ extends KodMQ = KodMQ,
-> = {
-  job: TJob
-  worker: TWorker,
-  kodmq: TKodMQ
+export type RunJobArgs = {
+  job: Job
+  worker: Worker,
+  kodmq: KodMQ
 }
 
 export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {

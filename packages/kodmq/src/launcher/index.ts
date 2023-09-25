@@ -1,3 +1,4 @@
+import * as os from "os"
 import * as colorette from "colorette"
 import { onShutdown } from "node-graceful-shutdown"
 import { KodMQLauncherError } from "../errors"
@@ -24,28 +25,46 @@ export default async function launcher(kodmq: KodMQ, options: LaunchOptions = {}
     throw new KodMQLauncherError("Concurrency must be a number")
   }
 
-  const envConcurrencyName = "KODMQ_CONCURRENCY"
-  const concurrencyEnv = process.env[envConcurrencyName]
-  const concurrencyArg = process.argv.find((arg) => arg.startsWith("--concurrency="))
-  const concurrencyArgValue = concurrencyArg ? concurrencyArg.split("=")[1] : undefined
-
-  const concurrency =  [
-    concurrencyArgValue ? parseInt(concurrencyArgValue) : undefined,
-    options.concurrency,
-    concurrencyEnv ? parseInt(concurrencyEnv) : undefined,
-    1,
-  ].find((c) => c !== undefined)
-
-  const envClusterName = "KODMQ_CLUSTER_NAME"
-  const clusterNameEnv = process.env[envClusterName]
+  let concurrency: number | undefined
+  
+  let concurrencyArg = process.argv.find((arg) => arg.startsWith("--concurrency="))
+  let concurrencyEnv = process.env.KODMQ_CONCURRENCY
+  let concurrencyOption = options.concurrency
+  
+  if (concurrencyArg) {
+    concurrency = parseInt(concurrencyArg.split("=")[1])
+  } else if (concurrencyOption !== undefined) {
+    concurrency = concurrencyOption
+  } else if (concurrencyEnv) {
+    concurrency = parseInt(concurrencyEnv)
+  } else {
+    try {
+      concurrency = os.cpus().length
+    } catch (e) {
+      concurrency = 1
+    }
+  }
+  
+  if (isNaN(concurrency)) {
+    throw new KodMQLauncherError("Concurrency must be a number")
+  } else if (concurrency < 1) {
+    throw new KodMQLauncherError("Concurrency must be at least 1")
+  } else if (concurrency > 128) {
+    throw new KodMQLauncherError("Concurrency cannot be greater than 128")
+  }
+  
+  let clusterName: string | undefined
   const clusterNameArg = process.argv.find((arg) => arg.startsWith("--cluster-name="))
-  const clusterNameArgValue = clusterNameArg ? clusterNameArg.split("=")[1] : undefined
-
-  const clusterName = [
-    clusterNameArgValue,
-    options.clusterName,
-    clusterNameEnv,
-  ].find((c) => c !== undefined)
+  const clusterNameEnv = process.env.KODMQ_CLUSTER_NAME
+  const clusterNameOption = options.clusterName
+  
+  if (clusterNameArg) {
+    clusterName = clusterNameArg.split("=")[1]
+  } else if (clusterNameOption !== undefined) {
+    clusterName = clusterNameOption
+  } else if (clusterNameEnv) {
+    clusterName = clusterNameEnv
+  }
 
   const logger = new Logger(options.logger)
   logger.logWithPrefix("Starting KodMQ...")

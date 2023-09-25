@@ -53,11 +53,10 @@
     "lint": "eslint --ext .ts .",
     "lint:fix": "eslint --ext .ts . --fix",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles",
-    "tsc": "tsc -p ./tsconfig.build.json",
+    "tsc": "tsc -p ./tsconfig.lint.json",
     "build": "rollup -c && tsc"
   },
   "devDependencies": {
-    "@rollup/plugin-terser": "^0.4.3",
     "@types/node": "20.6.2",
     "eslint-config-kodmq": "workspace:*",
     "jest": "^29.7.0",

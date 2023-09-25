@@ -1,3 +1,4 @@
+import { KodMQAdapterError, KodMQError } from "../errors"
 import { GetJobsOptions, GetWorkersOptions } from "../kodmq"
 import { ID, Job, Worker } from "../types"
 
@@ -63,7 +64,22 @@ export default abstract class Adapter {
    * @param handler
    * @param keepSubscribed
    */
-  abstract subscribeToJobs(handler: AdapterHandler, keepSubscribed: AdapterKeepSubscribed): Promise<void>
+  async subscribeToJobs(handler: AdapterHandler, keepSubscribed: AdapterKeepSubscribed) {
+    try {
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        if (!await keepSubscribed()) break
+
+        const job = await this.popJobFromQueue()
+        if (!job) continue
+
+        await handler(job)
+      }
+    } catch (e) {
+      if (e instanceof KodMQError) throw e
+      throw new KodMQAdapterError("Cannot subscribe to jobs", e as Error)
+    }
+  }
 
   /**
    * Get next worker ID
@@ -100,4 +116,9 @@ export default abstract class Adapter {
    * Close connection to the database
    */
   abstract closeConnection(): Promise<void>
+
+  /**
+   * Check if connection to the database is established
+   */
+  abstract isConnected(): Promise<boolean>
 }

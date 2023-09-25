@@ -11,13 +11,10 @@ const StatusCallbacks: Record<WorkerStatus, WorkerCallbackName> = {
   [Killed]: "workerKilled",
 }
 
-export type SaveWorkerArgs<
-  TWorker extends Worker = Worker,
-  TKodMQ extends KodMQ = KodMQ,
-> = {
+export type SaveWorkerArgs = {
   workerId: ID,
-  attributes: Partial<TWorker>,
-  kodmq: TKodMQ,
+  attributes: Partial<Worker>,
+  kodmq: KodMQ,
 }
 
 export class SaveWorker<TArgs extends SaveWorkerArgs = SaveWorkerArgs> extends Command<TArgs> {

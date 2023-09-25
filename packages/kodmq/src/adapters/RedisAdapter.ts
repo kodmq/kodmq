@@ -1,8 +1,8 @@
 import Redis, { RedisOptions } from "ioredis"
-import { KodMQAdapterError, KodMQError } from "../errors"
+import { KodMQAdapterError } from "../errors"
 import { GetJobsOptions, GetWorkersOptions } from "../kodmq"
 import { Job, Worker, ID } from "../types"
-import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "./Adapter"
+import Adapter from "./Adapter"
 
 type JobTuple = [
   Job["id"],
@@ -156,26 +156,6 @@ export default class RedisAdapter extends Adapter {
       return await this.getJob(jobId)
     } catch (e) {
       throw new KodMQAdapterError("Cannot pop job from queue", e as Error)
-    }
-  }
-
-  async subscribeToJobs(handler: AdapterHandler, keepSubscribed: AdapterKeepSubscribed) {
-    try {
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        if (!await keepSubscribed()) break
-
-        // FIXME: This is hack to avoid picking the same job by multiple workers
-        // await new Promise((resolve) => setTimeout(resolve, Math.random() * 30))
-
-        const job = await this.popJobFromQueue()
-        if (!job) continue
-
-        await handler(job)
-      }
-    } catch (e) {
-      if (e instanceof KodMQError) throw e
-      throw new KodMQAdapterError("Cannot subscribe to jobs", e as Error)
     }
   }
 
@@ -365,6 +345,14 @@ export default class RedisAdapter extends Adapter {
       await this.client.quit()
     } catch (e) {
       throw new KodMQAdapterError("Cannot close connection", e as Error)
+    }
+  }
+  
+  async isConnected() {
+    try {
+      return await this.client.ping() === "PONG"
+    } catch (e) {
+      return false
     }
   }
 

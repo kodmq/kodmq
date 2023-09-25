@@ -232,8 +232,7 @@ describe("KodMQ", () => {
     expect(onWorkerActive).toHaveBeenCalledTimes(1)
   })
 
-  // FIXME: This test leaves a running job that prevents Jest from exiting successfully
-  it.skip("kills worker and puts job back to queue", async () => {
+  it("kills worker and puts job back to queue", async () => {
     const kodmq = new KodMQ({
       handlers,
       stopTimeout: 1,
@@ -244,11 +243,14 @@ describe("KodMQ", () => {
     setTimeout(() => kodmq.start(), 1)
     await new Promise((resolve) => setTimeout(resolve, 100))
 
+    let pendingJobs = await kodmq.getJobs({ status: Pending })
+    expect(pendingJobs.length).toBe(0)
+
     await expect(kodmq.stopAllAndCloseConnection()).rejects.toThrow("Worker 1 is not stopped after 1ms")
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise((resolve) => setTimeout(resolve, 300))
 
     await kodmq.adapter.openConnection()
-    const pendingJobs = await kodmq.getJobs({ status: Pending })
+    pendingJobs = await kodmq.getJobs({ status: Pending })
     await kodmq.adapter.closeConnection()
 
     expect(pendingJobs.length).toBe(1)

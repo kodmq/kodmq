@@ -4,14 +4,10 @@ import KodMQ from "../kodmq"
 import { Job, Worker } from "../types"
 import Command from "./Command"
 
-export type RetryJobArgs<
-  TJob extends Job = Job,
-  TWorker extends Worker = Worker,
-  TKodMQ extends KodMQ = KodMQ,
-> = {
-  job: TJob
-  worker: TWorker,
-  kodmq: TKodMQ
+export type RetryJobArgs = {
+  job: Job
+  worker: Worker,
+  kodmq: KodMQ
 }
 
 export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {

@@ -195,10 +195,10 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
   /**
    * Stop specific worker
    *
-   * @param worker
+   * @param id
    */
-  async stopWorker(worker: Worker) {
-    await StopWorker.run({ worker, kodmq: this })
+  async stopWorker(id: ID) {
+    await StopWorker.run({ id, kodmq: this })
   }
 
   /**
@@ -231,12 +231,11 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
       const promises = []
 
       for (const worker of this.workers) {
-        promises.push(this.stopWorker(worker))
+        promises.push(this.stopWorker(worker.id))
       }
 
       await Promise.all(promises)
     } catch (e) {
-      if (e instanceof KodMQError) throw e
       throw new KodMQError("Failed to stop queue", e as Error)
     } finally {
       await this.adapter.closeConnection()

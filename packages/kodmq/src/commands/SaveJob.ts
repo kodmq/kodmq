@@ -11,13 +11,10 @@ const StatusCallbacks: Record<JobStatus, JobCallbackName> = {
   [Failed]: "jobFailed",
 }
 
-export type SaveJobArgs<
-  TJob extends Job = Job,
-  TKodMQ extends KodMQ = KodMQ,
-> = {
+export type SaveJobArgs = {
   jobId: ID
-  attributes?: Partial<TJob>
-  kodmq: TKodMQ
+  attributes?: Partial<Job>
+  kodmq: KodMQ
 }
 
 export class SaveJob<TArgs extends SaveJobArgs> extends Command<TArgs> {

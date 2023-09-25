@@ -1,7 +1,7 @@
 import { Active, Idle, Killed, Pending, ReadableStatuses, Stopped, Stopping } from "../constants"
 import { KodMQError } from "../errors"
 import KodMQ from "../kodmq"
-import { Worker } from "../types"
+import { ID, Worker } from "../types"
 import Command from "./Command"
 import { SaveJob } from "./SaveJob"
 import { SaveWorker } from "./SaveWorker"
@@ -9,17 +9,14 @@ import { SaveWorker } from "./SaveWorker"
 const DefaultStopTimeout = 30 * 1000
 const StopPollingInterval = 100
 
-// TODO: Stop worker by id
-export type StartWorkerArgs<
-  TWorker extends Worker = Worker,
-  TKodMQ extends KodMQ = KodMQ,
-> = {
-  worker: TWorker,
-  kodmq: TKodMQ,
+export type StartWorkerArgs = {
+  id: ID,
+  kodmq: KodMQ,
 }
 
 export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
-  worker: TArgs["worker"]
+  id: ID
+  worker: Worker | null
   kodmq: TArgs["kodmq"]
 
   steps = [
@@ -34,25 +31,26 @@ export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
     super(args)
     this.verify()
 
-    this.worker = args.worker
+    this.id = args.id
+    this.worker = null
     this.kodmq = args.kodmq
   }
 
   async checkIfWorkerCanBeStopped() {
-    const worker = await this.kodmq.getWorker(this.worker.id)
+    this.worker = await this.kodmq.getWorker(this.id)
 
     // If worker is not found, we assume it was stopped
-    if (!worker) return this.markAsFinished()
+    if (!this.worker) return this.markAsFinished()
 
     // Check if worker is in one of the running statuses
-    if ([Idle, Active].includes(worker.status)) return
+    if ([Idle, Active].includes(this.worker.status)) return
 
-    throw new KodMQError(`Worker ${this.worker.id} cannot be stopped because it is ${ReadableStatuses[worker.status]}`)
+    throw new KodMQError(`Worker ${this.id} cannot be stopped because it is ${ReadableStatuses[this.worker.status]}`)
   }
 
   async setStatusToStopping() {
     const { worker } = await SaveWorker.run({
-      workerId: this.worker.id,
+      workerId: this.id,
       attributes: { status: Stopping },
       kodmq: this.kodmq,
     })
@@ -65,7 +63,7 @@ export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      this.worker = await this.kodmq.adapter.getWorker(this.worker.id) as TArgs["worker"]
+      this.worker = await this.kodmq.adapter.getWorker(this.id)
       if (!this.worker || this.worker.status === Stopped) break
 
       const waitDuration = Date.now() - waitStartedAt

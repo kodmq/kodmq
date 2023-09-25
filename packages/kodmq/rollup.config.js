@@ -16,6 +16,7 @@ const bundleFiles = [
 
 const external = [
   ...Object.keys(pkg.dependencies || {}).concat(Object.keys(pkg.peerDependencies || {})),
+  "os",
   "process",
   "console",
 ]

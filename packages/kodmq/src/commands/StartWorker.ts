@@ -6,12 +6,9 @@ import Command from "./Command"
 import { RunJob } from "./RunJob"
 import { SaveWorker } from "./SaveWorker"
 
-export type StartWorkerArgs<
-  TWorker extends Worker = Worker,
-  TKodMQ extends KodMQ = KodMQ,
-> = {
-  worker: TWorker,
-  kodmq: TKodMQ,
+export type StartWorkerArgs = {
+  worker: Worker,
+  kodmq: KodMQ,
 }
 
 export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
@@ -60,11 +57,15 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
 
   async startProcessingJobs() {
     const keepProcessing = async () => {
-      const updatedWorker = await this.kodmq.adapter.getWorker(this.worker.id)
-      if (!updatedWorker) return false
+      try {
+        const updatedWorker = await this.kodmq.adapter.getWorker(this.worker.id)
+        if (!updatedWorker) return false
 
-      this.worker = updatedWorker as TArgs["worker"]
-      return [Idle, Active].includes(this.worker.status)
+        this.worker = updatedWorker as TArgs["worker"]
+        return [Idle, Active].includes(this.worker.status)
+      } catch (e) {
+        return false
+      }
     }
 
     await this.kodmq.adapter.subscribeToJobs(async (job) => {
@@ -76,6 +77,10 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
         allowToFail: true, 
       })
     }, keepProcessing)
+
+    // Check if worker was killed
+    const isConnected = await this.kodmq.adapter.isConnected()
+    if (!isConnected) return this.markAsFinished()
   }
 
   async setStatusToStopped() {
