@@ -1,8 +1,8 @@
 import Redis, { RedisOptions } from "ioredis"
-import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "../adapters/Adapter.js"
-import { KodMQAdapterError, KodMQError } from "../errors.js"
-import { GetJobsOptions, GetWorkersOptions } from "../kodmq.js"
-import { Job, Worker, ID } from "../types.js"
+import { KodMQAdapterError, KodMQError } from "../errors"
+import { GetJobsOptions, GetWorkersOptions } from "../kodmq"
+import { Job, Worker, ID } from "../types"
+import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "./Adapter"
 
 type JobTuple = [
   Job["id"],

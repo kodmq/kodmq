@@ -5,7 +5,6 @@
     "target": "esnext",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
-    "noEmit": true,
     "strict": true,
     "allowJs": true,
     "sourceMap": true,
@@ -14,16 +13,16 @@
     "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "dist",
+    "rootDir": "src",
     "types": [
       "node",
       "jest"
     ],
   },
   "include": [
-    "src/**/*",
-    "test/**/*",
-    "scripts/**/*",
-    "examples/**/*",
-    "package.json"
+    "src/**/*"
   ]
 }

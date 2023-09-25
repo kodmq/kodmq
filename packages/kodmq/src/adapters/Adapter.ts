@@ -1,5 +1,5 @@
-import { GetJobsOptions, GetWorkersOptions } from "../kodmq.js"
-import { ID, Job, Worker } from "../types.js"
+import { GetJobsOptions, GetWorkersOptions } from "../kodmq"
+import { ID, Job, Worker } from "../types"
 
 export type AdapterHandler = (job: Job) => Promise<void>
 export type AdapterKeepSubscribed = () => Promise<boolean>

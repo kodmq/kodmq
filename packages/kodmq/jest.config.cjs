@@ -6,5 +6,5 @@ module.exports = {
   setupFilesAfterEnv: ["<rootDir>/test/setup.ts"],
   transform: {
     "^.+\\.ts$": ["ts-jest", { useESM: true }],
-  }
-};
+  },
+}

@@ -1,7 +1,7 @@
-import { Active, Completed, Failed, Pending, Scheduled } from "../constants.js"
-import KodMQ from "../kodmq.js"
-import { JobCallbackName, JobStatus, Job, ID } from "../types.js"
-import Command from "./Command.js"
+import { Active, Completed, Failed, Pending, Scheduled } from "../constants"
+import KodMQ from "../kodmq"
+import { JobCallbackName, JobStatus, Job, ID } from "../types"
+import Command from "./Command"
 
 const StatusCallbacks: Record<JobStatus, JobCallbackName> = {
   [Pending]: "jobPending",

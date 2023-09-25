@@ -176,3 +176,7 @@ build/
 .astro/
 .rollup.cache/
 !/packages/kodmq/src/launcher/index.ts
+
+# MacOS
+
+.DS_Store

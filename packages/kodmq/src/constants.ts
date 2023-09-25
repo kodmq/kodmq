@@ -1,4 +1,4 @@
-import { JobStatus, Status, WorkerStatus } from "./types.js"
+import { JobStatus, Status, WorkerStatus } from "./types"
 
 export const Pending = 0
 export const Scheduled = 1
