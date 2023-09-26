@@ -4,8 +4,6 @@ import KodMQ from "../kodmq"
 import { Job, Worker } from "../types"
 import Command from "./Command"
 import { RetryJob } from "./RetryJob"
-import { SaveJob } from "./SaveJob"
-import { SaveWorker } from "./SaveWorker"
 
 export type RunJobArgs = {
   job: Job
@@ -46,7 +44,7 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
   }
 
   async makeSureNoOtherWorkerIsWorkingOnJob() {
-    const workers = await this.kodmq.adapter.getWorkers()
+    const workers = await this.kodmq.workers.all()
     const otherWorker = workers.find((worker) => worker.currentJob?.id === this.job.id && worker.id !== this.worker.id)
 
     if (!otherWorker) return
@@ -55,30 +53,18 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
   }
 
   async setStatusToActive() {
-    const { job } = await SaveJob.run({
-      jobId: this.job.id,
-      attributes: {
-        workerId: this.worker.id,
-        status: Active,
-        startedAt: new Date(),
-      },
-      kodmq: this.kodmq,
+    this.job = await this.kodmq.jobs.update(this.job.id, {
+      workerId: this.worker.id,
+      status: Active,
+      startedAt: new Date(),
     })
-
-    this.job = job
   }
 
   async setWorkerCurrentJob() {
-    const { worker } = await SaveWorker.run({
-      workerId: this.worker.id,
-      attributes: {
-        status: Busy,
-        currentJob: this.job,
-      },
-      kodmq: this.kodmq,
+    this.worker = await this.kodmq.workers.update(this.worker.id, {
+      status: Busy,
+      currentJob: this.job,
     })
-
-    this.worker = worker
   }
 
   async runJob() {
@@ -100,57 +86,33 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
   }
 
   async unsetWorkerCurrentJob() {
-    const { worker } = await SaveWorker.run({
-      workerId: this.worker.id,
-      attributes: { currentJob: undefined },
-      kodmq: this.kodmq,
-    })
-
-    this.worker = worker
+    this.worker = await this.kodmq.workers.update(this.worker.id, { currentJob: undefined })
   }
 
   async setWorkerStatusToIdle() {
     // Do not set status Idle if worker in status Stopping or any other status
     if (this.worker.status !== Busy) return
 
-    const { worker } = await SaveWorker.run({
-      workerId: this.worker.id,
-      attributes: { status: Idle },
-      kodmq: this.kodmq,
-    })
-
-    this.worker = worker
+    this.worker = await this.kodmq.workers.update(this.worker.id, { status: Idle })
   }
 
   async setStatusToCompleted() {
-    const { job } = await SaveJob.run({
-      jobId: this.job.id,
-      attributes: {
-        status: Completed,
-        finishedAt: new Date(),
-      },
-      kodmq: this.kodmq,
+    this.job = await this.kodmq.jobs.update(this.job.id, {
+      status: Completed,
+      finishedAt: new Date(),
     })
-
-    this.job = job
   }
 
   async setStatusToFailed() {
     if (!this.isFailed) return
 
-    const { job } = await SaveJob.run({
-      jobId: this.job.id,
-      attributes: {
-        status: Failed,
-        failedAt: new Date(),
-        failedAttempts: (this.job.failedAttempts || 0) + 1,
-        errorMessage: this.errorMessage,
-        errorStack: this.errorStack,
-      },
-      kodmq: this.kodmq,
+    this.job = await this.kodmq.jobs.update(this.job.id, {
+      status: Failed,
+      failedAt: new Date(),
+      failedAttempts: (this.job.failedAttempts || 0) + 1,
+      errorMessage: this.errorMessage,
+      errorStack: this.errorStack,
     })
-
-    this.job = job
   }
 
   async retryJob() {
@@ -164,12 +126,8 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
 
     if (!newJob) return
 
-    const { job } = await SaveJob.run({
-      jobId: this.job.id,
-      attributes: { retryJobId: newJob.id },
-      kodmq: this.kodmq,
+    this.job = await this.kodmq.jobs.update(this.job.id, {
+      retryJobId: newJob.id,
     })
-
-    this.job = job
   }
 }

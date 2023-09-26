@@ -68,16 +68,15 @@ export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {
   }
 
   async scheduleJob() {
-    this.newJob = {
-      id: await this.kodmq.adapter.getNextJobId(),
+    this.newJob = await this.kodmq.jobs.create({
       status: Scheduled,
       runAt: this.retryAt,
       name: this.job.name,
       payload: this.job.payload,
       failedAttempts: this.failedAttempts,
-    }
+    })
 
-    await this.kodmq.adapter.pushJobToQueue(this.newJob.id, this.newJob.runAt)
+    await this.kodmq.jobs.pushToQueue(this.newJob.id, this.newJob.runAt)
     await this.kodmq.runCallbacks("scheduleJobRetry", this.newJob, this.retryAt!, this.job)
   }
 }

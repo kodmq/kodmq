@@ -1,7 +1,7 @@
 import Redis, { RedisOptions } from "ioredis"
 import { KodMQAdapterError } from "../errors"
 import { GetJobsOptions, GetWorkersOptions } from "../kodmq"
-import { Job, Worker, ID } from "../types"
+import { Job, Worker, ID, JobCreate } from "../types"
 import Adapter from "./Adapter"
 
 type JobTuple = [
@@ -93,10 +93,29 @@ export default class RedisAdapter extends Adapter {
     }
   }
 
-  async saveJob(job: Job) {
+  async createJob(attributes: JobCreate) {
     try {
+      const jobId = await this.getNextJobId()
+      const job = { ...attributes, id: jobId }
+
+      const serialized = await this.serializeJob(job)
+      await this.add(JobsKey, jobId, serialized)
+
+      return job
+    } catch (e) {
+      throw new KodMQAdapterError("Cannot create job", e as Error)
+    }
+  }
+
+  async updateJob(id: ID, attributes: Partial<Job>) {
+    try {
+      const existingJob = await this.getJob(id)
+      const job = { ...existingJob, ...attributes } as Job
+
       const serialized = await this.serializeJob(job)
       await this.add(JobsKey, job.id, serialized)
+
+      return job
     } catch (e) {
       throw new KodMQAdapterError("Cannot save job", e as Error)
     }
@@ -262,10 +281,29 @@ export default class RedisAdapter extends Adapter {
     }
   }
 
-  async saveWorker(worker: Worker) {
+  async createWorker(attributes: Worker) {
     try {
+      const workerId = await this.getNextWorkerId()
+      const worker = { ...attributes, id: workerId }
+
+      const serialized = await this.serializeWorker(worker)
+      await this.add(WorkersKey, workerId, serialized)
+
+      return worker
+    } catch (e) {
+      throw new KodMQAdapterError("Cannot create worker", e as Error)
+    }
+  }
+
+  async updateWorker(id: ID, attributes: Partial<Worker>) {
+    try {
+      const existingWorker = await this.getWorker(id)
+      const worker = { ...existingWorker, ...attributes } as Worker
+
       const serialized = await this.serializeWorker(worker)
       await this.add(WorkersKey, worker.id, serialized)
+
+      return worker
     } catch (e) {
       throw new KodMQAdapterError("Cannot save worker", e as Error)
     }

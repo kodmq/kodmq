@@ -1,5 +1,5 @@
 import Adapter from "./adapters/Adapter"
-import { JobStatuses, WorkerStatuses } from "./constants"
+import { JobStatuses, Pending, Scheduled, WorkerStatuses } from "./constants"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AllowedAny = any
@@ -12,22 +12,25 @@ export type Handlers = Record<JobName, Handler>
 
 export type JobCallback = (job: Job) => void | Promise<void>
 export type JobCallbackName =
+  | "jobCreated"
+  | "jobUpdated"
   | "jobPending"
   | "jobScheduled"
   | "jobActive"
   | "jobCompleted"
   | "jobFailed"
-  | "jobChanged"
+  | "jobCanceled"
 
 export type WorkerCallback = (worker: Worker) => void | Promise<void>
 export type WorkerCallbackName =
+  | "workerCreated"
+  | "workerUpdated"
   | "workerStarted"
   | "workerIdle"
   | "workerBusy"
   | "workerStopping"
   | "workerStopped"
   | "workerKilled"
-  | "workerChanged"
 
 export type CallbackName =
   | JobCallbackName
@@ -66,13 +69,16 @@ export type Worker = {
   stoppedAt?: Date
 }
 
-export type Job<T extends JobPayload = AllowedAny> = {
+export type WorkerCreate = Omit<Worker, "id" | "status">
+export type WorkerUpdate = Omit<Partial<Worker>, "id">
+
+export type Job = {
   id: ID
   workerId?: ID
   retryJobId?: ID
   status: JobStatus
   name: JobName
-  payload: T
+  payload: AllowedAny
   runAt?: Date
   startedAt?: Date
   finishedAt?: Date
@@ -81,6 +87,12 @@ export type Job<T extends JobPayload = AllowedAny> = {
   errorMessage?: string
   errorStack?: string
 }
+
+export type JobCreate = Omit<Job, "id" | "status"> & {
+  status?: Extract<JobStatus, typeof Pending | typeof Scheduled>
+}
+
+export type JobUpdate = Omit<Partial<Job>, "id">
 
 export type Config<THandlers extends Handlers = Handlers> = {
   adapter?: Adapter

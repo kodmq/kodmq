@@ -3,8 +3,6 @@ import { KodMQError } from "../errors"
 import KodMQ from "../kodmq"
 import { ID, Worker } from "../types"
 import Command from "./Command"
-import { SaveJob } from "./SaveJob"
-import { SaveWorker } from "./SaveWorker"
 
 const DefaultStopTimeout = 30 * 1000
 const StopPollingInterval = 100
@@ -39,7 +37,7 @@ export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
   }
 
   async checkIfWorkerCanBeStopped() {
-    this.worker = await this.kodmq.getWorker(this.id)
+    this.worker = await this.kodmq.workers.find(this.id)
 
     // If worker is not found, we assume it was stopped
     if (!this.worker) return this.markAsFinished()
@@ -51,13 +49,9 @@ export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
   }
 
   async setStatusToStopping() {
-    const { worker } = await SaveWorker.run({
-      workerId: this.id,
-      attributes: { status: Stopping },
-      kodmq: this.kodmq,
+    this.worker = await this.kodmq.workers.update(this.id, {
+      status: Stopping,
     })
-
-    this.worker = worker
   }
 
   async waitForStopped() {
@@ -65,7 +59,7 @@ export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      this.worker = await this.kodmq.adapter.getWorker(this.id)
+      this.worker = await this.kodmq.workers.find(this.id)
       if (!this.worker || this.worker.status === Stopped) break
 
       const waitDuration = Date.now() - waitStartedAt
@@ -76,19 +70,15 @@ export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
         // We can't just requeue job earlier as it would be immediately picked up by another worker
         // We need to create a temporary queue for such jobs (?)
         if (this.worker.currentJob) {
-          const { job } = await SaveJob.run({
-            jobId: this.worker.currentJob.id,
-            attributes: { status: Pending },
-            kodmq: this.kodmq,
+          const job = await this.kodmq.jobs.update(this.worker.currentJob.id, {
+            status: Pending,
           })
 
-          await this.kodmq.adapter.prependJobToQueue(job.id)
+          await this.kodmq.jobs.prependToQueue(job.id)
         }
 
-        await SaveWorker.run({
-          workerId: this.worker.id,
-          attributes: { status: Killed },
-          kodmq: this.kodmq,
+        this.worker = await this.kodmq.workers.update(this.id, {
+          status: Killed,
         })
 
         throw new KodMQError(`Worker ${this.worker.id} is not stopped after ${stopTimeout}ms`)

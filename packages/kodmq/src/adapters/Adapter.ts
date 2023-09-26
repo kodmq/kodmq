@@ -1,7 +1,7 @@
 import { Pending, Scheduled } from "../constants"
 import { KodMQAdapterError, KodMQError } from "../errors"
 import { GetJobsOptions, GetWorkersOptions } from "../kodmq"
-import { ID, Job, Worker } from "../types"
+import { ID, Job, JobCreate, JobUpdate, Worker, WorkerCreate, WorkerUpdate } from "../types"
 
 export type AdapterHandler = (job: Job) => Promise<void>
 export type AdapterKeepSubscribed = () => Promise<boolean>
@@ -25,12 +25,17 @@ export default abstract class Adapter {
   abstract getJob(id: ID): Promise<Job | null | void>
 
   /**
-   * Save a job to the database. This method is used only to store historical information about job.
-   * Do not use it to push a job to the queue.
-   *
-   * @param job
+   * Create job in the database
    */
-  abstract saveJob(job: Job): Promise<void>
+  abstract createJob(attributes: JobCreate): Promise<Job>
+
+  /**
+   * Update job in the database
+   *
+   * @param id
+   * @param attributes
+   */
+  abstract updateJob(id: ID, attributes: JobUpdate): Promise<Job>
 
   /**
    * Push a job to the queue
@@ -80,7 +85,6 @@ export default abstract class Adapter {
         await handler(job)
       }
     } catch (e) {
-      if (e instanceof KodMQError) throw e
       throw new KodMQAdapterError("Cannot subscribe to jobs", e as Error)
     }
   }
@@ -96,15 +100,22 @@ export default abstract class Adapter {
   abstract getWorkers(options?: GetWorkersOptions): Promise<Worker[]>
 
   /**
-   * Get a worker from the database
+   * Get worker from the database
    */
   abstract getWorker(id: ID): Promise<Worker | null>
 
   /**
-   * Create or update a worker in the database
-   * @param worker
+   * Create worker in the database
    */
-  abstract saveWorker(worker: Worker): Promise<void>
+  abstract createWorker(attributes: WorkerCreate): Promise<Worker>
+
+  /**
+   * Update worker in the database
+   *
+   * @param id
+   * @param attributes
+   */
+  abstract updateWorker(id: ID, attributes: WorkerUpdate): Promise<Worker>
 
   /**
    * Erase all data from the database

@@ -34,6 +34,13 @@ export const JobStatuses = [
   Canceled,
 ] as const
 
+// TODO: Add `as const` and fix all the errors
+export const FinishedJobStatuses = [
+  Completed,
+  Failed,
+  Canceled,
+]
+
 export const WorkerStatuses = [
   Idle,
   Busy,
@@ -42,12 +49,19 @@ export const WorkerStatuses = [
   Killed,
 ] as const
 
+// TODO: Add `as const` and fix all the errors
+export const ActiveWorkerStatuses = [
+  Idle,
+  Busy,
+]
+
 export const ReadableStatuses: Record<Status, string> = {
   [Pending]: "Pending",
   [Scheduled]: "Scheduled",
   [Active]: "Active",
   [Completed]: "Completed",
   [Failed]: "Failed",
+  [Canceled]: "Canceled",
   [Idle]: "Idle",
   [Busy]: "Busy",
   [Stopping]: "Stopping",

@@ -4,7 +4,6 @@ import KodMQ from "../kodmq"
 import { Worker } from "../types"
 import Command from "./Command"
 import { RunJob } from "./RunJob"
-import { SaveWorker } from "./SaveWorker"
 
 export type StartWorkerArgs = {
   worker: Worker,
@@ -42,15 +41,9 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
   }
 
   async setStartedAt() {
-    const { worker } = await SaveWorker.run({
-      workerId: this.worker.id,
-      attributes: {
-        startedAt: new Date(),
-      },
-      kodmq: this.kodmq,
+    this.worker = await this.kodmq.workers.update(this.worker.id, {
+      startedAt: new Date(),
     })
-
-    this.worker = worker
   }
 
   async triggerWorkerStartedCallback() {
@@ -60,7 +53,7 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
   async startProcessingJobs() {
     const keepProcessing = async () => {
       try {
-        const updatedWorker = await this.kodmq.adapter.getWorker(this.worker.id)
+        const updatedWorker = await this.kodmq.workers.find(this.worker.id)
         if (!updatedWorker) return false
 
         this.worker = updatedWorker as TArgs["worker"]
@@ -86,15 +79,9 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
   }
 
   async setStatusToStopped() {
-    const { worker } = await SaveWorker.run({
-      workerId: this.worker.id,
-      attributes: {
-        status: Stopped,
-        stoppedAt: new Date(),
-      },
-      kodmq: this.kodmq,
+    this.worker = await this.kodmq.workers.update(this.worker.id, {
+      status: Stopped,
+      stoppedAt: new Date(),
     })
-
-    this.worker = worker
   }
 }
