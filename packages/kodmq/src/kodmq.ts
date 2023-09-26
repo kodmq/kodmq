@@ -225,7 +225,7 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
    *
    * @param interval
    */
-  async waitUntilAllJobsAreCompleted(interval = 300) {
+  async waitUntilAllJobsCompleted(interval = 300) {
     try {
       // eslint-disable-next-line no-constant-condition
       while (true) {
@@ -245,7 +245,7 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
   /**
    * Wait until all workers are stopped
    */
-  async waitUntilAllWorkersAreStopped(interval = 300) {
+  async waitUntilAllWorkersStopped(interval = 300) {
     try {
       // eslint-disable-next-line no-constant-condition
       while (true) {

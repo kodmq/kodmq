@@ -86,7 +86,7 @@ describe("Launcher", () => {
 
     setTimeout(async () => await kodmq.stopAllAndCloseConnection(), 500)
     await launcher(kodmq, { logger: consoleLogger })
-    await kodmq.waitUntilAllWorkersAreStopped()
+    await kodmq.waitUntilAllWorkersStopped()
 
     expect(consoleOutput).toContain("Starting KodMQ...")
     expect(consoleOutput).toContain(`Concurrency: ${desiredConcurrency}`)
@@ -107,7 +107,7 @@ describe("Launcher", () => {
 
     setTimeout(async () => await kodmq.stopAllAndCloseConnection(), 500)
     await launcher(kodmq, { concurrency: desiredConcurrency, logger: consoleLogger })
-    await kodmq.waitUntilAllWorkersAreStopped()
+    await kodmq.waitUntilAllWorkersStopped()
 
     expect(consoleOutput).toContain("Starting KodMQ...")
     expect(consoleOutput).toContain(`Concurrency: ${desiredConcurrency}`)

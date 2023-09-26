@@ -5,11 +5,12 @@ export const Scheduled = 1
 export const Active = 2
 export const Completed = 3
 export const Failed = 4
-export const Idle = 5
-export const Busy = 6
-export const Stopping = 7
-export const Stopped = 8
-export const Killed = 9
+export const Canceled = 5
+export const Idle = 6
+export const Busy = 7
+export const Stopping = 8
+export const Stopped = 9
+export const Killed = 10
 
 export const Statuses = {
   Pending,
@@ -30,6 +31,7 @@ export const JobStatuses = [
   Active,
   Completed,
   Failed,
+  Canceled,
 ] as const
 
 export const WorkerStatuses = [

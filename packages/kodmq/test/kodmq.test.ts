@@ -110,7 +110,7 @@ describe("KodMQ", () => {
 
     await Promise.race([
       kodmq.start(),
-      kodmq.waitUntilAllJobsAreCompleted(),
+      kodmq.waitUntilAllJobsCompleted(),
     ])
       .finally(async () => await kodmq.stopAllAndCloseConnection())
 
