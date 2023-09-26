@@ -32,6 +32,8 @@ export class SaveJob<TArgs extends SaveJobArgs> extends Command<TArgs> {
 
   constructor(args: TArgs) {
     super(args)
+
+    this.name = "SaveJob"
     this.verify()
 
     this.jobId = args.jobId

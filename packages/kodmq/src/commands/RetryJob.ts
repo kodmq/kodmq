@@ -26,6 +26,8 @@ export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {
 
   constructor(args: TArgs) {
     super(args)
+
+    this.name = "RetryJob"
     this.verify()
 
     this.job = args.job

@@ -17,8 +17,9 @@ export type RootLayoutProps = {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html
-      className="h-full"
       lang="en"
+      className="h-full"
+      suppressHydrationWarning
     >
       <body className={cn("font-sans antialiased min-h-full flex flex-col text-black dark:text-zinc-100 bg-white dark:bg-zinc-900", inter.variable)}>
         <Providers>

@@ -6,9 +6,10 @@ export const Active = 2
 export const Completed = 3
 export const Failed = 4
 export const Idle = 5
-export const Stopping = 6
-export const Stopped = 7
-export const Killed = 8
+export const Busy = 6
+export const Stopping = 7
+export const Stopped = 8
+export const Killed = 9
 
 export const Statuses = {
   Pending,
@@ -17,6 +18,7 @@ export const Statuses = {
   Completed,
   Failed,
   Idle,
+  Busy,
   Stopping,
   Stopped,
   Killed,
@@ -32,7 +34,7 @@ export const JobStatuses = [
 
 export const WorkerStatuses = [
   Idle,
-  Active,
+  Busy,
   Stopping,
   Stopped,
   Killed,
@@ -45,6 +47,7 @@ export const ReadableStatuses: Record<Status, string> = {
   [Completed]: "Completed",
   [Failed]: "Failed",
   [Idle]: "Idle",
+  [Busy]: "Busy",
   [Stopping]: "Stopping",
   [Stopped]: "Stopped",
   [Killed]: "Killed",

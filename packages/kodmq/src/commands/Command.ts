@@ -5,6 +5,7 @@ export type RunOptions = {
 }
 
 export default abstract class Command<T = unknown> {
+  name: string
   args: T
   requiredArgs: string[] = []
   steps: string[] = []
@@ -18,6 +19,7 @@ export default abstract class Command<T = unknown> {
 
   protected constructor(args: T) {
     this.args = args
+    this.name = "Command"
   }
 
   verify() {

@@ -10,4 +10,8 @@
   .w-prose {
     width: 65ch;
   }
+
+  .text-accent {
+    @apply font-medium text-black dark:text-white;
+  }
 }

@@ -113,7 +113,7 @@ export default async function launcher(kodmq: KodMQ, options: LaunchOptions = {}
   })
 
   kodmq.on("scheduleJobRetry", (job, retryAt, failedJob) => {
-    logger.logTimeline(`Job #${failedJob.id}`, `Retrying ${formatName(job.name)} with new ID #${job.id} in ${formatDuration(new Date(), retryAt, "yellowBright")}`)
+    logger.logTimeline(`Job #${failedJob.id}`, `Retrying ${formatName(job.name)} as new job with id ${colorette.gray(`#${job.id}`)} in ${formatDuration(new Date(), retryAt, "yellowBright")}`)
   })
 
   onShutdown(async () => {

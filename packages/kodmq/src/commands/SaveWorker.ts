@@ -1,11 +1,11 @@
-import { Active, Idle, Killed, Stopped, Stopping } from "../constants"
+import { Busy, Idle, Killed, Stopped, Stopping } from "../constants"
 import KodMQ from "../kodmq"
 import { ID, Worker, WorkerCallbackName, WorkerStatus } from "../types"
 import Command from "./Command"
 
 const StatusCallbacks: Record<WorkerStatus, WorkerCallbackName> = {
   [Idle]: "workerIdle",
-  [Active]: "workerActive",
+  [Busy]: "workerBusy",
   [Stopping]: "workerStopping",
   [Stopped]: "workerStopped",
   [Killed]: "workerKilled",
@@ -34,6 +34,8 @@ export class SaveWorker<TArgs extends SaveWorkerArgs = SaveWorkerArgs> extends C
 
   constructor(args: TArgs) {
     super(args)
+
+    this.name = "SaveWorker"
     this.verify()
 
     this.workerId = args.workerId

@@ -5,16 +5,18 @@ export type TableProps = ComponentProps<"table">
 
 export function Table({ children }: TableProps) {
   return (
-    <table className="min-w-full divide-y divide-zinc-300 overflow-hidden rounded-2xl dark:divide-zinc-700">
-      {children}
-    </table>
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-zinc-200 overflow-hidden rounded-2xl dark:divide-zinc-800">
+        {children}
+      </table>
+    </div>
   )
 }
 
 export function TableHeader({ children, className, ...props }: ComponentProps<"thead">) {
   return (
     <thead
-      className={cn("bg-white/5 dark:bg-white/5", className)}
+      className={cn("", className)}
       {...props}
     >
       {children}
@@ -37,7 +39,7 @@ export function TableHead({ first, last, children, className, ...props }: Compon
   return (
     <th
       className={cn(
-        "py-3.5 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-100",
+        "py-3.5 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-100 whitespace-nowrap",
         first && "pl-4 pr-3 sm:pl-6 lg:pl-8",
         last && "pl-3 pr-4 sm:pr-6 lg:pr-8",
         !first && !last && "px-3",
@@ -72,11 +74,12 @@ export function TableRow({ children, className, ...props }: ComponentProps<"tr">
   )
 }
 
-export function TableCell({ first, last, children, className, ...props }: ComponentProps<"td"> & { first?: boolean, last?: boolean }) {
+export function TableCell({ first, last, accent, children, className, ...props }: ComponentProps<"td"> & { first?: boolean, last?: boolean, accent?: boolean }) {
   return (
     <td
       className={cn(
-        "whitespace-nowrap py-4 text-sm text-zinc-500",
+        "whitespace-nowrap py-4 text-sm",
+        accent ? "font-medium text-zinc-900 dark:text-zinc-100" : "text-zinc-500",
         first && "pl-4 pr-3 sm:pl-6 lg:pl-8",
         last && "pl-3 pr-4 sm:pr-6 lg:pr-8",
         !first && !last && "px-3",

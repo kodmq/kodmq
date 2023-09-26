@@ -70,7 +70,7 @@ export default class RedisAdapter extends Adapter {
       const offset = (options.offset || 0)
 
       const rawJobs = await this.getAll(JobsKey, "-inf", "+inf", offset, limit - 1)
-      const jobs = await Promise.all(rawJobs.map((job) => this.deserializeJob(job)))
+      const jobs = await Promise.all(rawJobs.reverse().map((job) => this.deserializeJob(job)))
 
       if (options.status !== undefined) {
         return jobs.filter((job) => job.status === options.status)
@@ -239,7 +239,7 @@ export default class RedisAdapter extends Adapter {
       const offset = (options.offset || 0)
 
       const rawWorkers = await this.getAll(WorkersKey, "-inf", "+inf", offset, limit - 1)
-      const workers = await Promise.all(rawWorkers.map((worker) => this.deserializeWorker(worker)))
+      const workers = await Promise.all(rawWorkers.reverse().map((worker) => this.deserializeWorker(worker)))
 
       if (options.status) {
         return workers.filter((worker) => worker.status === options.status)

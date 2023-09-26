@@ -25,7 +25,7 @@ function Heading<T extends Tag = "h1">({ tag = "h1" as T, className, children, .
 }
 
 const titleVariants = cva([
-  "w-prose dark:text-white",
+  "dark:text-white",
 ], {
   variants: {
     tag: {

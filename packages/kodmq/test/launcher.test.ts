@@ -72,7 +72,7 @@ describe("Launcher", () => {
     expect(consoleOutput).toContain(`[Job #3] Queued I Was Born To Fail`)
     expect(consoleOutput).toContain("[Job #3] Running I Was Born To Fail…")
     expect(consoleOutput).toContain("[Job #3] Failed I Was Born To Fail in")
-    expect(consoleOutput).toContain("[Job #3] Retrying I Was Born To Fail with new ID #4 in")
+    expect(consoleOutput).toContain("[Job #3] Retrying I Was Born To Fail as new job with id #4 in")
   })
 
   it("loads parameters from environment variables", async () => {

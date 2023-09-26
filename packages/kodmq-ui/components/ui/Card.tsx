@@ -1,128 +1,83 @@
-"use client"
-
-import { type MotionValue, motion, useMotionTemplate, useMotionValue } from "framer-motion"
+import { cva, VariantProps } from "class-variance-authority"
 import Link from "next/link"
-import { ComponentPropsWithoutRef, ReactNode } from "react"
+import { ComponentProps } from "react"
 import { GridPattern } from "@/components/content/GridPattern"
-import Heading, { HeadingProps } from "@/components/typography/Heading"
-import Text, { TextProps } from "@/components/typography/Text"
-import { ExtendProps, Icon } from "@/lib/types"
+import Text from "@/components/typography/Text"
+import { ExtendProps } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
-type Pattern = Pick<
-  ComponentPropsWithoutRef<typeof GridPattern>,
-  "y" | "squares"
->
-
-const patterns: Pattern[] = [
-  {
-    y: 16,
-    squares: [
-      [0, 1],
-      [1, 3],
-    ],
-  },
-  {
-    y: -6,
-    squares: [
-      [-1, 2],
-      [1, 3],
-    ],
-  },
-  {
-    y: 32,
-    squares: [
-      [0, 2],
-      [1, 4],
-    ],
-  },
-  {
-    y: 22,
-    squares: [[0, 1]],
-  },
-]
-
 export type CardProps = ExtendProps<"div", {
-  icon?: Icon
+  variant?: VariantProps<typeof cardVariants>["variant"]
   href?: string
-  pattern?: number
-  animated?: boolean
-  children: ReactNode
+  pattern?: boolean | number
+  highlight?: boolean
 }>
 
-export function Card({ href, pattern = 0, animated = false, children }: CardProps) {
-  let mouseX = useMotionValue(0)
-  let mouseY = useMotionValue(0)
+export default function Card({ variant = "default", href, pattern, highlight, className, children, ...props }: CardProps) {
+  return (
+    <div 
+      className={cn("bg-zinc-50 dark:bg-zinc-900 rounded-2xl", className)}
+      {...props}
+    >
+      <div className={cardVariants({ variant, href: Boolean(href), highlight: Boolean(highlight) })}>
+        {pattern !== undefined && (
+          <GridPattern
+            preset={typeof pattern === "number" ? pattern : 0}
+            x="50%"
+            width={50}
+            height={50}
+            className={gridPatternVariants({ variant, href: Boolean(href), highlight: Boolean(highlight) })}
+          />
+        )}
 
-  function onMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent<HTMLDivElement>) {
-    if (!animated) return
+        {children}
 
-    let { left, top } = currentTarget.getBoundingClientRect()
+        {href && (
+          <Link
+            href={href}
+            className="absolute inset-0 z-10"
+          />
+        )}
+      </div>
+    </div>
+  )
+}
 
-    mouseX.set(clientX - left)
-    mouseY.set(clientY - top)
-  }
-
+function Padding({ className, children, ...props }: ComponentProps<"div">) {
   return (
     <div
-      onMouseMove={onMouseMove}
       className={cn(
-        "overflow-hidden group relative flex rounded-2xl bg-zinc-50 transition-shadow dark:bg-white/2.5",
-        animated && "hover:shadow-md hover:shadow-zinc-900/5 dark:hover:shadow-black/5",
+        "relative px-5 py-4",
+        className
       )}
-    >
-      <CardPattern
-        {...patterns[pattern]}
-        animated={animated}
-        mouseX={mouseX}
-        mouseY={mouseY}
-      />
-
-      <div
-        className={cn(
-          "absolute inset-0 rounded-2xl ring-1 ring-inset ring-zinc-900/7.5 dark:ring-white/10",
-          animated && "group-hover:ring-zinc-900/10 dark:group-hover:ring-white/20",
-        )}
-      />
-
-      <div className="relative w-full rounded-2xl">
-        {children}
-      </div>
-
-      {href && (
-        <Link
-          href={href}
-          className="absolute inset-0 rounded-2xl"
-        />
-      )}
-    </div>
-  )
-}
-
-export function CardIcon({ icon: Icon }: { icon: Icon }) {
-  return (
-    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-900/5 ring-1 ring-zinc-900/25 backdrop-blur-[2px] transition duration-300 group-hover:bg-white/50 group-hover:ring-zinc-900/25 dark:bg-white/7.5 dark:ring-white/15 dark:group-hover:bg-indigo-300/10 dark:group-hover:ring-indigo-400">
-      <Icon className="h-5 w-5 fill-zinc-700/10 stroke-zinc-700 transition-colors duration-300 group-hover:stroke-zinc-900 dark:fill-white/10 dark:stroke-zinc-400 dark:group-hover:fill-indigo-300/10 dark:group-hover:stroke-indigo-400" />
-    </div>
-  )
-}
-
-export function CardTitle({ tag, className, children, ...props }: HeadingProps) {
-  return (
-    <Heading
-      tag={tag || "h3"}
-      className={cn("mb-0", className)}
       {...props}
     >
       {children}
-    </Heading>
+    </div>
   )
 }
 
-export function CardDescription({ children, className, ...props }: TextProps) {
+function Title({ className, children, ...props }: ComponentProps<"h3">) {
+  return (
+    <h3
+      className={cn(
+        "relative text-base font-semibold leading-7 dark:text-white",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </h3>
+  )
+}
+
+function Description({ className, children, ...props }: ComponentProps<typeof Text>) {
   return (
     <Text
-      className={cn("text-sm", className)}
+      className={cn(
+        "relative text-sm font-medium",
+        className
+      )}
       {...props}
     >
       {children}
@@ -130,60 +85,87 @@ export function CardDescription({ children, className, ...props }: TextProps) {
   )
 }
 
-export function CardPadding({ children }: { children: ReactNode }) {
+function Content({ className, children, ...props }: ComponentProps<"div">) {
   return (
-    <div className="px-5 py-4">
+    <div
+      className={cn(
+        "relative mt-2",
+        className
+      )}
+      {...props}
+    >
       {children}
     </div>
   )
 }
 
-function CardPattern({
-  animated,
-  mouseX,
-  mouseY,
-  ...gridProps
-}: Pattern & {
-  animated: boolean
-  mouseX: MotionValue<number>
-  mouseY: MotionValue<number>
-}) {
-  let maskImage = useMotionTemplate`radial-gradient(180px at ${mouseX}px ${mouseY}px, white, transparent)`
-  let style = { maskImage, WebkitMaskImage: maskImage }
+Card.Padding = Padding
+Card.Title = Title
+Card.Description = Description
+Card.Content = Content
 
-  return (
-    <div className="pointer-events-none">
-      <div className="absolute inset-0 rounded-2xl transition duration-300 [mask-image:linear-gradient(white,transparent)] group-hover:opacity-50">
-        <GridPattern
-          width={72}
-          height={56}
-          x="50%"
-          className="absolute inset-x-0 inset-y-[-30%] h-[160%] w-full skew-y-[-18deg] fill-black/[0.02] stroke-black/5 dark:fill-white/1 dark:stroke-white/2.5"
-          {...gridProps}
-        />
-      </div>
+const cardVariants = cva([
+  "group relative overflow-hidden rounded-2xl border",
+], {
+  variants: {
+    variant: {
+      default: "",
+      red: "",
+      green: "",
+    },
 
-      {animated && (
-        <>
-          <motion.div
-            className="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-50 to-purple-50 opacity-0 transition duration-300 group-hover:opacity-100 dark:from-indigo-950 dark:to-indigo-900"
-            style={style}
-          />
+    href: {
+      true: "cursor-pointer hover:border-black/10 hover:dark:border-white/7.5",
+      false: "",
+    },
+    
+    highlight: {
+      true: "border-transparent shadow-sm",
+      false: "border-black/5 bg-black/2.5 dark:border-white/5 dark:bg-white/1",
+    },
+  },
+  
+  compoundVariants: [
+    { variant: "default", href: true, className: "hover:bg-indigo-900/5 hover:dark:bg-indigo-900/10" },
+    { variant: "default", highlight: true, className: "bg-indigo-900/5 shadow-indigo-600 dark:bg-indigo-900/10 dark:shadow-indigo-500" },
 
-          <motion.div
-            className="absolute inset-0 rounded-2xl opacity-0 mix-blend-overlay transition duration-300 group-hover:opacity-100"
-            style={style}
-          >
-            <GridPattern
-              width={72}
-              height={56}
-              x="50%"
-              className="absolute inset-x-0 inset-y-[-30%] h-[160%] w-full skew-y-[-18deg] fill-black/50 stroke-black/70 dark:fill-white/2.5 dark:stroke-white/10"
-              {...gridProps}
-            />
-          </motion.div>
-        </>
-      )}
-    </div>
-  )
-}
+    { variant: "red", href: true, className: "hover:bg-red-900/5 hover:dark:bg-red-900/10" },
+    { variant: "red", highlight: true, className: "bg-red-900/5 shadow-red-600 dark:bg-red-900/10 dark:shadow-red-500" },
+
+    { variant: "green", href: true, className: "hover:bg-green-900/5 hover:dark:bg-green-900/10" },
+    { variant: "green", highlight: true, className: "bg-green-900/5 shadow-green-600 dark:bg-green-900/10 dark:shadow-green-500" },
+  ],
+})
+
+const gridPatternVariants = cva([
+  "absolute inset-x-0 inset-y-[-30%] h-[160%] w-full opacity-50",
+], {
+  variants: {
+    variant: {
+      default: "",
+      red: "",
+      green: "",
+    },
+    
+    href: {
+      true: "",
+      false: "",
+    },
+    
+    highlight: {
+      true: "",
+      false: "",
+    },
+  },
+  
+  compoundVariants: [
+    { variant: "default", href: true, className: "group-hover:fill-indigo-900/10 group-hover:stroke-indigo-900/20 group-hover:dark:fill-indigo-900/10 group-hover:dark:stroke-indigo-900/50" },
+    { variant: "default", highlight: true, className: "fill-indigo-900/20 stroke-indigo-900/30 dark:fill-indigo-900/20 dark:stroke-indigo-900/70" },
+
+    { variant: "red", href: true, className: "group-hover:fill-red-900/10 group-hover:stroke-red-900/20 group-hover:dark:fill-red-900/10 group-hover:dark:stroke-red-900/50" },
+    { variant: "red", highlight: true, className: "fill-red-900/20 stroke-red-900/30 dark:fill-red-900/20 dark:stroke-red-900/70" },
+
+    { variant: "green", href: true, className: "group-hover:fill-green-900/10 group-hover:stroke-green-900/20 group-hover:dark:fill-green-900/10 group-hover:dark:stroke-green-900/50" },
+    { variant: "green", highlight: true, className: "fill-green-900/20 stroke-green-900/30 dark:fill-green-900/20 dark:stroke-green-900/70" },
+  ],
+})

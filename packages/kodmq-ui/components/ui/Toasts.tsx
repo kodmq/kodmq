@@ -2,7 +2,7 @@
 
 import * as Toast from "@radix-ui/react-toast"
 import { motion, AnimatePresence } from "framer-motion"
-import { Card, CardPadding, CardDescription, CardTitle } from "@/components/ui/Card"
+import Card from "@/components/ui/Card"
 import { closeToast, useToasts } from "@/stores/toast"
 
 export default function Toasts() {
@@ -19,24 +19,28 @@ export default function Toasts() {
             key={toast.id}
           >
             <motion.div
-              initial={{ opacity: 0, x: 100 }}
+              initial={{ opacity: 0, x: 256 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 100 }}
+              exit={{ opacity: 0, x: 256 }}
               onClick={() => closeToast(toast.id)}
             >
-              <Card>
-                <CardPadding>
+              <Card
+                pattern
+                highlight
+                variant={toast.variant}
+              >
+                <Card.Padding>
                   <Toast.Title asChild>
-                    <CardTitle className="mb-0.5">
+                    <Card.Title>
                       {toast.title}
-                    </CardTitle>
+                    </Card.Title>
                   </Toast.Title>
                   <Toast.Description asChild>
-                    <CardDescription>
+                    <Card.Description>
                       {toast.description}
-                    </CardDescription>
+                    </Card.Description>
                   </Toast.Description>
-                </CardPadding>
+                </Card.Padding>
               </Card>
             </motion.div>
           </Toast.Root>

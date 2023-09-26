@@ -1,4 +1,5 @@
 import { create } from "zustand"
+import { CardProps } from "@/components/ui/Card"
 
 type ID = string
 
@@ -6,6 +7,8 @@ type Toast = {
 	id: ID
 	title: string
 	description: string
+  variant?: CardProps["variant"]
+  hideAfter?: number
 }
 
 type ToastStore = {
@@ -16,13 +19,15 @@ type ToastStore = {
 	closeToast: (id: string) => void
 }
 
+const DefaultHideAfter = 3500
+
 const store = create<ToastStore>((set, get) => ({
   toasts: [],
   timers: {},
 
   toast: (toastWithoutId: Omit<Toast, "id">) => {
     const { toasts, timers } = get()
-		
+
     const toast: Toast = {
       id: Math.random().toString(36).substring(7),
       ...toastWithoutId,
@@ -30,7 +35,7 @@ const store = create<ToastStore>((set, get) => ({
 		
     const timer = setTimeout(() => {
       get().closeToast(toast.id)
-    }, 3000)
+    }, toastWithoutId.hideAfter ?? DefaultHideAfter)
 		
     set({
       toasts: [...toasts, toast],

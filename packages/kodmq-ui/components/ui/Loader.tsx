@@ -57,7 +57,7 @@ const containerVariants = cva(["flex items-center"], {
   variants: {
     size: {
       xs: "gap-0.5",
-      sm: "gap-1",
+      sm: "gap-1.5",
       md: "gap-1.5",
       lg: "gap-2",
     },

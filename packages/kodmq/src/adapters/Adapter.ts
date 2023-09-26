@@ -1,3 +1,4 @@
+import { Pending, Scheduled } from "../constants"
 import { KodMQAdapterError, KodMQError } from "../errors"
 import { GetJobsOptions, GetWorkersOptions } from "../kodmq"
 import { ID, Job, Worker } from "../types"
@@ -70,8 +71,11 @@ export default abstract class Adapter {
       while (true) {
         if (!await keepSubscribed()) break
 
+        // FIXME: This is hack to avoid picking the same job by multiple workers
+        await new Promise((resolve) => setTimeout(resolve, Math.random() * 50))
+
         const job = await this.popJobFromQueue()
-        if (!job) continue
+        if (!job || ![Pending, Scheduled].includes(job.status)) continue
 
         await handler(job)
       }

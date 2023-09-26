@@ -1,4 +1,4 @@
-import { Active, Idle, Stopped } from "../constants"
+import { Busy, Idle, Stopped } from "../constants"
 import { KodMQError } from "../errors"
 import KodMQ from "../kodmq"
 import { Worker } from "../types"
@@ -27,6 +27,8 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
 
   constructor(args: TArgs) {
     super(args)
+
+    this.name = "StartWorker"
     this.verify()
 
     this.worker = args.worker
@@ -62,7 +64,7 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
         if (!updatedWorker) return false
 
         this.worker = updatedWorker as TArgs["worker"]
-        return [Idle, Active].includes(this.worker.status)
+        return [Idle, Busy].includes(this.worker.status)
       } catch (e) {
         return false
       }

@@ -23,7 +23,7 @@ export type WorkerCallback = (worker: Worker) => void | Promise<void>
 export type WorkerCallbackName =
   | "workerStarted"
   | "workerIdle"
-  | "workerActive"
+  | "workerBusy"
   | "workerStopping"
   | "workerStopped"
   | "workerKilled"

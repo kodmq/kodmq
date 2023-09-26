@@ -1,110 +1,153 @@
-import { Active, Failed, Pending, Scheduled } from "kodmq/constants"
+import StatusBadge from "@/components/content/StatusBadge"
+import { Failed, Pending, ReadableStatuses, Scheduled } from "kodmq/constants"
 import { JobStatus, Job } from "kodmq/types"
 import EmptyValue from "@/components/content/EmptyValue"
 import Payload from "@/components/content/Payload"
+import JobIcon from "@/components/icons/JobIcon"
+import JobsTableRowActions from "@/components/job/JobsTableRowActions"
 import Badge from "@/components/ui/Badge"
-import { Card, CardPadding } from "@/components/ui/Card"
+import Card from "@/components/ui/Card"
+import EmptyState from "@/components/ui/EmptyState"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
 import { formatDate, formatDuration, numberWithOrdinal, titleize } from "@/lib/utils"
 
 export type JobsTableProps = {
   jobs: Job[],
-  status: JobStatus,
+  status?: JobStatus,
 }
 
 export default function JobsTable({ jobs, status }: JobsTableProps) {
-  if (!jobs.length) return null
-  
-  const showRunAt = status == Scheduled
-  const showStartedAt = ![Pending, Scheduled].includes(status)
-  const showElapsedTime = ![Pending, Scheduled, Active].includes(status)
-  const showAttempt = status === Failed
-  const showError = status === Failed
-  const showRetryJobId = status === Failed
+  if (!jobs.length) {
+    return (
+      <EmptyState
+        icon={JobIcon}
+        title="No jobs found"
+        description={(
+          <>
+            There are no jobs with <span className="text-accent">{ReadableStatuses[status]}</span> status
+          </>
+        )}
+      />
+    )
+  }
+
+  const statusAll = status === undefined
+
+  const showStatus = statusAll
+  const showRunAt = statusAll || status == Scheduled
+  const showStartedAt = statusAll || ![Pending, Scheduled].includes(status)
+  const showElapsedTime = statusAll || ![Pending, Scheduled].includes(status)
+  const showAttempt = statusAll || status === Failed
+  const showError = statusAll || status === Failed
+  const showRetryJobId = statusAll || status === Failed
   
   return (
     <Card>
-      <CardPadding>
-        <Table className="overflow-hidden rounded">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="pl-4">Job ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Payload</TableHead>
+      <Table className="overflow-hidden rounded">
+        <TableHeader>
+          <TableRow>
+            <TableHead
+              first
+              className="pl-4"
+            >
+              #
+            </TableHead>
 
-              {showRunAt && <TableHead>Run At</TableHead>}
-              {showStartedAt && <TableHead>Started At</TableHead>}
-              {showElapsedTime && <TableHead>Elapsed Time</TableHead>}
-              {showAttempt && <TableHead />}
-              {showError && <TableHead>Error</TableHead>}
-              {showRetryJobId && <TableHead>Retry Job ID</TableHead>}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {jobs.map((job) => (
-              <TableRow key={job.id}>
-                <TableCell className="pl-4 font-medium">
-                  {job.id}
-                </TableCell>
+            {showStatus && (
+              <TableHead>
+                Status
+              </TableHead>
+            )}
 
+            <TableHead>Name</TableHead>
+            <TableHead>Payload</TableHead>
+
+            {showRunAt && <TableHead>Run At</TableHead>}
+            {showStartedAt && <TableHead>Started At</TableHead>}
+            {showElapsedTime && <TableHead>Elapsed Time</TableHead>}
+            {showAttempt && <TableHead />}
+            {showError && <TableHead>Error</TableHead>}
+            {showRetryJobId && <TableHead>Retry ID</TableHead>}
+            <TableHead last />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {jobs.map((job) => (
+            <TableRow key={job.id}>
+              <TableCell
+                first  
+                className="pl-4 font-medium"
+              >
+                {job.id}
+              </TableCell>
+
+              {showStatus && (
                 <TableCell>
-                  {titleize(job.name)}
+                  <StatusBadge status={job.status} />
                 </TableCell>
+              )}
 
-                <TableCell>
-                  {job.payload !== null ? (
-                    <Payload className="text-sm text-neutral-500">{job.payload}</Payload>
+              <TableCell accent>
+                {titleize(job.name)}
+              </TableCell>
+
+              <TableCell>
+                {job.payload !== null ? (
+                  <Payload className="text-sm text-neutral-500">{job.payload}</Payload>
+                ) : (
+                  <EmptyValue />
+                )}
+              </TableCell>
+
+              {showRunAt && (
+                <TableCell title={job.runAt?.toString()}>
+                  {formatDate(job.runAt) ?? <EmptyValue />}
+                </TableCell>
+              )}
+
+              {showStartedAt && (
+                <TableCell title={job.startedAt?.toString()}>
+                  {formatDate(job.startedAt) ?? <EmptyValue />}
+                </TableCell>
+              )}
+
+              {showElapsedTime && (
+                <TableCell title={job.finishedAt?.toString()}>
+                  {formatDuration(job.startedAt, job.finishedAt) ?? <EmptyValue />}
+                </TableCell>
+              )}
+
+              {showAttempt && (
+                <TableCell className="text-right">
+                  {job.failedAttempts && job.failedAttempts > 0 ? (
+                    <Badge>
+                      {numberWithOrdinal(job.failedAttempts)}
+                    </Badge>
                   ) : (
                     <EmptyValue />
                   )}
                 </TableCell>
+              )}
 
-                {showRunAt && (
-                  <TableCell title={job.runAt?.toString()}>
-                    {formatDate(job.runAt) ?? <EmptyValue />}
-                  </TableCell>
-                )}
+              {showError && (
+                <TableCell>
+                  {job.errorMessage}
+                </TableCell>
+              )}
 
-                {showStartedAt && (
-                  <TableCell title={job.startedAt?.toString()}>
-                    {formatDate(job.startedAt) ?? <EmptyValue />}
-                  </TableCell>
-                )}
+              {showRetryJobId && (
+                <TableCell>
+                  {job.retryJobId ? `#${job.retryJobId}` : <EmptyValue />}
+                </TableCell>
+              )}
 
-                {showElapsedTime && (
-                  <TableCell title={job.finishedAt?.toString()}>
-                    {formatDuration(job.startedAt, job.finishedAt) ?? <EmptyValue />}
-                  </TableCell>
-                )}
-
-                {showAttempt && (
-                  <TableCell className="text-right">
-                    {job.failedAttempts && job.failedAttempts > 0 ? (
-                      <Badge>
-                        {numberWithOrdinal(job.failedAttempts)}
-                      </Badge>
-                    ) : (
-                      <EmptyValue />
-                    )}
-                  </TableCell>
-                )}
-
-                {showError && (
-                  <TableCell>
-                    {job.errorMessage}
-                  </TableCell>
-                )}
-
-                {showRetryJobId && (
-                  <TableCell>
-                    {job.retryJobId ?? <EmptyValue />}
-                  </TableCell>
-                )}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardPadding>
+              <TableCell last>
+                <JobsTableRowActions job={job} />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </Card>
   )
 }

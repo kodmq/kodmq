@@ -1,4 +1,4 @@
-import { Active, Completed, Failed, Idle } from "../constants"
+import { Active, Busy, Completed, Failed, Idle } from "../constants"
 import { getErrorMessage, KodMQError } from "../errors"
 import KodMQ from "../kodmq"
 import { Job, Worker } from "../types"
@@ -36,6 +36,8 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
 
   constructor(args: TArgs) {
     super(args)
+
+    this.name = "RunJob"
     this.verify()
 
     this.job = args.job
@@ -70,7 +72,7 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
     const { worker } = await SaveWorker.run({
       workerId: this.worker.id,
       attributes: {
-        status: Active,
+        status: Busy,
         currentJob: this.job,
       },
       kodmq: this.kodmq,
@@ -109,7 +111,7 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
 
   async setWorkerStatusToIdle() {
     // Do not set status Idle if worker in status Stopping or any other status
-    if (this.worker.status !== Active) return
+    if (this.worker.status !== Busy) return
 
     const { worker } = await SaveWorker.run({
       workerId: this.worker.id,
