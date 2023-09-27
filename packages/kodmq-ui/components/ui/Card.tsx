@@ -16,7 +16,7 @@ export type CardProps = ExtendProps<"div", {
 export default function Card({ variant = "default", href, pattern, highlight, className, children, ...props }: CardProps) {
   return (
     <div 
-      className={cn("bg-zinc-50 dark:bg-zinc-900 rounded-2xl", className)}
+      className={cn("bg-white dark:bg-zinc-900 rounded-2xl", className)}
       {...props}
     >
       <div className={cardVariants({ variant, href: Boolean(href), highlight: Boolean(highlight) })}>

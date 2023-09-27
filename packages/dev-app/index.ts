@@ -1,26 +1,28 @@
 import KodMQ from "kodmq"
 import kodmqLauncher from "kodmq/launcher"
 
-async function sendEmail({ subject: _, body: __ }: { subject: string, body: string }) {
-  await new Promise((resolve) => setTimeout(resolve, Math.random() * 10000))
+const randomWindow = 300000
+
+async function sendEmail({ to: _, subject: __, body: ___ }: { to: string, subject: string, body: string }) {
+  await new Promise((resolve) => setTimeout(resolve, Math.random() * randomWindow))
 }
 
-async function processPayment({ amount: _ }: { amount: number }) {
-  await new Promise((resolve) => setTimeout(resolve, Math.random() * 10000))
+async function processPayment({ from: _, amount: __ }: { from: string, amount: number }) {
+  await new Promise((resolve) => setTimeout(resolve, Math.random() * randomWindow))
 }
 
-async function renewSubscription({ userId: _ }: { userId: number }) {
-  await new Promise((resolve) => setTimeout(resolve, Math.random() * 10000))
+async function renewSubscription({ user: _ }: { user: string }) {
+  await new Promise((resolve) => setTimeout(resolve, Math.random() * randomWindow))
 }
 
 async function sendReward({ user: _ }: { user: string }) {
-  await new Promise((resolve) => setTimeout(resolve, Math.random() * 10000))
+  await new Promise((resolve) => setTimeout(resolve, Math.random() * randomWindow))
 
   if (Math.random() < 0.5) throw new Error("Failed to send invoice")
 }
 
 async function fireJim() {
-  await new Promise((resolve) => setTimeout(resolve, Math.random() * 10000))
+  await new Promise((resolve) => setTimeout(resolve, Math.random() * randomWindow))
   throw new Error("Jim is never going to be fired")
 }
 
@@ -41,30 +43,6 @@ if (!process.argv.includes("--no-clear")) {
   console.log()
 }
 
-const emails = [
-  { subject: "Woody Harrelson", body: "You won!" },
-  { subject: "Wow, it works!", body: "This is a test email." },
-  { subject: "Amazing!", body: "This is a test email." },
-  { subject: "Awesome!", body: "This is a test email." },
-  { subject: "Great!", body: "This is a test email." },
-]
-
-for (const email of emails) {
-  setTimeout(() => kodmq.jobs.perform("sendEmail", email), 1000)
-}
-
-const payments = [
-  1000000,
-  2000000,
-  3000000,
-  4000000,
-  5000000,
-]
-
-for (const amount of payments) {
-  setTimeout(() => kodmq.jobs.perform("processPayment", { amount }), 1000)
-}
-
 const users = [
   "Woody Harrelson",
   "Joaquin Phoenix",
@@ -74,19 +52,54 @@ const users = [
   "Robert Downey Jr.",
   "Angelina Jolie",
   "Megan Fox",
+  "Scarlett Johansson",
+  "Jennifer Aniston",
+  "Jennifer Lawrence",
+  "Emma Watson",
+  "Daniel Radcliffe",
+  "Rupert Grint",
+  "Leonardo DiCaprio",
+  "Tom Cruise",
+]
+
+const emails = [
+  { subject: "Woody Harrelson", body: "You won!" },
+  { subject: "Wow, it works!", body: "This is a test email." },
+  { subject: "Amazing!", body: "This is a test email." },
+  { subject: "Awesome!", body: "This is a test email." },
+  { subject: "Great!", body: "This is a test email." },
+  { subject: "Cool!", body: "This is a test email." },
+  { subject: "Nice!", body: "This is a test email." },
+  { subject: "Sweet!", body: "This is a test email." },
+]
+
+const payments = [
+  451,
+  1984,
+  1000000,
+  2000000,
+  3000000,
+  4000000,
+  5000000,
+  6000000,
+  7000000,
+  8000000,
+  9000000,
+  10000000,
 ]
 
 for (const user of users) {
-  setTimeout(() => kodmq.jobs.perform("sendReward", { user }), 1000)
+  setTimeout(() => kodmq.jobs.perform("sendReward", { user }), Math.random() * randomWindow)
+  setTimeout(() => kodmq.jobs.performIn(Math.random() * randomWindow * 24, "renewSubscription", { user }), Math.random() * randomWindow)
+
+  for (const email of emails) {
+    setTimeout(() => kodmq.jobs.perform("sendEmail", { to: user, ...email }), Math.random() * randomWindow)
+  }
+
+  for (const amount of payments) {
+    setTimeout(() => kodmq.jobs.perform("processPayment", { from: user, amount }), Math.random() * randomWindow)
+  }
 }
 
-const userIds = [
-  451,
-]
-
-for (const userId of userIds) {
-  setTimeout(() => kodmq.jobs.performAt(new Date(Date.now() + 1000 * 60 * 60 * (Math.random() * 10)), "renewSubscription", { userId }), 1000)
-}
-
-setTimeout(() => kodmq.jobs.perform("fireJim"), 1000)
+setTimeout(() => kodmq.jobs.perform("fireJim"), Math.random() * randomWindow)
 await kodmqLauncher(kodmq)

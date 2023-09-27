@@ -1,5 +1,6 @@
 "use client"
 
+import Select from "@/components/ui/Select"
 import { usePathname } from "next/dist/client/components/navigation"
 import { ComponentProps, useEffect, useState } from "react"
 import refreshPage from "@/actions/refreshPage"
@@ -62,8 +63,7 @@ export default function DataRefreshInterval({ className, ...props }: RefreshData
     >
       <Label>Refresh data interval</Label>
 
-      <select
-        className="relative w-full rounded-lg border-r-[12px] border-transparent bg-zinc-100 px-2.5 py-2 text-xs font-medium focus:outline-none focus:ring-0 dark:bg-zinc-800"
+      <Select
         value={refreshInterval.toString()}
         onChange={(e) => setRefreshInterval(Number(e.target.value))}
       >
@@ -75,7 +75,7 @@ export default function DataRefreshInterval({ className, ...props }: RefreshData
             {option.name}
           </option>
         ))}
-      </select>
+      </Select>
     </div>
   )
 }

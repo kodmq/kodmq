@@ -85,7 +85,13 @@ export default class Jobs<THandlers extends Handlers = Handlers> {
     runAt?: Date,
   ) {
     try {
-      const job = await this.create({ name, payload, runAt, status: runAt ? Scheduled : Pending })
+      const job = await this.create({
+        name,
+        payload,
+        runAt, status: runAt ? Scheduled : Pending,
+        createdAt: new Date(),
+      })
+
       await this.pushToQueue(job.id, runAt)
 
       return job

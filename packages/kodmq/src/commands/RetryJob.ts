@@ -71,6 +71,7 @@ export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {
       name: this.job.name,
       payload: this.job.payload,
       failedAttempts: this.failedAttempts,
+      createdAt: new Date(),
     })
 
     await this.kodmq.jobs.pushToQueue(this.newJob.id, this.newJob.runAt)

@@ -6,7 +6,7 @@ import { cn, filter } from "@/lib/utils"
 
 const GridClasses = {
   6: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6",
-  7: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-7",
+  7: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7",
 }
 
 export type StatusStatsProps<T extends Job | Worker> = ExtendProps<"div", {
@@ -19,10 +19,11 @@ export type StatusStatsProps<T extends Job | Worker> = ExtendProps<"div", {
 export default async function StatusStats<T extends Job | Worker>({ records, type, current, highlight, className, ...props }: StatusStatsProps<T>) {
   const href = type === "job" ? "/jobs" : "/workers"
   const statuses = type === "job" ? JobStatuses : WorkerStatuses
+  const cardsCount = statuses.length + 1
 
   return (
     <div
-      className={cn("grid gap-4", GridClasses[statuses.length + 1], className)}
+      className={cn("grid gap-4", GridClasses[cardsCount], className)}
       {...props}
     >
       <Card

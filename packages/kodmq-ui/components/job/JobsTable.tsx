@@ -1,5 +1,6 @@
-import { Failed, Pending, ReadableStatuses, Scheduled } from "kodmq/constants"
+import { Active, Failed, Pending, ReadableStatuses, Scheduled } from "kodmq/constants"
 import { JobStatus, Job } from "kodmq/types"
+import Link from "next/link"
 import EmptyValue from "@/components/content/EmptyValue"
 import Payload from "@/components/content/Payload"
 import StatusBadge from "@/components/content/StatusBadge"
@@ -7,17 +8,17 @@ import HashtagIcon from "@/components/icons/HashtagIcon"
 import JobIcon from "@/components/icons/JobIcon"
 import JobsTableRowActions from "@/components/job/JobsTableRowActions"
 import Badge from "@/components/ui/Badge"
-import Card from "@/components/ui/Card"
+import CardSimple, { CardSimpleProps } from "@/components/ui/CardSimple"
 import EmptyState from "@/components/ui/EmptyState"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
 import { formatDate, formatDuration, numberWithOrdinal, titleize } from "@/lib/utils"
 
-export type JobsTableProps = {
+export type JobsTableProps = CardSimpleProps & {
   jobs: Job[],
   status?: JobStatus,
 }
 
-export default function JobsTable({ jobs, status }: JobsTableProps) {
+export default function JobsTable({ jobs, status, ...props }: JobsTableProps) {
   if (!jobs.length) {
     return (
       <EmptyState
@@ -44,17 +45,11 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
   const showRetryJobId = statusAll || status === Failed
   
   return (
-    <Card>
+    <CardSimple {...props}>
       <Table className="overflow-hidden rounded">
         <TableHeader>
           <TableRow>
-            <TableHead
-              first
-              title="Job ID"
-              className="pl-4"
-            >
-              <HashtagIcon className="h-4 w-4 text-zinc-500" />
-            </TableHead>
+            <TableHead />
 
             {showStatus && (
               <TableHead>
@@ -76,15 +71,15 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
               </TableHead>
             )}
 
-            {showStartedAt && (
+            {showElapsedTime && (
               <TableHead>
-                Started At
+                {status === Active ? "Active For" : "Elapsed Time"}
               </TableHead>
             )}
 
-            {showElapsedTime && (
+            {showStartedAt && (
               <TableHead>
-                Elapsed Time
+                Started At
               </TableHead>
             )}
 
@@ -118,11 +113,14 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
         <TableBody>
           {jobs.map((job) => (
             <TableRow key={job.id}>
-              <TableCell
-                first  
-                className="pl-4 font-medium"
-              >
-                {job.id}
+              <TableCell first>
+                <HashtagIcon className="inline-block h-4 w-4 -translate-y-px" />
+                <Link
+                  className="link"
+                  href="#"
+                >
+                  {job.id}
+                </Link>
               </TableCell>
 
               {showStatus && (
@@ -137,7 +135,7 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
 
               <TableCell>
                 {job.payload !== null ? (
-                  <Payload className="text-sm text-neutral-500">{job.payload}</Payload>
+                  <Payload className="w-48 truncate text-sm text-neutral-500 xl:w-96">{job.payload}</Payload>
                 ) : (
                   <EmptyValue />
                 )}
@@ -149,15 +147,18 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
                 </TableCell>
               )}
 
-              {showStartedAt && (
-                <TableCell title={job.startedAt?.toString()}>
-                  {formatDate(job.startedAt) ?? <EmptyValue />}
+              {showElapsedTime && (
+                <TableCell title={job.finishedAt?.toString()}>
+                  {formatDuration(
+                    job.startedAt,
+                    job.status === Active ? new Date() : job.finishedAt,
+                  ) ?? <EmptyValue />}
                 </TableCell>
               )}
 
-              {showElapsedTime && (
-                <TableCell title={job.finishedAt?.toString()}>
-                  {formatDuration(job.startedAt, job.finishedAt) ?? <EmptyValue />}
+              {showStartedAt && (
+                <TableCell title={job.startedAt?.toString()}>
+                  {formatDate(job.startedAt) ?? <EmptyValue />}
                 </TableCell>
               )}
 
@@ -181,13 +182,37 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
 
               {showRetryJobId && (
                 <TableCell>
-                  {job.retryJobId ? `#${job.retryJobId}` : <EmptyValue />}
+                  {job.retryJobId ? (
+                    <span>
+                      <HashtagIcon className="inline-block h-4 w-4 -translate-y-px" />
+                      <Link
+                        className="link"
+                        href="#"
+                      >
+                        {job.retryJobId}
+                      </Link>
+                    </span>
+                  ) : (
+                    <EmptyValue />
+                  )}
                 </TableCell>
               )}
 
               {showWorkerId && (
                 <TableCell>
-                  {job.workerId ?? <EmptyValue />}
+                  {job.workerId ? (
+                    <span>
+                      <HashtagIcon className="inline-block h-4 w-4 -translate-y-px" />
+                      <Link
+                        className="link"
+                        href="#"
+                      >
+                        {job.workerId}
+                      </Link>
+                    </span>
+                  ) : (
+                    <EmptyValue />
+                  )}
                 </TableCell>
               )}
 
@@ -198,6 +223,6 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
           ))}
         </TableBody>
       </Table>
-    </Card>
+    </CardSimple>
   )
 }

@@ -2,6 +2,8 @@ import { expect, jest } from "@jest/globals"
 import RedisAdapter from "../src/adapters/RedisAdapter"
 import { Completed, Failed, Idle, Pending, Scheduled } from "../src/constants"
 import KodMQ from "../src/kodmq"
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { handlers } from "./handlers"
 
 describe("KodMQ", () => {

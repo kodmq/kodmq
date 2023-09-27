@@ -1,6 +1,6 @@
-import JobsChart from "@/components/job/JobsChart"
 import { Busy, Idle } from "kodmq/constants"
 import StatusStats from "@/components/content/StatusStats"
+import JobsChart from "@/components/job/JobsChart"
 import JobsTable from "@/components/job/JobsTable"
 import Heading from "@/components/typography/Heading"
 import WorkersTable from "@/components/worker/WorkersTable"
@@ -17,8 +17,6 @@ export default async function HomePage() {
     <div>
       <Heading className="mb-8">Dashboard</Heading>
 
-      <JobsChart jobs={jobs} />
-
       <Heading
         tag="h2"
       >
@@ -29,7 +27,12 @@ export default async function HomePage() {
         type="job"
         className="mb-4"
       />
-      <JobsTable jobs={jobs.slice(0, 5)} />
+      <JobsChart
+        jobs={jobs}
+        className="mb-4"
+      />
+
+      {/*<JobsTable jobs={jobs.slice(0, 5)} />*/}
       
       <hr className="my-8 border-zinc-100 dark:border-zinc-800" />
       

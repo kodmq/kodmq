@@ -29,9 +29,9 @@ const titleVariants = cva([
 ], {
   variants: {
     tag: {
-      h1: "mb-4 text-2xl font-bold leading-8",
-      h2: "mb-3 text-xl font-bold leading-7",
-      h3: "mb-2 text-sm font-semibold leading-7",
+      h1: "mb-4 text-4xl font-extrabold leading-9",
+      h2: "mb-3 text-2xl font-bold leading-8",
+      h3: "mb-2 text-lg font-bold leading-7",
       h4: "",
       h5: "",
       h6: "",

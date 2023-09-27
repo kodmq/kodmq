@@ -1,21 +1,23 @@
+import HashtagIcon from "@/components/icons/HashtagIcon"
 import { Busy, Idle, Killed, ReadableStatuses, Stopping } from "kodmq/constants"
 import { Worker, WorkerStatus } from "kodmq/types"
 import EmptyValue from "@/components/content/EmptyValue"
 import Payload from "@/components/content/Payload"
 import StatusBadge from "@/components/content/StatusBadge"
 import WorkerIcon from "@/components/icons/WorkerIcon"
-import Card from "@/components/ui/Card"
+import CardSimple, { CardSimpleProps } from "@/components/ui/CardSimple"
 import EmptyState from "@/components/ui/EmptyState"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableHeaderRow, TableRow } from "@/components/ui/Table"
 import WorkersTableRowActions from "@/components/worker/WorkersTableRowActions"
 import { formatDate, formatDuration, titleize } from "@/lib/utils"
+import Link from "next/link"
 
-export type WorkersTableProps = {
+export type WorkersTableProps = CardSimpleProps & {
   workers: Worker[]
   status?: WorkerStatus
 }
 
-export default function WorkersTable({ workers, status }: WorkersTableProps) {
+export default function WorkersTable({ workers, status, ...props }: WorkersTableProps) {
   if (!workers.length) {
     return (
       <EmptyState
@@ -31,7 +33,7 @@ export default function WorkersTable({ workers, status }: WorkersTableProps) {
   }
 
   const statusAll = status === undefined
-  const isRunningStatus = [Idle, Busy].includes(status)
+  const isRunningStatus = [Idle, Busy, Stopping].includes(status)
 
   const hasClusterName = workers.some((worker) => worker.clusterName)
 
@@ -39,16 +41,11 @@ export default function WorkersTable({ workers, status }: WorkersTableProps) {
   const showCurrentJob = statusAll || [Busy, Stopping, Killed].includes(status)
 
   return (
-    <Card>
+    <CardSimple {...props}>
       <Table>
         <TableHeader>
           <TableHeaderRow>
-            <TableHead
-              first
-              className="pl-4"
-            >
-              #
-            </TableHead>
+            <TableHead />
 
             {showStatus && (
               <TableHead>
@@ -90,11 +87,14 @@ export default function WorkersTable({ workers, status }: WorkersTableProps) {
         <TableBody>
           {workers.map((worker) => (
             <TableRow key={worker.id}>
-              <TableCell
-                first
-                className="pl-4 font-medium"
-              >
-                {worker.id}
+              <TableCell first>
+                <HashtagIcon className="inline-block h-4 w-4 -translate-y-px" />
+                <Link
+                  className="link"
+                  href="#"
+                >
+                  {worker.id}
+                </Link>
               </TableCell>
 
               {showStatus && (
@@ -113,13 +113,10 @@ export default function WorkersTable({ workers, status }: WorkersTableProps) {
                 <TableCell accent>
                   {worker.currentJob ? (
                     <>
-                      {titleize(worker.currentJob.name)}
+                      <p className="mb-0.5">{titleize(worker.currentJob.name)}</p>
 
                       {worker.currentJob.payload && (
-                        <>
-                          <br />
-                          <Payload className="text-xs text-neutral-500">{worker.currentJob.payload}</Payload>
-                        </>
+                        <Payload className="w-48 truncate text-neutral-500 xl:w-96 2xl:w-auto">{worker.currentJob.payload}</Payload>
                       )}
                     </>
                   ) : (
@@ -143,6 +140,6 @@ export default function WorkersTable({ workers, status }: WorkersTableProps) {
           ))}
         </TableBody>
       </Table>
-    </Card>
+    </CardSimple>
   )
 }

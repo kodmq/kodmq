@@ -80,8 +80,8 @@ export function TableCell({ first, last, accent, children, className, ...props }
       className={cn(
         "whitespace-nowrap py-4 text-sm",
         accent ? "font-medium text-zinc-900 dark:text-zinc-100" : "text-zinc-500",
-        first && "pl-4 pr-3 sm:pl-6 lg:pl-8",
-        last && "pl-3 pr-4 sm:pr-6 lg:pr-8",
+        first && "pl-4 pr-3 sm:pl-5 lg:pl-6",
+        last && "pl-3 pr-4 sm:pr-5 lg:pr-6",
         !first && !last && "px-3",
         className,
       )}

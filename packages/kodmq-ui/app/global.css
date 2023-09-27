@@ -14,4 +14,8 @@
   .text-accent {
     @apply font-medium text-black dark:text-white;
   }
+
+  .link {
+    @apply text-accent border-b border-zinc-200 dark:border-zinc-700 pb-px px-px hover:border-zinc-400 dark:hover:border-zinc-400;
+  }
 }

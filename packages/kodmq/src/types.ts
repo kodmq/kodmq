@@ -82,6 +82,7 @@ export type Job = {
   status: JobStatus
   name: JobName
   payload: AllowedAny
+  createdAt: Date
   runAt?: Date
   startedAt?: Date
   finishedAt?: Date
