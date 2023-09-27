@@ -1,5 +1,5 @@
 import Adapter from "./adapters/Adapter"
-import { JobStatuses, Pending, Scheduled, WorkerStatuses } from "./constants"
+import { Idle, JobStatuses, Pending, Scheduled, WorkerStatuses } from "./constants"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AllowedAny = any
@@ -35,14 +35,14 @@ export type WorkerCallbackName =
 export type CallbackName =
   | JobCallbackName
   | WorkerCallbackName
-  | "scheduleJobRetry"
+  | "jobScheduledRetry"
 
 export type CallbacksMap = {
   [key in JobCallbackName]: JobCallback
 } & {
   [key in WorkerCallbackName]: WorkerCallback
 } & {
-  scheduleJobRetry: (job: Job, retryAt: Date, failedJob: Job) => void | Promise<void>
+  jobScheduledRetry: (job: Job, retryAt: Date, failedJob: Job) => void | Promise<void>
 }
 
 export type Callbacks = Partial<{
@@ -69,7 +69,10 @@ export type Worker = {
   stoppedAt?: Date
 }
 
-export type WorkerCreate = Omit<Worker, "id" | "status">
+export type WorkerCreate = Omit<Worker, "id" | "status"> & {
+  status: Extract<WorkerStatus, typeof Idle>
+}
+
 export type WorkerUpdate = Omit<Partial<Worker>, "id">
 
 export type Job = {
@@ -89,7 +92,7 @@ export type Job = {
 }
 
 export type JobCreate = Omit<Job, "id" | "status"> & {
-  status?: Extract<JobStatus, typeof Pending | typeof Scheduled>
+  status: Extract<JobStatus, typeof Pending | typeof Scheduled>
 }
 
 export type JobUpdate = Omit<Partial<Job>, "id">

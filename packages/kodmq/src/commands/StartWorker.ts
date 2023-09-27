@@ -1,7 +1,7 @@
-import { Busy, Idle, Stopped } from "../constants"
+import { Idle, Stopped, WorkerActiveStatuses } from "../constants"
 import { KodMQError } from "../errors"
 import KodMQ from "../kodmq"
-import { Worker } from "../types"
+import { Job, Worker } from "../types"
 import Command from "./Command"
 import { RunJob } from "./RunJob"
 
@@ -18,7 +18,7 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
     "checkIfWorkerCanBeStarted",
     "setStartedAt",
     "triggerWorkerStartedCallback",
-    "startProcessingJobs",
+    "startRunning",
     "setStatusToStopped",
   ]
 
@@ -50,31 +50,14 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
     await this.kodmq.runCallbacks("workerStarted", this.worker)
   }
 
-  async startProcessingJobs() {
-    const keepProcessing = async () => {
-      try {
-        const updatedWorker = await this.kodmq.workers.find(this.worker.id)
-        if (!updatedWorker) return false
+  async startRunning() {
+    await this.kodmq.jobs.subscribe(
+      this.runJob.bind(this),
+      this.keepRunning.bind(this),
+    )
 
-        this.worker = updatedWorker as TArgs["worker"]
-        return [Idle, Busy].includes(this.worker.status)
-      } catch (e) {
-        return false
-      }
-    }
-
-    await this.kodmq.adapter.subscribeToJobs(async (job) => {
-      await RunJob.run({
-        job,
-        worker: this.worker,
-        kodmq: this.kodmq,
-      }, { 
-        allowToFail: true, 
-      })
-    }, keepProcessing)
-
-    // Check if worker was killed
-    const isConnected = await this.kodmq.adapter.isConnected()
+    // If connection is closed, we assume worker was stopped or killed
+    const isConnected = await this.kodmq.isConnected()
     if (!isConnected) return this.markAsFinished()
   }
 
@@ -83,5 +66,27 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
       status: Stopped,
       stoppedAt: new Date(),
     })
+  }
+
+  private async runJob(job: Job) {
+    await RunJob.run({
+      job,
+      worker: this.worker,
+      kodmq: this.kodmq,
+    }, {
+      allowToFail: true,
+    })
+  }
+
+  private async keepRunning() {
+    try {
+      const updatedWorker = await this.kodmq.workers.find(this.worker.id)
+      if (!updatedWorker) return false
+
+      this.worker = updatedWorker
+      return WorkerActiveStatuses.includes(this.worker.status)
+    } catch (e) {
+      return false
+    }
   }
 }

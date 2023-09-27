@@ -1,3 +1,4 @@
+import { Stopped } from "../src/constants"
 import KodMQ from "../src/kodmq"
 import launcher from "../src/launcher/index"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -28,7 +29,7 @@ describe("Launcher", () => {
     const kodmq = new KodMQ()
 
     await expect(launcher(kodmq)).rejects.toThrow("You must register at least one job handler before launching KodMQ")
-    await kodmq.stopAllAndCloseConnection()
+    await kodmq.stopAll()
   })
 
   it("does not allow to launch with invalid concurrency", async () => {
@@ -37,16 +38,16 @@ describe("Launcher", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     await expect(launcher(kodmq, { concurrency: "hello" })).rejects.toThrow("Concurrency must be a number")
-    await kodmq.stopAllAndCloseConnection()
+    await kodmq.stopAll()
   })
 
   it("launches KodMQ", async () => {
     const kodmq = new KodMQ({ handlers })
 
-    setTimeout(async () => await kodmq.perform("welcomeMessage", "John"), 100)
-    setTimeout(async () => await kodmq.perform("happyBirthdayMessage", { name: "John", age: 30 }), 200)
-    setTimeout(async () => await kodmq.perform("iWasBornToFail"), 300)
-    setTimeout(async () => await kodmq.stopAllAndCloseConnection(), 1500)
+    setTimeout(async () => await kodmq.jobs.perform("welcomeMessage", "John"), 200)
+    setTimeout(async () => await kodmq.jobs.perform("happyBirthdayMessage", { name: "John", age: 30 }), 300)
+    setTimeout(async () => await kodmq.jobs.perform("iWasBornToFail"), 400)
+    setTimeout(async () => await kodmq.stopAll(), 1500)
     await launcher(kodmq, { concurrency: 2, logger: consoleLogger })
 
     expect(consoleOutput).toContain("Starting KodMQ...")
@@ -84,9 +85,9 @@ describe("Launcher", () => {
     process.env.KODMQ_CONCURRENCY = desiredConcurrency.toString()
     process.env.KODMQ_CLUSTER_NAME = desiredClusterName
 
-    setTimeout(async () => await kodmq.stopAllAndCloseConnection(), 500)
+    setTimeout(async () => await kodmq.stopAll(), 500)
     await launcher(kodmq, { logger: consoleLogger })
-    await kodmq.waitUntilAllWorkersStopped()
+    await kodmq.workers.waitUntilAllInStatus(Stopped)
 
     expect(consoleOutput).toContain("Starting KodMQ...")
     expect(consoleOutput).toContain(`Concurrency: ${desiredConcurrency}`)
@@ -105,9 +106,9 @@ describe("Launcher", () => {
     process.argv.push("--concurrency=3")
     process.argv.push("--cluster-name=Nice")
 
-    setTimeout(async () => await kodmq.stopAllAndCloseConnection(), 500)
+    setTimeout(async () => await kodmq.stopAll(), 500)
     await launcher(kodmq, { concurrency: desiredConcurrency, logger: consoleLogger })
-    await kodmq.waitUntilAllWorkersStopped()
+    await kodmq.workers.waitUntilAllInStatus(Stopped)
 
     expect(consoleOutput).toContain("Starting KodMQ...")
     expect(consoleOutput).toContain(`Concurrency: ${desiredConcurrency}`)

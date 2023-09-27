@@ -26,7 +26,6 @@ export default async function launcher(kodmq: KodMQ, options: LaunchOptions = {}
   }
 
   let concurrency: number | undefined
-  
   let concurrencyArg = process.argv.find((arg) => arg.startsWith("--concurrency="))
   let concurrencyEnv = process.env.KODMQ_CONCURRENCY
   let concurrencyOption = options.concurrency
@@ -112,17 +111,21 @@ export default async function launcher(kodmq: KodMQ, options: LaunchOptions = {}
     logger.logTimeline(`Job #${job.id}`, `Failed ${formatName(job.name)} in ${formatDuration(job.startedAt, job.failedAt, "redBright")}`)
   })
 
-  kodmq.on("scheduleJobRetry", (job, retryAt, failedJob) => {
+  kodmq.on("jobScheduledRetry", (job, retryAt, failedJob) => {
     logger.logTimeline(`Job #${failedJob.id}`, `Retrying ${formatName(job.name)} as new job with id ${colorette.gray(`#${job.id}`)} in ${formatDuration(new Date(), retryAt, "yellowBright")}`)
   })
 
   onShutdown(async () => {
-    logger.logTimeline("Bye", "Stopping KodMQ")
-    await kodmq?.stopAllAndCloseConnection()
+    if (kodmq) {
+      logger.logTimeline("Bye", "Stopping...")
+      await kodmq.stopAll()
+    } else {
+      logger.logTimeline("Bye", "See you soon!")
+    }
   })
 
   try {
-    await kodmq.start({
+    await kodmq.workers.start({
       concurrency,
       clusterName,
     })

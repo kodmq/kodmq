@@ -1,22 +1,10 @@
 import Adapter from "./adapters/Adapter"
 import { StartWorker } from "./commands/StartWorker"
 import { StopWorker } from "./commands/StopWorker"
-import {
-  Active,
-  Busy,
-  Canceled,
-  Completed,
-  Failed,
-  Idle,
-  Killed,
-  Pending,
-  Scheduled,
-  Stopped,
-  Stopping,
-} from "./constants"
+import { Busy, Idle, Killed, Stopped, Stopping } from "./constants"
 import { KodMQError } from "./errors"
 import KodMQ from "./kodmq"
-import { Handlers, ID, Worker, WorkerCallbackName, WorkerCreate, WorkerStatus, WorkerUpdate, StringKeyOf } from "./types"
+import { Handlers, ID, Worker, WorkerCallbackName, WorkerCreate, WorkerStatus, WorkerUpdate } from "./types"
 
 const StatusCallbacks: Record<WorkerStatus, WorkerCallbackName> = {
   [Idle]: "workerIdle",
@@ -26,14 +14,14 @@ const StatusCallbacks: Record<WorkerStatus, WorkerCallbackName> = {
   [Killed]: "workerKilled",
 }
 
-export type AllOptions = {
+export type WorkersAllOptions = {
   status?: WorkerStatus
   limit?: number
   offset?: number
 }
 
 export type StartOptions = {
-  concurrency: number
+  concurrency?: number
   clusterName?: string
 }
 
@@ -53,7 +41,7 @@ export default class Workers<THandlers extends Handlers = Handlers> {
    *
    * @param options
    */
-  async all(options: AllOptions = {}) {
+  async all(options: WorkersAllOptions = {}) {
     return this.adapter.getWorkers(options)
   }
 
@@ -72,7 +60,12 @@ export default class Workers<THandlers extends Handlers = Handlers> {
    * @param attributes
    */
   async create(attributes: WorkerCreate): Promise<Worker> {
-    return await this.adapter.createWorker(attributes)
+    const worker = await this.adapter.createWorker(attributes)
+
+    await this.kodmq.runCallbacks("workerCreated", worker)
+    await this.kodmq.runCallbacks(StatusCallbacks[attributes.status], worker)
+
+    return worker
   }
 
   /**
@@ -82,13 +75,7 @@ export default class Workers<THandlers extends Handlers = Handlers> {
     const worker = await this.adapter.updateWorker(id, attributes)
 
     await this.kodmq.runCallbacks("workerUpdated", worker)
-
-    if (attributes.status !== undefined) {
-      await this.kodmq.runCallbacks(
-        StatusCallbacks[attributes.status],
-        worker,
-      )
-    }
+    if (attributes.status !== undefined) await this.kodmq.runCallbacks(StatusCallbacks[attributes.status], worker)
 
     return worker
   }
@@ -98,21 +85,19 @@ export default class Workers<THandlers extends Handlers = Handlers> {
    *
    * @param options
    */
-  async start(options: StartOptions) {
+  async start(options: StartOptions = {}) {
     if (this.startedIds.length > 0) throw new KodMQError("Workers are already started")
     if (Object.keys(this.kodmq.handlers).length === 0) throw new KodMQError("At least one handler is required to start workers")
 
     try {
       const promises = []
-      const concurrency = options.concurrency
+      const concurrency = options.concurrency ?? 1
 
       for (let i = 0; i < concurrency; i++) {
-        const worker = await this.create({ clusterName: options.clusterName })
-
+        const worker = await this.create({ status: Idle, clusterName: options.clusterName })
         this.startedIds.push(worker.id)
-        const promise = StartWorker.run({ worker: worker, kodmq: this.kodmq })
 
-        promises.push(promise)
+        promises.push(StartWorker.run({ worker: worker, kodmq: this.kodmq }))
       }
 
       return Promise.all(promises)
@@ -130,6 +115,7 @@ export default class Workers<THandlers extends Handlers = Handlers> {
   async stop(id: ID) {
     try {
       await StopWorker.run({ id, kodmq: this.kodmq })
+      this.startedIds = this.startedIds.filter((startedId) => startedId !== id)
     } catch (e) {
       throw new KodMQError(`Failed to stop worker ${id}`, e as Error)
     }

@@ -1,5 +1,5 @@
-import Adapter from "./adapters/Adapter"
-import { Active, Canceled, Completed, Failed, FinishedJobStatuses, Pending, Scheduled } from "./constants"
+import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "./adapters/Adapter"
+import { Active, Canceled, Completed, Failed, JobFinishedStatuses, Pending, Scheduled } from "./constants"
 import { KodMQError } from "./errors"
 import KodMQ from "./kodmq"
 import { Handlers, ID, Job, JobCallbackName, JobCreate, JobStatus, JobUpdate, StringKeyOf } from "./types"
@@ -13,7 +13,7 @@ const StatusCallbacks: Record<JobStatus, JobCallbackName> = {
   [Canceled]: "jobCanceled",
 }
 
-export type AllOptions = {
+export type JobsAllOptions = {
   status?: JobStatus
   limit?: number
   offset?: number
@@ -33,7 +33,7 @@ export default class Jobs<THandlers extends Handlers = Handlers> {
    *
    * @param options
    */
-  async all(options: AllOptions = {}) {
+  async all(options: JobsAllOptions = {}) {
     return this.adapter.getJobs(options)
   }
 
@@ -52,7 +52,12 @@ export default class Jobs<THandlers extends Handlers = Handlers> {
    * @param attributes
    */
   async create(attributes: JobCreate): Promise<Job> {
-    return await this.adapter.createJob(attributes)
+    const job = await this.adapter.createJob(attributes)
+
+    await this.kodmq.runCallbacks("jobCreated", job)
+    await this.kodmq.runCallbacks(StatusCallbacks[attributes.status], job)
+
+    return job
   }
 
   /**
@@ -62,13 +67,7 @@ export default class Jobs<THandlers extends Handlers = Handlers> {
     const job = await this.adapter.updateJob(id, attributes)
 
     await this.kodmq.runCallbacks("jobUpdated", job)
-
-    if (attributes.status !== undefined) {
-      await this.kodmq.runCallbacks(
-        StatusCallbacks[attributes.status],
-        job,
-      )
-    }
+    if (attributes.status !== undefined) await this.kodmq.runCallbacks(StatusCallbacks[attributes.status], job)
 
     return job
   }
@@ -135,6 +134,23 @@ export default class Jobs<THandlers extends Handlers = Handlers> {
   }
 
   /**
+   * Boost job priority to the top of the queue
+   *
+   * @param id
+   */
+  async boost(id: ID) {
+    try {
+      const job = await this.find(id)
+      if (!job) throw new KodMQError(`Job with ID ${id} not found`)
+
+      await this.adapter.removeJobFromQueue(job)
+      await this.adapter.prependJobToQueue(job.id)
+    } catch (e) {
+      throw new KodMQError("Failed to boost job", e as Error)
+    }
+  }
+
+  /**
    * Push to queue
    *
    * @param id
@@ -162,6 +178,20 @@ export default class Jobs<THandlers extends Handlers = Handlers> {
   }
 
   /**
+   * Subscribe to jobs to be run
+   *
+   * @param handler
+   * @param keepSubscribed
+   */
+  async subscribe(handler: AdapterHandler, keepSubscribed: AdapterKeepSubscribed) {
+    try {
+      await this.kodmq.adapter.subscribeToJobs(handler, keepSubscribed)
+    } catch (e) {
+      throw new KodMQError("Failed to subscribe to jobs", e as Error)
+    }
+  }
+
+  /**
    * Wait until all jobs are finished
    *
    * @param interval
@@ -171,7 +201,7 @@ export default class Jobs<THandlers extends Handlers = Handlers> {
       // eslint-disable-next-line no-constant-condition
       while (true) {
         const jobs = await this.all()
-        const isFinished = jobs.every((job) => FinishedJobStatuses.includes(job.status))
+        const isFinished = jobs.every((job) => JobFinishedStatuses.includes(job.status))
 
         if (isFinished) break
 

@@ -3,7 +3,7 @@ import Adapter from "./adapters/Adapter"
 import RedisAdapter from "./adapters/RedisAdapter"
 import { KodMQError } from "./errors"
 import Jobs from "./jobs"
-import { Handlers, Callbacks, WorkerStatus, CallbacksMap, Config } from "./types"
+import { Handlers, Callbacks, CallbacksMap, Config } from "./types"
 import Workers from "./workers"
 
 const DefaultConfig: Omit<Config, "adapter" | "handlers"> = {
@@ -12,10 +12,8 @@ const DefaultConfig: Omit<Config, "adapter" | "handlers"> = {
   retryType: "exponential",
 }
 
-export type GetWorkersOptions = {
-  status?: WorkerStatus
-  limit?: number
-  offset?: number
+type StopAllOptions = {
+  closeConnection?: boolean
 }
 
 export default class KodMQ<THandlers extends Handlers = Handlers> {
@@ -34,28 +32,28 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
   constructor(config: Config<THandlers> = {}) {
     if (config.adapter) {
       const isAdapter = config.adapter instanceof Adapter
-      if (!isAdapter) throw new KodMQError("KodMQ requires adapter to be an instance of Adapter")
+      if (!isAdapter) throw new KodMQError("Adapter must be an instance of Adapter")
     }
 
     this.config = { ...DefaultConfig, ...config }
-    this.adapter = config.adapter || new RedisAdapter()
+    this.adapter = config.adapter || new RedisAdapter() as Adapter
     this.handlers = config.handlers || {} as THandlers
     this.callbacks = config.callbacks || {}
 
-    this.jobs = new Jobs(this)
-    this.workers = new Workers(this)
+    this.jobs = new Jobs<THandlers>(this)
+    this.workers = new Workers<THandlers>(this)
   }
 
   /**
    * Stop all workers and close the connection
    */
-  async stopAllAndCloseConnection() {
+  async stopAll(options: StopAllOptions = {}) {
     try {
       await this.workers.stopAll()
     } catch (e) {
       throw new KodMQError("Failed to stop workers", e as Error)
     } finally {
-      await this.adapter.closeConnection()
+      if (options.closeConnection ?? true) await this.adapter.closeConnection()
     }
   }
 
@@ -90,6 +88,27 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
     }
 
     await Promise.all(promises)
+  }
+
+  /**
+   * Open the connection
+   */
+  async openConnection() {
+    return this.adapter.openConnection()
+  }
+
+  /**
+   * Close the connection
+   */
+  async closeConnection() {
+    return this.adapter.closeConnection()
+  }
+
+  /**
+   * Check if connection is open
+   */
+  async isConnected() {
+    return this.adapter.isConnected()
   }
 
   /**

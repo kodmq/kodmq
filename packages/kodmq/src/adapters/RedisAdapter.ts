@@ -1,7 +1,8 @@
 import Redis, { RedisOptions } from "ioredis"
 import { KodMQAdapterError } from "../errors"
-import { GetJobsOptions, GetWorkersOptions } from "../kodmq"
-import { Job, Worker, ID, JobCreate } from "../types"
+import { JobsAllOptions } from "../jobs"
+import { Job, Worker, ID, JobCreate, WorkerCreate } from "../types"
+import { WorkersAllOptions } from "../workers"
 import Adapter from "./Adapter"
 
 type JobTuple = [
@@ -64,7 +65,7 @@ export default class RedisAdapter extends Adapter {
     }
   }
 
-  async getJobs(options: GetJobsOptions = {}) {
+  async getJobs(options: JobsAllOptions = {}) {
     try {
       const limit = (options.limit || 0)
       const offset = (options.offset || 0)
@@ -110,7 +111,9 @@ export default class RedisAdapter extends Adapter {
   async updateJob(id: ID, attributes: Partial<Job>) {
     try {
       const existingJob = await this.getJob(id)
-      const job = { ...existingJob, ...attributes } as Job
+      if (!existingJob) throw new KodMQAdapterError(`Job ${id} not found`)
+
+      const job = { ...existingJob, ...attributes }
 
       const serialized = await this.serializeJob(job)
       await this.add(JobsKey, job.id, serialized)
@@ -142,17 +145,6 @@ export default class RedisAdapter extends Adapter {
     }
   }
 
-  async removeJobFromQueue(job: Job) {
-    try {
-      await this.remove(
-        JobsQueueKey,
-        job.runAt ? job.runAt.getTime() : job.id,
-      )
-    } catch (e) {
-      throw new KodMQAdapterError("Cannot remove job from queue", e as Error)
-    }
-  }
-
   async popJobFromQueue() {
     try {
       const [scheduledJobId, score] = await this.getAllWithScore(
@@ -175,6 +167,17 @@ export default class RedisAdapter extends Adapter {
       return await this.getJob(jobId)
     } catch (e) {
       throw new KodMQAdapterError("Cannot pop job from queue", e as Error)
+    }
+  }
+
+  async removeJobFromQueue(job: Job) {
+    try {
+      await this.remove(
+        JobsQueueKey,
+        job.runAt ? job.runAt.getTime() : job.id,
+      )
+    } catch (e) {
+      throw new KodMQAdapterError("Cannot remove job from queue", e as Error)
     }
   }
 
@@ -252,7 +255,7 @@ export default class RedisAdapter extends Adapter {
     }
   }
 
-  async getWorkers(options: GetWorkersOptions = {}) {
+  async getWorkers(options: WorkersAllOptions = {}) {
     try {
       const limit = (options.limit || 0)
       const offset = (options.offset || 0)
@@ -281,7 +284,7 @@ export default class RedisAdapter extends Adapter {
     }
   }
 
-  async createWorker(attributes: Worker) {
+  async createWorker(attributes: WorkerCreate) {
     try {
       const workerId = await this.getNextWorkerId()
       const worker = { ...attributes, id: workerId }
@@ -298,14 +301,16 @@ export default class RedisAdapter extends Adapter {
   async updateWorker(id: ID, attributes: Partial<Worker>) {
     try {
       const existingWorker = await this.getWorker(id)
-      const worker = { ...existingWorker, ...attributes } as Worker
+      if (!existingWorker) throw new KodMQAdapterError(`Worker ${id} not found`)
+
+      const worker = { ...existingWorker, ...attributes }
 
       const serialized = await this.serializeWorker(worker)
       await this.add(WorkersKey, worker.id, serialized)
 
       return worker
     } catch (e) {
-      throw new KodMQAdapterError("Cannot save worker", e as Error)
+      throw new KodMQAdapterError("Cannot update worker", e as Error)
     }
   }
 

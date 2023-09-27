@@ -35,7 +35,7 @@ export const JobStatuses = [
 ] as const
 
 // TODO: Add `as const` and fix all the errors
-export const FinishedJobStatuses = [
+export const JobFinishedStatuses = [
   Completed,
   Failed,
   Canceled,
@@ -50,7 +50,7 @@ export const WorkerStatuses = [
 ] as const
 
 // TODO: Add `as const` and fix all the errors
-export const ActiveWorkerStatuses = [
+export const WorkerActiveStatuses = [
   Idle,
   Busy,
 ]

@@ -1,4 +1,4 @@
-import { Busy, Idle, Killed, Pending, ReadableStatuses, Stopped, Stopping } from "../constants"
+import { Killed, Pending, ReadableStatuses, Stopped, Stopping, WorkerActiveStatuses } from "../constants"
 import { KodMQError } from "../errors"
 import KodMQ from "../kodmq"
 import { ID, Worker } from "../types"
@@ -43,7 +43,7 @@ export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
     if (!this.worker) return this.markAsFinished()
 
     // Check if worker is in one of the running statuses
-    if ([Idle, Busy].includes(this.worker.status)) return
+    if (WorkerActiveStatuses.includes(this.worker.status)) return
 
     throw new KodMQError(`Worker ${this.id} cannot be stopped because it is ${ReadableStatuses[this.worker.status]}`)
   }

@@ -77,6 +77,6 @@ export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {
     })
 
     await this.kodmq.jobs.pushToQueue(this.newJob.id, this.newJob.runAt)
-    await this.kodmq.runCallbacks("scheduleJobRetry", this.newJob, this.retryAt!, this.job)
+    await this.kodmq.runCallbacks("jobScheduledRetry", this.newJob, this.retryAt!, this.job)
   }
 }

@@ -17,7 +17,7 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
   kodmq: TArgs["kodmq"]
 
   steps = [
-    "makeSureNoOtherWorkerIsWorkingOnJob",
+    "makeSureNoOtherWorkerRunningJob",
     "setStatusToActive",
     "setWorkerCurrentJob",
     "runJob",
@@ -43,13 +43,11 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
     this.kodmq = args.kodmq
   }
 
-  async makeSureNoOtherWorkerIsWorkingOnJob() {
+  async makeSureNoOtherWorkerRunningJob() {
     const workers = await this.kodmq.workers.all()
+    
     const otherWorker = workers.find((worker) => worker.currentJob?.id === this.job.id && worker.id !== this.worker.id)
-
-    if (!otherWorker) return
-
-    this.markAsFinished()
+    if (otherWorker) this.markAsFinished()
   }
 
   async setStatusToActive() {

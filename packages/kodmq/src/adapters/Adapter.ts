@@ -1,7 +1,8 @@
 import { Pending, Scheduled } from "../constants"
-import { KodMQAdapterError, KodMQError } from "../errors"
-import { GetJobsOptions, GetWorkersOptions } from "../kodmq"
+import { KodMQAdapterError } from "../errors"
+import { JobsAllOptions } from "../jobs"
 import { ID, Job, JobCreate, JobUpdate, Worker, WorkerCreate, WorkerUpdate } from "../types"
+import { WorkersAllOptions } from "../workers"
 
 export type AdapterHandler = (job: Job) => Promise<void>
 export type AdapterKeepSubscribed = () => Promise<boolean>
@@ -17,7 +18,7 @@ export default abstract class Adapter {
    *
    * @param options
    */
-  abstract getJobs(options: GetJobsOptions): Promise<Job[]>
+  abstract getJobs(options: JobsAllOptions): Promise<Job[]>
 
   /**
    * Get a job from the database
@@ -97,7 +98,7 @@ export default abstract class Adapter {
   /**
    * Get all workers from the database
    */
-  abstract getWorkers(options?: GetWorkersOptions): Promise<Worker[]>
+  abstract getWorkers(options?: WorkersAllOptions): Promise<Worker[]>
 
   /**
    * Get worker from the database
