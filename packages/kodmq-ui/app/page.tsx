@@ -1,3 +1,4 @@
+import JobsChart from "@/components/job/JobsChart"
 import { Busy, Idle } from "kodmq/constants"
 import StatusStats from "@/components/content/StatusStats"
 import JobsTable from "@/components/job/JobsTable"
@@ -15,6 +16,8 @@ export default async function HomePage() {
   return (
     <div>
       <Heading className="mb-8">Dashboard</Heading>
+
+      <JobsChart jobs={jobs} />
 
       <Heading
         tag="h2"

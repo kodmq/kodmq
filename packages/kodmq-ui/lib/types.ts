@@ -4,6 +4,9 @@ export type ExtendProps<T extends keyof JSX.IntrinsicElements | JSXElementConstr
 export type SetState<T> = React.Dispatch<React.SetStateAction<T>>
 
 export type StringKeys<T> = Extract<keyof T, string>
+export type DateKeys<T> = Extract<keyof T, Date>
+export type KeysOfType<T, U> = { [K in keyof T]: T[K] extends U ? K : never }[keyof T]
+
 
 type IconSVGProps = PropsWithoutRef<SVGProps<SVGSVGElement>> & RefAttributes<SVGSVGElement>
 type IconProps = IconSVGProps & { title?: string, titleId?: string }

@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { ZodError } from "zod"
-import { Errors, ErrorWithMessage, StringKeys } from "@/lib/types"
+import { Errors, ErrorWithMessage, KeysOfType, StringKeys } from "@/lib/types"
 
 function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
   return (
@@ -92,6 +92,12 @@ type Filters<T extends Record<string, unknown>> = {
   [K in keyof T]?: T[K]
 } & {
   [K in StringKeys<T> as `${K}In`]?: T[K][]
+} & {
+  [K in StringKeys<T> as `${K}Not`]?: T[K]
+} & {
+  [K in Extract<KeysOfType<T, Date>, string> as `${K}After`]?: T[K]
+} & {
+  [K in Extract<KeysOfType<T, Date>, string> as `${K}Before`]?: T[K]
 }
 
 export function filter<T extends Record<string, unknown>>(jobs: T[], filters: Filters<T>) {
@@ -100,6 +106,15 @@ export function filter<T extends Record<string, unknown>>(jobs: T[], filters: Fi
       if (key.endsWith("In")) {
         const realKey = key.slice(0, -2) as StringKeys<T>
         return (value as T[StringKeys<T>][]).includes(job[realKey])
+      } else if (key.endsWith("Not")) {
+        const realKey = key.slice(0, -3) as StringKeys<T>
+        return value !== job[realKey]
+      } else if (key.endsWith("After")) {
+        const realKey = key.slice(0, -5) as KeysOfType<T, Date>
+        return job[realKey] && job[realKey] > value
+      } else if (key.endsWith("Before")) {
+        const realKey = key.slice(0, -6) as KeysOfType<T, Date>
+        return job[realKey] && job[realKey] < value
       } else {
         return job[key as StringKeys<T>] === value
       }

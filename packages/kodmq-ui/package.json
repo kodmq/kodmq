@@ -9,15 +9,14 @@
     "lint:fix": "eslint --ext .ts . --fix"
   },
   "dependencies": {
+    "@nivo/core": "^0.80.0",
+    "@nivo/line": "^0.80.0",
     "@radix-ui/react-toast": "^1.1.4",
-    "@types/d3": "^7.4.1",
     "@types/node": "20.6.2",
     "@types/react": "^18.2.22",
     "autoprefixer": "^10.4.15",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
-    "d3": "^7.8.5",
-    "date-fns": "^2.30.0",
     "eslint-config-kodmq": "workspace:*",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-tailwindcss": "^3.13.0",
