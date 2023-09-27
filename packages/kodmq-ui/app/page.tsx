@@ -1,15 +1,16 @@
 import { Busy, Idle } from "kodmq/constants"
 import StatusStats from "@/components/content/StatusStats"
+import JobsTable from "@/components/job/JobsTable"
 import Heading from "@/components/typography/Heading"
 import WorkersTable from "@/components/worker/WorkersTable"
 import kodmq from "@/lib/kodmq"
 import { filter } from "@/lib/utils"
 
 export default async function HomePage() {
-  const workers = await kodmq.getWorkers()
+  const workers = await kodmq.workers.all()
   const idleAndBusyWorkers = filter(workers, { statusIn: [Idle, Busy] })
 
-  const jobs = await kodmq.getJobs()
+  const jobs = await kodmq.jobs.all()
 
   return (
     <div>
@@ -23,7 +24,11 @@ export default async function HomePage() {
       <StatusStats
         records={jobs}
         type="job"
+        className="mb-4"
       />
+      <JobsTable jobs={jobs.slice(0, 5)} />
+      
+      <hr className="my-8 border-zinc-100 dark:border-zinc-800" />
       
       <Heading
         tag="h2"
@@ -36,9 +41,8 @@ export default async function HomePage() {
         className="mb-4"
         type="worker"
       />
-
       <WorkersTable
-        workers={idleAndBusyWorkers}
+        workers={idleAndBusyWorkers.slice(0, 5)}
         status={Busy}
       />
     </div>

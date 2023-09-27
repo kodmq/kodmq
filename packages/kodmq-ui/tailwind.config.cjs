@@ -1,5 +1,3 @@
-const defaultConfig = require("tailwindcss/defaultConfig")
-
 /** @type {import("tailwindcss").Config} */
 module.exports = {
   darkMode: ["class"],
@@ -11,10 +9,6 @@ module.exports = {
 
   theme: {
     extend: {
-      fontFamily: {
-        sans: ['var(--font-inter)', ...defaultConfig.theme.fontFamily.sans],
-      },
-
       boxShadow: {
         glow: '0 0 4px rgb(0 0 0 / 0.1)',
       },

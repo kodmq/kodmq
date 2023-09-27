@@ -1,5 +1,6 @@
 "use client"
 
+import DataRefreshInterval from "@/components/app/DataRefreshInterval"
 import { motion } from "framer-motion"
 import { JobStatuses, ReadableStatuses, WorkerStatuses } from "kodmq/constants"
 import Link from "next/link"
@@ -172,6 +173,8 @@ export default function Sidebar() {
           ))}
         </ul>
       </nav>
+
+      <DataRefreshInterval className="px-7 py-6 mt-auto" />
     </>
   )
 }

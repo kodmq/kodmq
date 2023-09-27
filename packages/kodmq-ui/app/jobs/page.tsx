@@ -13,7 +13,7 @@ type JobsPageProps = {
 
 export default async function JobsPage({ searchParams }: JobsPageProps) {
   const status = getFromList(JobStatuses, Number(searchParams.status), undefined)
-  const jobs = await kodmq.getJobs()
+  const jobs = await kodmq.jobs.all()
   const jobsByStatus = status ? filter(jobs, { status }) : jobs
 
   return (

@@ -1,18 +1,16 @@
 import { Scheduled } from "../constants"
 import { KodMQError } from "../errors"
 import KodMQ from "../kodmq"
-import { Job, Worker } from "../types"
+import { Job } from "../types"
 import Command from "./Command"
 
 export type RetryJobArgs = {
   job: Job
-  worker: Worker,
   kodmq: KodMQ
 }
 
 export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {
   job: TArgs["job"]
-  worker: TArgs["worker"]
   kodmq: TArgs["kodmq"]
   retryAt?: Date
   failedAttempts: number
@@ -31,7 +29,6 @@ export class RetryJob<TArgs extends RetryJobArgs> extends Command<TArgs> {
     this.verify()
 
     this.job = args.job
-    this.worker = args.worker
     this.kodmq = args.kodmq
 
     this.failedAttempts = this.job.failedAttempts || 1

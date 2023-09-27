@@ -88,6 +88,10 @@ export default abstract class Command<T = unknown> {
     this.isFinished = true
   }
 
+  markAsFailed() {
+    this.isFailed = true
+  }
+
   static async run<T extends Command, TArgs extends T["args"]>(this: new (args: TArgs) => T, args: TArgs, opts: RunOptions = {}) {
     const command = new this(args)
     await command.run()

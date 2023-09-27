@@ -16,6 +16,8 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
   worker: TArgs["worker"]
   kodmq: TArgs["kodmq"]
 
+  isJobFailed: boolean = false
+
   steps = [
     "makeSureNoOtherWorkerRunningJob",
     "setStatusToActive",
@@ -23,12 +25,7 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
     "runJob",
     "unsetWorkerCurrentJob",
     "setWorkerStatusToIdle",
-    "setStatusToCompleted",
-  ]
-
-  alwaysRunSteps = [
-    "unsetWorkerCurrentJob",
-    "setStatusToFailed",
+    "setStatusToCompletedOrFailed",
     "retryJob",
   ]
 
@@ -72,7 +69,7 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
     try {
       await handler(this.job.payload)
     } catch (error) {
-      this.isFailed = true
+      this.isJobFailed = true
 
       if (error instanceof Error) {
         this.errorMessage = error.message
@@ -94,31 +91,29 @@ export class RunJob<TArgs extends RunJobArgs> extends Command<TArgs> {
     this.worker = await this.kodmq.workers.update(this.worker.id, { status: Idle })
   }
 
-  async setStatusToCompleted() {
-    this.job = await this.kodmq.jobs.update(this.job.id, {
-      status: Completed,
-      finishedAt: new Date(),
-    })
-  }
+  async setStatusToCompletedOrFailed() {
+    if (this.isJobFailed) {
+      this.job = await this.kodmq.jobs.update(this.job.id, {
+        status: Failed,
+        failedAt: new Date(),
+        failedAttempts: (this.job.failedAttempts || 0) + 1,
+        errorMessage: this.errorMessage,
+        errorStack: this.errorStack,
+      })
+    } else {
+      this.job = await this.kodmq.jobs.update(this.job.id, {
+        status: Completed,
+        finishedAt: new Date(),
+      })
+    }
 
-  async setStatusToFailed() {
-    if (!this.isFailed) return
-
-    this.job = await this.kodmq.jobs.update(this.job.id, {
-      status: Failed,
-      failedAt: new Date(),
-      failedAttempts: (this.job.failedAttempts || 0) + 1,
-      errorMessage: this.errorMessage,
-      errorStack: this.errorStack,
-    })
   }
 
   async retryJob() {
-    if (!this.isFailed) return
+    if (!this.isJobFailed) return
 
     const { newJob } = await RetryJob.run({
       job: this.job,
-      worker: this.worker,
       kodmq: this.kodmq,
     })
 

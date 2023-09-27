@@ -4,6 +4,11 @@ import Card from "@/components/ui/Card"
 import { ExtendProps } from "@/lib/types"
 import { cn, filter } from "@/lib/utils"
 
+const GridClasses = {
+  6: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6",
+  7: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-7",
+}
+
 export type StatusStatsProps<T extends Job | Worker> = ExtendProps<"div", {
   records: T[]
   type: T extends Job ? "job" : "worker"
@@ -17,7 +22,7 @@ export default async function StatusStats<T extends Job | Worker>({ records, typ
 
   return (
     <div
-      className={cn("grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6", className)}
+      className={cn("grid gap-4", GridClasses[statuses.length + 1], className)}
       {...props}
     >
       <Card

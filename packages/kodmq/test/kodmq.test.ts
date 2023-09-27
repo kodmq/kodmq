@@ -1,6 +1,6 @@
 import { expect, jest } from "@jest/globals"
 import RedisAdapter from "../src/adapters/RedisAdapter"
-import { Completed, Idle, Pending, Scheduled } from "../src/constants"
+import { Completed, Failed, Idle, Pending, Scheduled } from "../src/constants"
 import KodMQ from "../src/kodmq"
 import { handlers } from "./handlers"
 
@@ -237,7 +237,7 @@ describe("KodMQ", () => {
     expect(onJobActiveSecond).toHaveBeenCalledTimes(2)
     expect(onJobScheduledRetry).toHaveBeenCalledTimes(1)
     expect(onWorkerCreated).toHaveBeenCalledTimes(1)
-    expect(onWorkerIdle).toHaveBeenCalledTimes(2)
+    expect(onWorkerIdle).toHaveBeenCalledTimes(3)
     expect(onWorkerBusy).toHaveBeenCalledTimes(2)
   })
 
@@ -284,5 +284,47 @@ describe("KodMQ", () => {
     expect(await kodmq.adapter.popJobFromQueue()).toHaveProperty("id", job3.id)
 
     await kodmq.closeConnection()
+  })
+
+  it("retries job", async () => {
+    const kodmq = new KodMQ({
+      handlers,
+      maxRetries: 1,
+      retryDelay: 200,
+    })
+
+    const job = await kodmq.jobs.perform("iWasBornToFail")
+
+    setTimeout(() => kodmq.workers.start(), 1)
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    let pendingJobs = await kodmq.jobs.all({ status: Pending })
+    let scheduledJobs = await kodmq.jobs.all({ status: Scheduled })
+    let failedJobs = await kodmq.jobs.all({ status: Failed })
+
+    expect(pendingJobs.length).toBe(0)
+    expect(scheduledJobs.length).toBe(1)
+    expect(scheduledJobs[0].id).toBe(Number(job.id) + 1)
+    expect(failedJobs.length).toBe(1)
+    expect(failedJobs[0].id).toBe(job.id)
+
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
+    pendingJobs = await kodmq.jobs.all({ status: Pending })
+    scheduledJobs = await kodmq.jobs.all({ status: Scheduled })
+    failedJobs = await kodmq.jobs.all({ status: Failed })
+
+    expect(pendingJobs.length).toBe(0)
+    expect(scheduledJobs.length).toBe(0)
+    expect(failedJobs.length).toBe(2)
+    expect(failedJobs[0].id).toBe(Number(job.id) + 1)
+    expect(failedJobs[1].id).toBe(job.id)
+
+    const workers = await kodmq.workers.all()
+
+    expect(workers.length).toBe(1)
+    expect(workers[0].status).toBe(Idle)
+
+    await kodmq.stopAll()
   })
 })

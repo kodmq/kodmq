@@ -1,8 +1,9 @@
-import StatusBadge from "@/components/content/StatusBadge"
 import { Failed, Pending, ReadableStatuses, Scheduled } from "kodmq/constants"
 import { JobStatus, Job } from "kodmq/types"
 import EmptyValue from "@/components/content/EmptyValue"
 import Payload from "@/components/content/Payload"
+import StatusBadge from "@/components/content/StatusBadge"
+import HashtagIcon from "@/components/icons/HashtagIcon"
 import JobIcon from "@/components/icons/JobIcon"
 import JobsTableRowActions from "@/components/job/JobsTableRowActions"
 import Badge from "@/components/ui/Badge"
@@ -39,6 +40,7 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
   const showElapsedTime = statusAll || ![Pending, Scheduled].includes(status)
   const showAttempt = statusAll || status === Failed
   const showError = statusAll || status === Failed
+  const showWorkerId = statusAll || ![Pending, Scheduled].includes(status)
   const showRetryJobId = statusAll || status === Failed
   
   return (
@@ -48,9 +50,10 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
           <TableRow>
             <TableHead
               first
+              title="Job ID"
               className="pl-4"
             >
-              #
+              <HashtagIcon className="h-4 w-4 text-zinc-500" />
             </TableHead>
 
             {showStatus && (
@@ -59,15 +62,56 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
               </TableHead>
             )}
 
-            <TableHead>Name</TableHead>
-            <TableHead>Payload</TableHead>
+            <TableHead>
+              Name
+            </TableHead>
 
-            {showRunAt && <TableHead>Run At</TableHead>}
-            {showStartedAt && <TableHead>Started At</TableHead>}
-            {showElapsedTime && <TableHead>Elapsed Time</TableHead>}
-            {showAttempt && <TableHead />}
-            {showError && <TableHead>Error</TableHead>}
-            {showRetryJobId && <TableHead>Retry ID</TableHead>}
+            <TableHead>
+              Payload
+            </TableHead>
+
+            {showRunAt && (
+              <TableHead>
+                Run At
+              </TableHead>
+            )}
+
+            {showStartedAt && (
+              <TableHead>
+                Started At
+              </TableHead>
+            )}
+
+            {showElapsedTime && (
+              <TableHead>
+                Elapsed Time
+              </TableHead>
+            )}
+
+            {showAttempt && (
+              <TableHead />
+            )}
+
+            {showError && (
+              <TableHead>
+                Error
+              </TableHead>
+            )}
+
+            {showRetryJobId && (
+              <TableHead title="Retry Job ID">
+                Retry
+                <HashtagIcon className="ml-0.5 inline-block h-4 w-4 -translate-y-px text-zinc-500" />
+              </TableHead>
+            )}
+
+            {showWorkerId && (
+              <TableHead title="Worker ID">
+                Worker
+                <HashtagIcon className="ml-0.5 inline-block h-4 w-4 -translate-y-px text-zinc-500" />
+              </TableHead>
+            )}
+
             <TableHead last />
           </TableRow>
         </TableHeader>
@@ -138,6 +182,12 @@ export default function JobsTable({ jobs, status }: JobsTableProps) {
               {showRetryJobId && (
                 <TableCell>
                   {job.retryJobId ? `#${job.retryJobId}` : <EmptyValue />}
+                </TableCell>
+              )}
+
+              {showWorkerId && (
+                <TableCell>
+                  {job.workerId ?? <EmptyValue />}
                 </TableCell>
               )}
 
