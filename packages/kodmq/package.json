@@ -8,6 +8,7 @@
   ],
   "author": "Andrew Kodkod <andrew@kodkod.me> (https://kodkod.me/)",
   "homepage": "https://kodmq.com",
+  "repository": "kodmq/kodmq",
   "bugs": "https://github.com/kodmq/kodmq/issues",
   "funding": "https://github.com/sponsors/akodkod",
   "license": "MIT",
