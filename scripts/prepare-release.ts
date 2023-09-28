@@ -79,10 +79,13 @@ if (nextVersionBump.value === "keep") {
 // Find unpublished changes
 const commits = await gitToJs(".")
 const commitsPerPackage: Record<string, string[]> = {}
+const lastReleaseCommit = fs.readFileSync("scripts/.last-release-commit", "utf-8").trim()
 const allowedPackageTags = ["global", ...packages]
 
 // Detect by commit name prefix (e.g. "[kodmq] Fix something")
 for (const commit of commits) {
+  if (commit.hash === lastReleaseCommit) break
+
   const match = commit.message.match(/^\[(.+?)]/)
   if (!match) continue
 
@@ -186,6 +189,9 @@ for (const name of packages) {
 
   if (!isDryRun) fs.writeFileSync(path, newContent)
 }
+
+// Save last release commit hash
+if (!isDryRun) fs.writeFileSync("scripts/.last-release-commit", commits[0].hash)
 
 if (isDryRun) {
   console.log(chalk.yellow("Dry run, no changes were made."))
