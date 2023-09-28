@@ -15,7 +15,7 @@ export default function Input({ className, ...props }: InputProps) {
       )}
     >
       <input
-        className="w-full border-none bg-transparent focus:outline-none focus:ring-0 placeholder:text-zinc-500"
+        className="w-full border-none bg-transparent placeholder:text-zinc-500 focus:outline-none focus:ring-0"
         {...props}
       />
     </div>

@@ -1,16 +1,16 @@
-import HashtagIcon from "@/components/icons/HashtagIcon"
 import { Busy, Idle, Killed, ReadableStatuses, Stopping } from "kodmq/constants"
 import { Worker, WorkerStatus } from "kodmq/types"
+import Link from "next/link"
 import EmptyValue from "@/components/content/EmptyValue"
 import Payload from "@/components/content/Payload"
 import StatusBadge from "@/components/content/StatusBadge"
+import HashtagIcon from "@/components/icons/HashtagIcon"
 import WorkerIcon from "@/components/icons/WorkerIcon"
 import CardSimple, { CardSimpleProps } from "@/components/ui/CardSimple"
 import EmptyState from "@/components/ui/EmptyState"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableHeaderRow, TableRow } from "@/components/ui/Table"
 import WorkersTableRowActions from "@/components/worker/WorkersTableRowActions"
 import { formatDate, formatDuration, titleize } from "@/lib/utils"
-import Link from "next/link"
 
 export type WorkersTableProps = CardSimpleProps & {
   workers: Worker[]

@@ -1,7 +1,6 @@
 import { Busy, Idle } from "kodmq/constants"
 import StatusStats from "@/components/content/StatusStats"
 import JobsChart from "@/components/job/JobsChart"
-import JobsTable from "@/components/job/JobsTable"
 import Heading from "@/components/typography/Heading"
 import WorkersTable from "@/components/worker/WorkersTable"
 import kodmq from "@/lib/kodmq"

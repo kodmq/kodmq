@@ -1,10 +1,10 @@
 "use client"
 
-import Select from "@/components/ui/Select"
 import { usePathname } from "next/dist/client/components/navigation"
 import { ComponentProps, useEffect, useState } from "react"
 import refreshPage from "@/actions/refreshPage"
 import Label from "@/components/ui/Label"
+import Select from "@/components/ui/Select"
 import { cn } from "@/lib/utils"
 
 const Options = [

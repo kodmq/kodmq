@@ -18,6 +18,7 @@ export const Statuses = {
   Active,
   Completed,
   Failed,
+  Canceled,
   Idle,
   Busy,
   Stopping,

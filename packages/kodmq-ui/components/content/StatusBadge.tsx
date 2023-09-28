@@ -26,6 +26,7 @@ const indicatorVariants = cva([
       [Statuses.Active]: "bg-green-500",
       [Statuses.Completed]: "bg-green-500",
       [Statuses.Failed]: "bg-red-500",
+      [Statuses.Canceled]: "bg-red-500",
       [Statuses.Idle]: "bg-sky-500",
       [Statuses.Busy]: "bg-green-500",
       [Statuses.Stopping]: "bg-yellow-500",

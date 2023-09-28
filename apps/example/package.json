@@ -1,6 +1,5 @@
 {
-  "name": "dev-app",
-  "version": "0.5.0",
+  "name": "example",
   "private": true,
   "module": "index.ts",
   "type": "module",

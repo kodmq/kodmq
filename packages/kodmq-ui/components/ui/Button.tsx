@@ -106,11 +106,11 @@ const buttonVariants = cva([
       dark: "bg-neutral-900 text-neutral-100 enabled:hover:bg-neutral-800 disabled:bg-neutral-700 disabled:text-neutral-500",
       transparent: "bg-transparent text-white enabled:hover:bg-neutral-900 disabled:text-neutral-600",
 
-      skyGlassy: "bg-sky-500/10 dark:bg-sky-500/15 text-sky-600 enabled:hover:bg-sky-500/20 disabled:bg-sky-500/5 dark:text-sky-600",
-      greenGlassy: "bg-green-500/10 dark:bg-green-500/15 text-green-600 enabled:hover:bg-green-500/20 disabled:bg-green-500/5 dark:text-green-600",
-      yellowGlassy: "bg-yellow-500/10 dark:bg-yellow-500/15 text-yellow-700 enabled:hover:bg-yellow-500/20 disabled:bg-yellow-500/5 dark:text-yellow-600",
-      amberGlassy: "bg-amber-500/10 dark:bg-amber-500/15 text-amber-700 enabled:hover:bg-amber-500/20 disabled:bg-amber-500/5 dark:text-amber-600",
-      redGlassy: "bg-red-500/10 dark:bg-red-500/15 text-red-600 enabled:hover:bg-red-500/20 disabled:bg-red-500/5 dark:text-red-600",
+      skyGlassy: "bg-sky-500/10 text-sky-600 enabled:hover:bg-sky-500/20 disabled:bg-sky-500/5 dark:bg-sky-500/15 dark:text-sky-600",
+      greenGlassy: "bg-green-500/10 text-green-600 enabled:hover:bg-green-500/20 disabled:bg-green-500/5 dark:bg-green-500/15 dark:text-green-600",
+      yellowGlassy: "bg-yellow-500/10 text-yellow-700 enabled:hover:bg-yellow-500/20 disabled:bg-yellow-500/5 dark:bg-yellow-500/15 dark:text-yellow-600",
+      amberGlassy: "bg-amber-500/10 text-amber-700 enabled:hover:bg-amber-500/20 disabled:bg-amber-500/5 dark:bg-amber-500/15 dark:text-amber-600",
+      redGlassy: "bg-red-500/10 text-red-600 enabled:hover:bg-red-500/20 disabled:bg-red-500/5 dark:bg-red-500/15 dark:text-red-600",
     },
     size: {
       xs: "h-7 gap-1 px-2.5 text-xs",

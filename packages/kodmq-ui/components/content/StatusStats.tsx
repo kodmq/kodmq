@@ -16,7 +16,7 @@ export type StatusStatsProps<T extends Job | Worker> = ExtendProps<"div", {
   highlight?: boolean
 }>
 
-export default async function StatusStats<T extends Job | Worker>({ records, type, current, highlight, className, ...props }: StatusStatsProps<T>) {
+export default function StatusStats<T extends Job | Worker>({ records, type, current, highlight, className, ...props }: StatusStatsProps<T>) {
   const href = type === "job" ? "/jobs" : "/workers"
   const statuses = type === "job" ? JobStatuses : WorkerStatuses
   const cardsCount = statuses.length + 1

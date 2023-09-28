@@ -1,0 +1,7 @@
+---
+const props = Astro.props
+---
+<h2 {...props} class="relative">
+  <span class="absolute -left-5 top-3.5 hidden h-1.5 w-1.5 rounded-full bg-indigo-900 sm:block" />
+  <slot />
+</h2>

@@ -1,11 +1,11 @@
 "use client"
 
-import DataRefreshInterval from "@/components/app/DataRefreshInterval"
 import { motion } from "framer-motion"
 import { JobStatuses, ReadableStatuses, WorkerStatuses } from "kodmq/constants"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useMemo } from "react"
+import DataRefreshInterval from "@/components/app/DataRefreshInterval"
 import HomeIcon from "@/components/icons/HomeIcon"
 import JobIcon from "@/components/icons/JobIcon"
 import Logo from "@/components/icons/Logo"
@@ -57,7 +57,7 @@ const navigationItems: NavigationItem[] = [
         name: "All",
         queryParams: {},
       },
-      ...WorkerStatuses.map((status, index) => ({
+      ...WorkerStatuses.map((status) => ({
         name: ReadableStatuses[status],
         queryParams: { status: status.toString() },
       })),
@@ -174,7 +174,7 @@ export default function Sidebar() {
         </ul>
       </nav>
 
-      <DataRefreshInterval className="px-7 py-6 mt-auto" />
+      <DataRefreshInterval className="mt-auto px-7 py-6" />
     </>
   )
 }

@@ -5,6 +5,7 @@ module.exports = {
     "kodmq",
     "plugin:react/recommended",
     "plugin:tailwindcss/recommended",
+    "plugin:@next/next/recommended",
   ],
 
   rules: {
