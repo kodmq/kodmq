@@ -5,3 +5,7 @@ This is changelog for monorepo changes. If you want to see changelog for specifi
 - [kodmq-ui](./packages/kodmq-ui/CHANGELOG.md)
 
 [//]: # (HeaderEnd)
+
+## v1.0.0-beta.1
+
+- Create release system
