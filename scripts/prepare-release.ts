@@ -160,14 +160,15 @@ const updateChangelog = (path: string, packageName: string) => {
 
 if (skipChecks) {
   console.log(chalk.yellow("Skipping checks..."))
-  console.log()
 } else {
   console.log(chalk.bold("Running checks:"))
   withSpinner("TypeScript checks", () => exec(".", "pnpm tsc"))
   withSpinner("ESLint checks", () => exec(".", "pnpm lint"))
   withSpinner("Tests", () => exec(".", "pnpm test"))
-  console.log()
 }
+
+withSpinner("Build", () => exec(".", "pnpm build"))
+console.log()
 
 // Update global changelog
 updateChangelog("CHANGELOG.md", "global")
