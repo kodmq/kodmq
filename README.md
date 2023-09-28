@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source srcset="./apps/web/src/images/logo-light.png" media="(prefers-color-scheme: light)" />
-    <source srcset="./apps/web/src/images/logo-dark.png" media="(prefers-color-scheme: dark)" />
-    <img src="./apps/web/src/images/logo-light.png" alt="KodMQ Logo" width="256" height="256" />
+    <source srcset="./apps/docs/src/images/logo-light.png" media="(prefers-color-scheme: light)" />
+    <source srcset="./apps/docs/src/images/logo-dark.png" media="(prefers-color-scheme: dark)" />
+    <img src="./apps/docs/src/images/logo-light.png" alt="KodMQ Logo" width="256" height="256" />
   </picture>
 </p>
 

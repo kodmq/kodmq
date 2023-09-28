@@ -62,6 +62,8 @@ withSpinner("Pushing", () => {
 
 withSpinner("Create GitHub release", () => {
   if (isDryRun) return
+
+  // TODO: Automatically generate release notes from changelog
   exec(".", `gh release create v${version.format()} --title v${version.format()} --notes ""`)
 })
 
