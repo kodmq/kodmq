@@ -140,8 +140,11 @@ export default class Workers<THandlers extends Handlers = Handlers> {
 
   /**
    * Wait until all workers are in a specific status
+   *
+   * @param status
+   * @param options
    */
-  async waitUntilAllInStatus(status: WorkerStatus, interval = 300) {
+  async waitUntilAllInStatus(status: WorkerStatus, options: { interval?: number } = {}) {
     try {
       // eslint-disable-next-line no-constant-condition
       while (true) {
@@ -161,7 +164,7 @@ export default class Workers<THandlers extends Handlers = Handlers> {
 
         if (allInStatus) break
 
-        await new Promise((resolve) => setTimeout(resolve, interval))
+        await new Promise((resolve) => setTimeout(resolve, options.interval ?? 300))
       }
     } catch (e) {
       throw new KodMQError("Failed to wait until all workers are stopped", e as Error)

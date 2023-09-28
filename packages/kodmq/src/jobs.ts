@@ -200,9 +200,9 @@ export default class Jobs<THandlers extends Handlers = Handlers> {
   /**
    * Wait until all jobs are finished
    *
-   * @param interval
+   * @param options
    */
-  async waitUntilAllFinished(interval = 300) {
+  async waitUntilAllFinished(options: { interval?: number } = {}) {
     try {
       // eslint-disable-next-line no-constant-condition
       while (true) {
@@ -211,7 +211,7 @@ export default class Jobs<THandlers extends Handlers = Handlers> {
 
         if (isFinished) break
 
-        await new Promise((resolve) => setTimeout(resolve, interval))
+        await new Promise((resolve) => setTimeout(resolve, options.interval ?? 300))
       }
     } catch (e) {
       throw new KodMQError("Failed to wait until all jobs are completed", e as Error)
