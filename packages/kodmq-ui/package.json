@@ -9,6 +9,10 @@
   "license": "MIT",
   "type": "module",
   "bin": "./bin/start.js",
+  "files": [
+    ".next",
+    "!.next/cache"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
