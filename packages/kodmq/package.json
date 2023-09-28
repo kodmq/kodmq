@@ -56,7 +56,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "lint": "eslint --ext .ts .",
