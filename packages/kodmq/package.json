@@ -1,6 +1,6 @@
 {
   "name": "kodmq",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "Background jobs and message queue for Node.js",
   "keywords": [
     "message queue",
