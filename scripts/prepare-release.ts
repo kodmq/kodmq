@@ -167,17 +167,6 @@ if (skipChecks) {
   withSpinner("Tests", () => exec(".", "pnpm test"))
 }
 
-withSpinner("Build", () => exec(".", "pnpm build"))
-console.log()
-
-// Update global changelog
-updateChangelog("CHANGELOG.md", "global")
-
-// Update packages changelog
-for (const name of packages) {
-  updateChangelog(`packages/${name}/CHANGELOG.md`, name)
-}
-
 // Set main package version
 if (!isDryRun) exec(".", `pnpm version ${nextVersion} --no-git-tag-version --allow-same-version`)
 
@@ -189,6 +178,17 @@ for (const name of packages) {
   const newContent = content.replace(/"version": ".*"/, `"version": "${nextVersion}"`)
 
   if (!isDryRun) fs.writeFileSync(path, newContent)
+}
+
+withSpinner("Build", () => exec(".", "pnpm build"))
+console.log()
+
+// Update global changelog
+updateChangelog("CHANGELOG.md", "global")
+
+// Update packages changelog
+for (const name of packages) {
+  updateChangelog(`packages/${name}/CHANGELOG.md`, name)
 }
 
 // Save last release commit hash
