@@ -46,12 +46,12 @@ export const components = { h2: H2 }
 Just run this command and follow the instructions:
 
 ```bash
-pnpm create kodmq@latest
+bun create kodmq@latest
 ```
 
 ## Installation (Manual)
 
-This installation guide assumes that you are using [pnpm](https://pnpm.io/) and [TypeScript](https://www.typescriptlang.org/).
+This installation guide assumes that you are using [bun](https://bun.io/) and [TypeScript](https://www.typescriptlang.org/).
 
 **If you are using JavaScript**, you will need to change the file extension from `.ts` to `.js`, remove type annotations and use `node` instead of `ts-node` in the scripts.
 
@@ -60,7 +60,7 @@ Let's get started!
 1. Install packages
 
     ```bash
-    pnpm install kodmq kodmq-ui
+    bun install kodmq kodmq-ui
     ```
 
 2. Create configuration file `./jobs/index.ts`. Ideally, to keep your code organized, you should create a separate file for each handler and put them under `./jobs/handlers` directory.
@@ -94,7 +94,7 @@ Let's get started!
     {
       // ...
       "scripts": {
-        "workers": "ts-node ./jobs/launch.ts",
+        "workers": "bun run ./jobs/launch.ts",
         "workers:ui": "kodmq-ui"
       },
       // ...
@@ -104,8 +104,8 @@ Let's get started!
 5. Launch your workers and UI 🎉
 
     ```bash
-    pnpm run workers
-    pnpm run workers:ui
+    bun run workers
+    bun run workers:ui
     ```
 
 ## Usage
@@ -119,7 +119,7 @@ When you're performing a job, it will be pushed to the queue and performed by th
 ```ts
 import kodmq from "./jobs"
 
-const job = await kodmq.perform("sendEmail", { to: "Andrew Kodkod", text: "Have a good day!" })
+const job = await kodmq.jobs.perform("sendEmail", { to: "Andrew Kodkod", text: "Have a good day!" })
 console.log(job)
 ```
 
@@ -131,13 +131,13 @@ When you're scheduling a job, it will be saved to the database and performed by 
 import kodmq from "./jobs"
 
 const runAt = new Date(Date.now() + 1000 * 60 * 60 * 24) // 1 day later
-const job = await kodmq.performAt(runAt, "sendEmail", { to: "Andrew Kodkod", text: "I hope you had a good day!" })
+const job = await kodmq.jobs.performAt(runAt, "sendEmail", { to: "Andrew Kodkod", text: "I hope you had a good day!" })
 console.log(job)
 
 // or
 
 const runIn = 1000 * 60 * 60 * 24 // 1 day later
-const job = await kodmq.performIn(runIn, "sendEmail", { to: "Andrew Kodkod", text: "I hope you had a good day!" })
+const job = await kodmq.jobs.performIn(runIn, "sendEmail", { to: "Andrew Kodkod", text: "I hope you had a good day!" })
 console.log(job)
 ```
 
@@ -156,9 +156,7 @@ Job may have one of the following statuses:
 
 ### Worker
 
-A worker is a process that performs jobs.
-
-Workers can be launched using `kodmq/launcher` package or just by calling `await kodmq.start()`.
+A worker is a single thread that performs jobs.
 
 Worker may have one of the following statuses:
 - `Idle` – Worker is waiting for jobs
@@ -179,27 +177,27 @@ When you're launching your application with concurrency of 5:
 ```ts
 kodmqLauncher(kodmq, { concurrency: 5 })
 // or
-pnpm run workers --concurrency=5
+bun run workers --concurrency=5
 ```
 
-It runs a single process that can handle 5 jobs simultaneously, and you'll see 5 workers in the UI.
+It runs a single process that can handle 5 jobs simultaneously, but you'll see 5 workers in the UI.
 
 If you want to run multiple processes, you can just run the launcher multiple times:
 ```ts
-pnpm run workers --concurrency=2
-pnpm run workers --concurrency=3
+bun run workers --concurrency=2
+bun run workers --concurrency=3
 ```
 
 To make sure things don't get messy in KodMQ UI, or you want to benchmark performance of different servers, you can specify a name for each "cluster":
 ```ts
 // Command to run locally
-pnpm run workers --concurrency=5 --cluster-name="Local"
+bun run workers --concurrency=5 --cluster-name="Local"
 
 // Command to run on server 1
-pnpm run workers --concurrency=5 --cluster-name="AWS 4vCPU"
+bun run workers --concurrency=5 --cluster-name="AWS 4vCPU"
 
 // Command to run on server 2
-pnpm run workers --concurrency=5 --cluster-name="DigitalOcean 4vCPU"
+bun run workers --concurrency=5 --cluster-name="DigitalOcean 8vCPU"
 ```
 
 **By default**, KodMQ uses number of CPU cores as concurrency, so you don't need to specify it manually.
@@ -221,69 +219,66 @@ import { Pending, Completed } from "kodmq/constants"
 import kodmq from "./jobs"
 
 // Get all jobs
-const jobs = await kodmq.getJobs()
+const jobs = await kodmq.jobs.all()
 
 // Get jobs by status
-const pendingJobs = await kodmq.getJobs({ status: Pending })
-const completedJobs = await kodmq.getJobs({ status: Completed })
+const pendingJobs = await kodmq.jobs.all({ status: Pending })
+const completedJobs = await kodmq.jobs.all({ status: Completed })
 
 // Get specific job
-const job = await kodmq.getJob(1)
+const job = await kodmq.jobs.find(1)
 
-// Boost specific job
-await kodmq.boost(job.id)
+// Boost job
+await kodmq.jobs.boost(job.id)
 
-// Cancel specific job (keeps it in the database)
-await kodmq.cancel(job.id)
+// Retry job (if it failed)
+await kodmq.jobs.retry(job.id)
 
-// Retry specific job
-await kodmq.retry(job.id)
+// Cancel job (keeps it in the database)
+await kodmq.jobs.cancel(job.id)
 
-// Delete specific job from database
-await kodmq.delete(job.id)
+// Remove job from database
+await kodmq.jobs.remove(job.id)
 
-// Delete all jobs from database (including pending and scheduled, but not active)
-await kodmq.deleteAllJobs()
+// Remove all jobs from database (including pending and scheduled, but not active)
+await kodmq.jobs.removeAll()
 
-// Delete all finished jobs from database (completed, failed, canceled)
-await kodmq.deleteFinishedJobs()
+// Remove all finished jobs from database (completed, failed, canceled)
+await kodmq.jobs.removeFinished()
 
-// Wait until all jobs are completed
-await kodmq.waitUntilAllJobsCompleted()
+// Wait until all jobs are finished (completed, failed, canceled)
+await kodmq.jobs.waitUntilAllFinished()
 ```
 
 ## Workers API
 
 ```ts
 import KodMQ from "kodmq"
-import { Idle, Busy } from "kodmq/constants"
+import { Idle, Busy, Stopped } from "kodmq/constants"
 import kodmq from "./jobs"
 
 // Get all workers
-const workers = await kodmq.getWorkers()
+const workers = await kodmq.workers.all()
 
 // Get workers by status
-const idleWorkers = await kodmq.getWorkers({ status: Idle })
-const busyWorkers = await kodmq.getWorkers({ status: Busy })
+const idleWorkers = await kodmq.workers.all({ status: Idle })
+const busyWorkers = await kodmq.workers.all({ status: Busy })
 
 // Get specific worker
-const worker = await kodmq.getWorker(1)
+const worker = await kodmq.workers.find(1)
 
 // Stop specific worker
-await kodmq.stopWorker(worker.id)
+await kodmq.workers.stop(worker.id)
 
-// Stop all workers (current process only)
-await kodmq.stopWorkers({ closeConnection: true/false }) // closeConnection is true by default
+// Stop all workers (launched in current process)
+await kodmq.workers.stopAll()
 
-// Wait until all workers are stopped (current process only)
-await kodmq.waitUntilAllWorkersStopped()
-
-// Stop all workers (all processes)
-await KodMQ.stopAllWorkers()
-
-// Wait until all workers are stopped (all processes)
-await KodMQ.waitUntilAllWorkersStopped()
+// Wait until all workers are stopped (launched in current process)
+await kodmq.workers.waitUntilAllInStatus(Stopped)
 ```
+
+## Sponsor
+...
 
 ## That's it!
 
