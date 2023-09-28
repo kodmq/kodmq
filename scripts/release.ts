@@ -50,11 +50,12 @@ withSpinner("Tagging", () => {
 
 withSpinner("Pushing", () => {
   exec(".", `git push --follow-tags${isDryRun ? " --dry-run" : ""}`)
+  exec(".", `git push origin v${version.format()}${isDryRun ? " --dry-run" : ""}`)
 })
 
 withSpinner("Create GitHub release", () => {
   if (isDryRun) return
-  exec(".", `gh release create v${version.format()} --title v${version.format()}`)
+  exec(".", `gh release create v${version.format()} --title v${version.format()} --notes ""`)
 })
 
 for (const name of packages) {
