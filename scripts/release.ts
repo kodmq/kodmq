@@ -4,7 +4,14 @@ import chalk from "chalk"
 import prompts from "prompts"
 import { exec, getCurrentVersion, getPackages, getPackageVersion, withSpinner } from "./utils.js"
 
+const otp = process.argv.includes("--otp") ? process.argv[process.argv.indexOf("--otp") + 1] : undefined
 const isDryRun = process.argv.includes("--dry-run")
+
+if (!otp) {
+  console.log()
+  console.error(chalk.red("Please specify --otp <code>"))
+  process.exit(1)
+}
 
 const version = getCurrentVersion()
 const packages = getPackages()
@@ -60,7 +67,7 @@ withSpinner("Create GitHub release", () => {
 
 for (const name of packages) {
   withSpinner(`Releasing ${name}`, () => {
-    exec(`packages/${name}`, `pnpm publish --access public${isDryRun ? " --dry-run" : ""}}`)
+    exec(`packages/${name}`, `pnpm publish --access public --otp ${otp}${isDryRun ? " --dry-run" : ""}`)
   })
 }
 

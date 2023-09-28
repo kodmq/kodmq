@@ -28,10 +28,16 @@ export function exec(dir: string, cmd: string) {
     const result = cp.execSync(cmd, { cwd: dir, stdio: "pipe" })
     return result.toString().trim()
   } catch (e) {
+    console.log()
     console.error(chalk.red(`Command failed: ${cmd}`))
+
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     console.log(e.stdout.toString().trim())
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    console.log(e.stderr.toString().trim())
     process.exit(1)
   }
 }
