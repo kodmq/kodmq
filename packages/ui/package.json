@@ -1,5 +1,5 @@
 {
-  "name": "kodmq-ui",
+  "name": "@kodmq/ui",
   "version": "1.0.0-beta.3",
   "description": "KodMQ UI to manage your jobs and workers",
   "author": "Andrew Kodkod <andrew@kodkod.me> (https://kodkod.me/)",
@@ -9,7 +9,9 @@
   "funding": "https://github.com/sponsors/akodkod",
   "license": "MIT",
   "type": "module",
-  "bin": "./bin/start.js",
+  "bin": {
+    "kodmq-ui": "./bin/start.js"
+  },
   "files": [
     ".next",
     "!.next/cache"
@@ -50,10 +52,10 @@
     "zustand": "^4.4.1"
   },
   "peerDependencies": {
-    "kodmq": "*"
+    "@kodmq/core": "*"
   },
   "devDependencies": {
-    "kodmq": "workspace:*",
+    "@kodmq/core": "workspace:*",
     "eslint-config-kodmq": "workspace:*"
   }
 }

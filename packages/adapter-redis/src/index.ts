@@ -1,9 +1,7 @@
+import Adapter from "@kodmq/core/adapter"
+import { KodMQAdapterError } from "@kodmq/core/errors"
+import { Job, Worker, ID, JobCreate, WorkerCreate, JobsAllOptions, WorkersAllOptions } from "@kodmq/core/types"
 import Redis, { RedisOptions } from "ioredis"
-import { KodMQAdapterError } from "../errors"
-import { JobsAllOptions } from "../jobs"
-import { Job, Worker, ID, JobCreate, WorkerCreate } from "../types"
-import { WorkersAllOptions } from "../workers"
-import Adapter from "./Adapter"
 
 type JobTuple = [
   Job["id"],
@@ -41,14 +39,43 @@ const JobsScheduledKey = `${GlobalPrefix}js`
 const WorkersKey = `${GlobalPrefix}w`
 const WorkersIDKey = `${GlobalPrefix}wid`
 
+export type RedisAdapterOptions = {
+  redis?: Redis
+  redisOptions?: RedisOptions
+}
+
 export default class RedisAdapter extends Adapter {
   client: Redis
 
-  constructor(options: RedisOptions = {}) {
+  constructor(options: RedisAdapterOptions = {}) {
     super()
 
+    if (options.redis) {
+      const isRedisClient = options.redis instanceof Redis
+      if (!isRedisClient) throw new KodMQAdapterError(`Redis client must be an instance of ioredis. Received: ${typeof options.redis}`)
+
+      this.client = options.redis
+      return
+    }
+
+    if (!options.redisOptions) {
+      options.redisOptions = {
+        host: process.env.KODMQ_REDIS_HOST ?? process.env.REDIS_HOST ?? "localhost",
+        port: Number(process.env.KODMQ_REDIS_PORT ?? process.env.REDIS_PORT ?? 6379),
+        password: process.env.KODMQ_REDIS_PASSWORD ?? process.env.REDIS_PASSWORD ?? undefined,
+        db: Number(process.env.KODMQ_REDIS_DB ?? process.env.REDIS_DB ?? 0),
+      }
+    }
+
     try {
-      this.client = new Redis(options)
+      this.client = new Redis({
+        lazyConnect: true,
+        connectTimeout: 5000,
+        commandTimeout: 5000,
+        maxRetriesPerRequest: 5,
+        retryStrategy: (times) => times < 5 ? 100 : null,
+        ...options.redisOptions,
+      })
     } catch (e) {
       throw new KodMQAdapterError("Cannot create Redis client", e as Error)
     }
@@ -98,7 +125,7 @@ export default class RedisAdapter extends Adapter {
   async createJob(attributes: JobCreate) {
     try {
       const jobId = await this.getNextJobId()
-      const job = { ...attributes, id: jobId }
+      const job: Job = { ...attributes, id: jobId, createdAt: new Date() }
 
       const serialized = await this.serializeJob(job)
       await this.add(JobsKey, jobId, serialized)
@@ -122,6 +149,17 @@ export default class RedisAdapter extends Adapter {
       return job
     } catch (e) {
       throw new KodMQAdapterError("Cannot save job", e as Error)
+    }
+  }
+
+  async removeJob(id: ID) {
+    try {
+      const existingJob = await this.getJob(id)
+      if (!existingJob) throw new KodMQAdapterError(`Job ${id} not found`)
+
+      await this.remove(JobsKey, id)
+    } catch (e) {
+      throw new KodMQAdapterError("Cannot remove job", e as Error)
     }
   }
 
@@ -184,6 +222,8 @@ export default class RedisAdapter extends Adapter {
 
   async serializeJob(job: Job) {
     try {
+      if (typeof job !== "object") throw new KodMQAdapterError(`Job must be an object. Received: ${typeof job}`)
+
       const jobTuple: JobTuple = [
         job.id,
         job.workerId,
@@ -291,7 +331,7 @@ export default class RedisAdapter extends Adapter {
   async createWorker(attributes: WorkerCreate) {
     try {
       const workerId = await this.getNextWorkerId()
-      const worker = { ...attributes, id: workerId }
+      const worker: Worker = { ...attributes, id: workerId }
 
       const serialized = await this.serializeWorker(worker)
       await this.add(WorkersKey, workerId, serialized)
@@ -318,8 +358,21 @@ export default class RedisAdapter extends Adapter {
     }
   }
 
+  async removeWorker(id: ID) {
+    try {
+      const existingWorker = await this.getWorker(id)
+      if (!existingWorker) throw new KodMQAdapterError(`Worker ${id} not found`)
+
+      await this.remove(WorkersKey, id)
+    } catch (e) {
+      throw new KodMQAdapterError("Cannot remove worker", e as Error)
+    }
+  }
+
   async serializeWorker(worker: Worker) {
     try {
+      if (typeof worker !== "object") throw new KodMQAdapterError(`Worker must be an object. Received: ${typeof worker}`)
+
       const workerTuple: WorkerTuple = [
         worker.id,
         worker.status,
@@ -397,9 +450,17 @@ export default class RedisAdapter extends Adapter {
   
   async isConnected() {
     try {
-      return await this.client.ping() === "PONG"
+      return this.client.status === "ready"
     } catch (e) {
       return false
+    }
+  }
+
+  async ping() {
+    try {
+      return await this.client.ping()
+    } catch (e) {
+      throw new KodMQAdapterError("Cannot ping", e as Error)
     }
   }
 

@@ -39,7 +39,9 @@ const kodmq = new KodMQ({
 if (!process.argv.includes("--no-clear")) {
   await kodmq.adapter.clearAll()
 } else {
+  // eslint-disable-next-line no-console
   console.log("Skipping clearAll()")
+  // eslint-disable-next-line no-console
   console.log()
 }
 

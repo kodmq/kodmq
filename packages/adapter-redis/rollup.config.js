@@ -8,10 +8,7 @@ import pkg from "./package.json" assert { type: "json" }
 fs.rmSync("dist", { recursive: true, force: true })
 
 const bundleFiles = [
-  "kodmq",
-  "errors",
-  "constants",
-  "launcher/index",
+  "index",
 ]
 
 const external = [

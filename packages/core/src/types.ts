@@ -1,4 +1,4 @@
-import Adapter from "./adapters/Adapter"
+import Adapter from "./adapter"
 import { Idle, JobStatuses, Pending, Scheduled, WorkerStatuses } from "./constants"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -92,14 +92,14 @@ export type Job = {
   errorStack?: string
 }
 
-export type JobCreate = Omit<Job, "id" | "status"> & {
+export type JobCreate = Omit<Job, "id" | "status" | "createdAt"> & {
   status: Extract<JobStatus, typeof Pending | typeof Scheduled>
 }
 
 export type JobUpdate = Omit<Partial<Job>, "id">
 
 export type Config<THandlers extends Handlers = Handlers> = {
-  adapter?: Adapter
+  adapter: Adapter
   handlers?: THandlers
   callbacks?: Callbacks
 
@@ -108,4 +108,21 @@ export type Config<THandlers extends Handlers = Handlers> = {
   retryType?: "fixed" | "exponential"
 
   stopTimeout?: number
+}
+
+export type WorkersAllOptions = {
+  status?: WorkerStatus
+  limit?: number
+  offset?: number
+}
+
+export type WorkersStartOptions = {
+  concurrency?: number
+  clusterName?: string
+}
+
+export type JobsAllOptions = {
+  status?: JobStatus
+  limit?: number
+  offset?: number
 }

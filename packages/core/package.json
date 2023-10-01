@@ -1,5 +1,5 @@
 {
-  "name": "kodmq",
+  "name": "@kodmq/core",
   "version": "1.0.0-beta.3",
   "description": "Background jobs and message queue for Node.js",
   "keywords": [
@@ -26,6 +26,11 @@
       "import": "./dist/launcher/index.js",
       "require": "./dist/launcher/index.js"
     },
+    "./adapter": {
+      "types": "./dist/adapter.d.ts",
+      "import": "./dist/adapter.js",
+      "require": "./dist/adapter.js"
+    },
     "./errors": {
       "types": "./dist/errors.d.ts",
       "import": "./dist/errors.js",
@@ -44,6 +49,9 @@
     "*": {
       "launcher": [
         "./dist/launcher/index.d.ts"
+      ],
+      "adapter": [
+        "./dist/adapter/index.d.ts"
       ],
       "errors": [
         "./dist/errors.d.ts"
@@ -74,10 +82,7 @@
     "rollup": "^3.29.2",
     "rollup-plugin-bundle-size": "^1.0.3",
     "rollup-plugin-esbuild": "6.0.1",
-    "ts-jest": "^29.1.1"
-  },
-  "peerDependencies": {
-    "ioredis": "^5.3.2",
+    "ts-jest": "^29.1.1",
     "typescript": "^5.0.0"
   },
   "dependencies": {

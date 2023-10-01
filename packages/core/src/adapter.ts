@@ -1,8 +1,16 @@
-import { Pending, Scheduled } from "../constants"
-import { KodMQAdapterError } from "../errors"
-import { JobsAllOptions } from "../jobs"
-import { ID, Job, JobCreate, JobUpdate, Worker, WorkerCreate, WorkerUpdate } from "../types"
-import { WorkersAllOptions } from "../workers"
+import { Pending, Scheduled } from "./constants"
+import { KodMQAdapterError } from "./errors"
+import {
+  ID,
+  Job,
+  JobCreate,
+  JobsAllOptions,
+  JobUpdate,
+  Worker,
+  WorkerCreate,
+  WorkersAllOptions,
+  WorkerUpdate,
+} from "./types"
 
 export type AdapterHandler = (job: Job) => Promise<void>
 export type AdapterKeepSubscribed = () => Promise<boolean>
@@ -37,6 +45,14 @@ export default abstract class Adapter {
    * @param attributes
    */
   abstract updateJob(id: ID, attributes: JobUpdate): Promise<Job>
+
+  /**
+   * Remove job from the database
+   *
+   * @param id
+   * @param attributes
+   */
+  abstract removeJob(id: ID, attributes: JobUpdate): Promise<void>
 
   /**
    * Push a job to the queue
@@ -119,6 +135,11 @@ export default abstract class Adapter {
   abstract updateWorker(id: ID, attributes: WorkerUpdate): Promise<Worker>
 
   /**
+   * Remove worker from the database
+   */
+  abstract removeWorker(id: ID): Promise<void>
+
+  /**
    * Erase all data from the database
    */
   abstract clearAll(): Promise<void>
@@ -137,4 +158,9 @@ export default abstract class Adapter {
    * Check if connection to the database is established
    */
   abstract isConnected(): Promise<boolean>
+
+  /**
+   * Send ping to the database
+   */
+  abstract ping(): Promise<unknown>
 }

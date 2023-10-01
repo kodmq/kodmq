@@ -3,10 +3,13 @@
     "target": "ESNext",
     "module": "ESNext",
     "lib": ["ESNext"],
-    "moduleResolution": "nodenext",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-  }
+  },
+  "include": [
+    "scripts/**/*.ts",
+  ]
 }

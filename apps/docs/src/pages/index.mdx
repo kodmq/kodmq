@@ -51,9 +51,11 @@ bun create kodmq@latest
 
 ## Installation (Manual)
 
-This installation guide assumes that you are using [bun](https://bun.io/) and [TypeScript](https://www.typescriptlang.org/).
+This installation guide assumes that you are using [Bun](https://bun.sh/) and [TypeScript](https://www.typescriptlang.org/).
 
-**If you are using JavaScript**, you will need to change the file extension from `.ts` to `.js`, remove type annotations and use `node` instead of `ts-node` in the scripts.
+**If you aren't using Bun**, you need to replace `bun run` with `node` or `ts-node` in the `package.json`.
+
+**If you are using JavaScript**, you need to change the file extension from `.ts` to `.js` and remove type annotations.
 
 Let's get started!
 
@@ -101,7 +103,7 @@ Let's get started!
     }
     ```
 
-5. Launch your workers and UI 🎉
+5. That's it! Now you can launch your workers and KodMQ UI 🎉
 
     ```bash
     bun run workers
@@ -110,9 +112,9 @@ Let's get started!
 
 ## Usage
 
-Okay, now you have your workers running. Let's see how you can run some jobs.
+Okay, now you have your workers running. Let's see how you can perform some jobs.
 
-### Perform a job
+### Perform Job
 
 When you're performing a job, it will be pushed to the queue and performed by the first available worker.
 
@@ -123,7 +125,7 @@ const job = await kodmq.jobs.perform("sendEmail", { to: "Andrew Kodkod", text: "
 console.log(job)
 ```
 
-### Schedule a job
+### Schedule Job
 
 When you're scheduling a job, it will be saved to the database and performed by the first available worker at the specified time.
 

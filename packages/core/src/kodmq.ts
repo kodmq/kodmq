@@ -1,6 +1,5 @@
 import process from "process"
-import Adapter from "./adapters/Adapter"
-import RedisAdapter from "./adapters/RedisAdapter"
+import Adapter from "./adapter"
 import { KodMQError } from "./errors"
 import Jobs from "./jobs"
 import { Handlers, Callbacks, CallbacksMap, Config } from "./types"
@@ -29,14 +28,14 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
    *
    * @param config
    */
-  constructor(config: Config<THandlers> = {}) {
+  constructor(config: Config<THandlers>) {
     if (config.adapter) {
       const isAdapter = config.adapter instanceof Adapter
       if (!isAdapter) throw new KodMQError("Adapter must be an instance of Adapter")
     }
 
     this.config = { ...DefaultConfig, ...config }
-    this.adapter = config.adapter || new RedisAdapter() as Adapter
+    this.adapter = config.adapter
     this.handlers = config.handlers || {} as THandlers
     this.callbacks = config.callbacks || {}
 

@@ -10,12 +10,10 @@
   },
   "devDependencies": {
     "@types/node": "20.6.2",
-    "eslint-config-kodmq": "workspace:*"
-  },
-  "peerDependencies": {
+    "eslint-config-kodmq": "workspace:*",
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "kodmq": "workspace:*"
+    "@kodmq/core": "workspace:*"
   }
 }

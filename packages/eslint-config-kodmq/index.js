@@ -1,7 +1,7 @@
 module.exports = {
   "env": {
     "node": true,
-    "jest/globals": true
+    "jest/globals": true,
   },
 
   "parser": "@typescript-eslint/parser",
@@ -11,7 +11,7 @@ module.exports = {
     "import",
     "unused-imports",
     "import-newlines",
-    "@typescript-eslint"
+    "@typescript-eslint",
   ],
 
   "extends": [
@@ -31,35 +31,35 @@ module.exports = {
   "rules": {
     "quotes": [
       "error",
-      "double"
+      "double",
     ],
     "indent": [
       "error",
-      2
+      2,
     ],
     "semi": [
       "error",
-      "never"
+      "never",
     ],
     "comma-dangle": [
       "error",
-      "always-multiline"
+      "always-multiline",
     ],
     "arrow-parens": [
       "error",
-      "always"
+      "always",
     ],
     "space-before-function-paren": [
       "error",
       {
         "asyncArrow": "always",
         "anonymous": "never",
-        "named": "never"
-      }
+        "named": "never",
+      },
     ],
     "object-curly-spacing": [
       "error",
-      "always"
+      "always",
     ],
     "@typescript-eslint/type-annotation-spacing": [
       "error",
@@ -69,21 +69,21 @@ module.exports = {
         "overrides": {
           "arrow": {
             "before": true,
-            "after": true
-          }
-        }
-      }
+            "after": true,
+          },
+        },
+      },
     ],
     "import-newlines/enforce": [
       "error",
-      128
+      128,
     ],
     "import/order": [
       "error",
       {
         "alphabetize": {
           "order": "asc",
-          "caseInsensitive": true
+          "caseInsensitive": true,
         },
         "groups": [
           "builtin",
@@ -91,24 +91,17 @@ module.exports = {
           "internal",
           "parent",
           "sibling",
-          "index"
+          "index",
         ],
-        "newlines-between": "never"
-      }
+        "newlines-between": "never",
+      },
     ],
     "import/no-anonymous-default-export": [
       "error",
       {
         "allowObject": true,
-        "allowArray": true
-      }
-    ],
-    "import/extensions": [
-      "error",
-      "never",
-      {
-        "json": "always",
-      }
+        "allowArray": true,
+      },
     ],
     "unused-imports/no-unused-vars": [
       "warn",
@@ -116,8 +109,8 @@ module.exports = {
         "vars": "all",
         "varsIgnorePattern": "^_",
         "args": "after-used",
-        "argsIgnorePattern": "^_"
-      }
+        "argsIgnorePattern": "^_",
+      },
     ],
     "unused-imports/no-unused-imports": "error",
     "@typescript-eslint/no-non-null-assertion": "off",
@@ -128,6 +121,6 @@ module.exports = {
     "no-empty-function": "off",
     "no-unused-vars": "off",
     "no-console": "warn",
-    "no-debugger": "warn"
-  }
+    "no-debugger": "warn",
+  },
 }

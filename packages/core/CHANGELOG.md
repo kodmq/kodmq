@@ -4,7 +4,7 @@
 
 ## v1.0.0-beta.3
 
-No changes for this release
+- Publish README.md to NPM
 
 ## v1.0.0-beta.2
 

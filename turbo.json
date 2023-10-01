@@ -7,7 +7,7 @@
     "tsc": {},
     "test": {},
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["tsc", "lint", "test", "^build"],
       "outputs": ["dist/**"]
     }
   }

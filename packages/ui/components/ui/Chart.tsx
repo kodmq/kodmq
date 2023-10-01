@@ -150,7 +150,7 @@ export default function Chart(props: ChartProps) {
         type: "linear",
         nice: true,
         min: 0,
-        max: maxY < 5 ? maxY + 10 : maxY * 1.15, // Add some padding to the max
+        max: maxY < 5 ? maxY + 5 : maxY * 1.15, // Add some padding to the max
       }}
       legends={[
         {

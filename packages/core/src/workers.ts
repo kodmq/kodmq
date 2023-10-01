@@ -1,10 +1,20 @@
-import Adapter from "./adapters/Adapter"
+import Adapter from "./adapter"
 import { StartWorker } from "./commands/StartWorker"
 import { StopWorker } from "./commands/StopWorker"
 import { Busy, Idle, Killed, Stopped, Stopping } from "./constants"
 import { KodMQError } from "./errors"
 import KodMQ from "./kodmq"
-import { Handlers, ID, Worker, WorkerCallbackName, WorkerCreate, WorkerStatus, WorkerUpdate } from "./types"
+import {
+  Handlers,
+  ID,
+  Worker,
+  WorkerCallbackName,
+  WorkerCreate,
+  WorkersAllOptions,
+  WorkersStartOptions,
+  WorkerStatus,
+  WorkerUpdate,
+} from "./types"
 
 const StatusCallbacks: Record<WorkerStatus, WorkerCallbackName> = {
   [Idle]: "workerIdle",
@@ -12,17 +22,6 @@ const StatusCallbacks: Record<WorkerStatus, WorkerCallbackName> = {
   [Stopping]: "workerStopping",
   [Stopped]: "workerStopped",
   [Killed]: "workerKilled",
-}
-
-export type WorkersAllOptions = {
-  status?: WorkerStatus
-  limit?: number
-  offset?: number
-}
-
-export type StartOptions = {
-  concurrency?: number
-  clusterName?: string
 }
 
 export default class Workers<THandlers extends Handlers = Handlers> {
@@ -85,7 +84,7 @@ export default class Workers<THandlers extends Handlers = Handlers> {
    *
    * @param options
    */
-  async start(options: StartOptions = {}) {
+  async start(options: WorkersStartOptions = {}) {
     if (this.startedIds.length > 0) throw new KodMQError("Workers are already started")
     if (Object.keys(this.kodmq.handlers).length === 0) throw new KodMQError("At least one handler is required to start workers")
 

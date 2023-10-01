@@ -64,3 +64,4 @@ build/
 .astro/
 .rollup.cache/
 .DS_Store
+.tap/

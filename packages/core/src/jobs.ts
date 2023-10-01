@@ -1,8 +1,18 @@
-import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "./adapters/Adapter"
+import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "./adapter"
 import { Active, Canceled, Completed, Failed, JobFinishedStatuses, Pending, Scheduled } from "./constants"
 import { KodMQError } from "./errors"
 import KodMQ from "./kodmq"
-import { Handlers, ID, Job, JobCallbackName, JobCreate, JobStatus, JobUpdate, StringKeyOf } from "./types"
+import {
+  Handlers,
+  ID,
+  Job,
+  JobCallbackName,
+  JobCreate,
+  JobsAllOptions,
+  JobStatus,
+  JobUpdate,
+  StringKeyOf,
+} from "./types"
 
 const StatusCallbacks: Record<JobStatus, JobCallbackName> = {
   [Pending]: "jobPending",
@@ -11,12 +21,6 @@ const StatusCallbacks: Record<JobStatus, JobCallbackName> = {
   [Completed]: "jobCompleted",
   [Failed]: "jobFailed",
   [Canceled]: "jobCanceled",
-}
-
-export type JobsAllOptions = {
-  status?: JobStatus
-  limit?: number
-  offset?: number
 }
 
 export default class Jobs<THandlers extends Handlers = Handlers> {
@@ -89,7 +93,6 @@ export default class Jobs<THandlers extends Handlers = Handlers> {
         name,
         payload,
         runAt, status: runAt ? Scheduled : Pending,
-        createdAt: new Date(),
       })
 
       await this.pushToQueue(job.id, runAt)
