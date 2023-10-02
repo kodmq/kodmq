@@ -81,7 +81,7 @@ t.test("raise timeout error when credentials are invalid", async () => {
   await t.rejects(adapter.closeConnection(), { message: "Cannot close connection → Command timed out" })
 })
 
-t.only("all throws", async () => {
+t.test("all throws", async () => {
   const adapter = new RedisAdapter({
     redisOptions: {
       host: "locahost",

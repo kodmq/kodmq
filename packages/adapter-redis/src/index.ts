@@ -55,30 +55,34 @@ export default class RedisAdapter extends Adapter {
       if (!isRedisClient) throw new KodMQAdapterError(`Redis client must be an instance of ioredis. Received: ${typeof options.redis}`)
 
       this.client = options.redis
-      return
-    }
+    } else {
+      if (!options.redisOptions) {
+        options.redisOptions = {
+          host: process.env.KODMQ_REDIS_HOST ?? process.env.REDIS_HOST ?? "localhost",
+          port: Number(process.env.KODMQ_REDIS_PORT ?? process.env.REDIS_PORT ?? 6379),
+          password: process.env.KODMQ_REDIS_PASSWORD ?? process.env.REDIS_PASSWORD ?? undefined,
+          db: Number(process.env.KODMQ_REDIS_DB ?? process.env.REDIS_DB ?? 0),
+        }
+      }
 
-    if (!options.redisOptions) {
-      options.redisOptions = {
-        host: process.env.KODMQ_REDIS_HOST ?? process.env.REDIS_HOST ?? "localhost",
-        port: Number(process.env.KODMQ_REDIS_PORT ?? process.env.REDIS_PORT ?? 6379),
-        password: process.env.KODMQ_REDIS_PASSWORD ?? process.env.REDIS_PASSWORD ?? undefined,
-        db: Number(process.env.KODMQ_REDIS_DB ?? process.env.REDIS_DB ?? 0),
+      try {
+        this.client = new Redis({
+          lazyConnect: true,
+          connectTimeout: 5000,
+          commandTimeout: 5000,
+          maxRetriesPerRequest: 5,
+          retryStrategy: (times) => times < 5 ? 100 : null,
+          ...options.redisOptions,
+        })
+      } catch (e) {
+        throw new KodMQAdapterError("Cannot create Redis client", e as Error)
       }
     }
 
-    try {
-      this.client = new Redis({
-        lazyConnect: true,
-        connectTimeout: 5000,
-        commandTimeout: 5000,
-        maxRetriesPerRequest: 5,
-        retryStrategy: (times) => times < 5 ? 100 : null,
-        ...options.redisOptions,
-      })
-    } catch (e) {
-      throw new KodMQAdapterError("Cannot create Redis client", e as Error)
-    }
+    this.client.on("error", (error) => {
+      // eslint-disable-next-line no-console
+      console.error(`Redis error: ${error.message}`)
+    })
   }
 
   //
@@ -293,7 +297,7 @@ export default class RedisAdapter extends Adapter {
 
   async getNextWorkerId() {
     try {
-      return this.client.incr(WorkersIDKey)
+      return await this.client.incr(WorkersIDKey)
     } catch (e) {
       throw new KodMQAdapterError("Cannot get next worker ID", e as Error)
     }
