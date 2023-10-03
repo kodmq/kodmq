@@ -1,8 +1,8 @@
+import RedisAdapter from "@kodmq/adapter-redis"
 import { Active, Busy, Failed, Idle, Pending, Scheduled } from "@kodmq/core/constants"
 import { Job, JobCreate, Worker, WorkerCreate } from "@kodmq/core/types"
 import Redis from "ioredis"
 import t from "tap"
-import RedisAdapter from "./index.js"
 
 const jobsCreateData: JobCreate[] = [
   {

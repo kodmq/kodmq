@@ -19,6 +19,10 @@
     "declarationDir": "dist",
     "rootDir": "src",
     "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@kodmq/adapter-redis": ["src/index.ts"],
+    }
   },
   "include": [
     "src/**/*"

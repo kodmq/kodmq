@@ -488,6 +488,10 @@ export default class RedisAdapter extends Adapter {
     }
   }
 
+  isKodMQAdapter() {
+    return true
+  }
+
   //
   // Redis sorted sets
   //
@@ -541,9 +545,5 @@ export default class RedisAdapter extends Adapter {
     } catch (e) {
       throw new KodMQAdapterError("Cannot remove from sorted set", e as Error)
     }
-  }
-
-  isKodMQAdapter() {
-    return true
   }
 }

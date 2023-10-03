@@ -9,9 +9,9 @@
     "lint:fix": "eslint --ext .ts . --fix"
   },
   "devDependencies": {
-    "@types/node": "20.6.2",
+    "@types/node": "20.8.2",
     "eslint-config-kodmq": "workspace:*",
-    "typescript": "^5.0.0"
+    "typescript": "^5.2.2"
   },
   "dependencies": {
     "@kodmq/core": "workspace:*",

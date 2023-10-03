@@ -1,6 +1,6 @@
+import KodMQ from "../"
 import { Idle, Stopped, WorkerActiveStatuses } from "../constants.js"
 import { KodMQError } from "../errors.js"
-import KodMQ from "../kodmq.js"
 import { Job, Worker } from "../types.js"
 import Command from "./Command.js"
 import { RunJob } from "./RunJob.js"

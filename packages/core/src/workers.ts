@@ -3,8 +3,8 @@ import { StartWorker } from "./commands/StartWorker.js"
 import { StopWorker } from "./commands/StopWorker.js"
 import { Busy, Idle, Killed, Stopped, Stopping } from "./constants.js"
 import { KodMQError } from "./errors.js"
-import KodMQ from "./kodmq.js"
 import { Handlers, ID, Worker, WorkerCallbackName, WorkerCreate, WorkersAllOptions, WorkersStartOptions, WorkerStatus, WorkerUpdate } from "./types.js"
+import KodMQ from "./index.js"
 
 const StatusCallbacks: Record<WorkerStatus, WorkerCallbackName> = {
   [Idle]: "workerIdle",

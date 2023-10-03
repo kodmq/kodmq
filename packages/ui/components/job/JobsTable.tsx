@@ -6,6 +6,7 @@ import Payload from "@/components/content/Payload"
 import StatusBadge from "@/components/content/StatusBadge"
 import HashtagIcon from "@/components/icons/HashtagIcon"
 import JobIcon from "@/components/icons/JobIcon"
+import JobId from "@/components/job/JobId"
 import JobsTableRowActions from "@/components/job/JobsTableRowActions"
 import Badge from "@/components/ui/Badge"
 import CardSimple, { CardSimpleProps } from "@/components/ui/CardSimple"
@@ -114,13 +115,7 @@ export default function JobsTable({ jobs, status, ...props }: JobsTableProps) {
           {jobs.map((job) => (
             <TableRow key={job.id}>
               <TableCell first>
-                <HashtagIcon className="inline-block h-4 w-4 -translate-y-px" />
-                <Link
-                  className="link"
-                  href="#"
-                >
-                  {job.id}
-                </Link>
+                <JobId job={job} />
               </TableCell>
 
               {showStatus && (

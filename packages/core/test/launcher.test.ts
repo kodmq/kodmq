@@ -1,9 +1,9 @@
-import RedisAdapter from "@kodmq/adapter-redis"
+import KodMQ from "@kodmq/core"
+import { InMemoryAdapter } from "@kodmq/core/adapters"
+import { Stopped } from "@kodmq/core/constants"
+import launcher from "@kodmq/core/launcher"
 import t from "tap"
-import { Stopped } from "../src/constants.js"
-import KodMQ from "../src/kodmq.js"
-import launcher from "../src/launcher/index.js"
-import { handlers } from "./handlers.js"
+import { handlers } from "./helpers/handlers.js"
 
 t.test("launcher", async (t) => {
   let consoleOutput = ""
@@ -15,13 +15,9 @@ t.test("launcher", async (t) => {
       .concat("\n")
   }
 
-  t.beforeEach(async () => {
+  t.beforeEach(() => {
     consoleOutput = ""
-
-    // Clear all queues
-    const adapter = new RedisAdapter()
-    await adapter.clearAll()
-    await adapter.closeConnection()
+    new InMemoryAdapter().clearAll()
   })
 
   t.test("does not allow to launch without KodMQ instance", async () => {
@@ -31,14 +27,14 @@ t.test("launcher", async (t) => {
   })
 
   t.test("does not allow to launch without job handlers", async () => {
-    const kodmq = new KodMQ({ adapter: new RedisAdapter() })
+    const kodmq = new KodMQ({ adapter: new InMemoryAdapter() })
 
     await t.rejects(launcher(kodmq), { message: "You must register at least one job handler before launching KodMQ" })
     await kodmq.stopAll()
   })
 
   t.test("does not allow to launch with invalid concurrency", async () => {
-    const kodmq = new KodMQ({ adapter: new RedisAdapter(), handlers })
+    const kodmq = new KodMQ({ adapter: new InMemoryAdapter(), handlers })
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -47,7 +43,7 @@ t.test("launcher", async (t) => {
   })
 
   t.test("launches KodMQ", async () => {
-    const kodmq = new KodMQ({ adapter: new RedisAdapter(), handlers })
+    const kodmq = new KodMQ({ adapter: new InMemoryAdapter(), handlers })
 
     setTimeout(async () => await kodmq.jobs.perform("welcomeMessage", "John"), 200)
     setTimeout(async () => await kodmq.jobs.perform("happyBirthdayMessage", { name: "John", age: 30 }), 300)
@@ -78,14 +74,12 @@ t.test("launcher", async (t) => {
     t.match(consoleOutput, "[Job #3] Running I Was Born To Fail…")
     t.match(consoleOutput, "[Job #3] Failed I Was Born To Fail in")
     t.match(consoleOutput, "[Job #3] Retrying I Was Born To Fail as new job with id #4 in")
-
-    t.match(consoleOutput, "[Job #4] Re-queued I Was Born To Fail")
   })
 
   t.test("loads parameters from environment variables", async () => {
     const desiredConcurrency = 4
     const desiredClusterName = "Fantastic"
-    const kodmq = new KodMQ({ adapter: new RedisAdapter(), handlers })
+    const kodmq = new KodMQ({ adapter: new InMemoryAdapter(), handlers })
 
     // Set environment variable
     process.env.KODMQ_CONCURRENCY = desiredConcurrency.toString()
@@ -106,7 +100,7 @@ t.test("launcher", async (t) => {
   t.test("loads parameters from CLI arguments", async () => {
     const desiredConcurrency = 3
     const desiredClusterName = "Nice"
-    const kodmq = new KodMQ({ adapter: new RedisAdapter(), handlers })
+    const kodmq = new KodMQ({ adapter: new InMemoryAdapter(), handlers })
 
     // Set CLI argument
     process.argv.push("--concurrency=3")

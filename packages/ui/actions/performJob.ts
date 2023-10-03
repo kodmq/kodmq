@@ -1,6 +1,6 @@
 "use server"
 
-import { Job } from "kodmq/types"
+import { Job } from "@kodmq/core/types"
 import { revalidatePath } from "next/cache"
 import { withServerAction } from "@/actions/withServerAction"
 import kodmq from "@/lib/kodmq"

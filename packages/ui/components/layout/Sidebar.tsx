@@ -1,7 +1,7 @@
 "use client"
 
-import { motion } from "framer-motion"
 import { JobStatuses, ReadableStatuses, WorkerStatuses } from "@kodmq/core/constants"
+import { motion } from "framer-motion"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useMemo } from "react"
@@ -10,6 +10,7 @@ import HomeIcon from "@/components/icons/HomeIcon"
 import JobIcon from "@/components/icons/JobIcon"
 import Logo from "@/components/icons/Logo"
 import WorkerIcon from "@/components/icons/WorkerIcon"
+import XIcon from "@/components/icons/XIcon"
 import { Icon } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -65,7 +66,11 @@ const navigationItems: NavigationItem[] = [
   },
 ]
 
-export default function Sidebar() {
+export type SidebarProps = {
+  onClose?: () => void
+}
+
+export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -91,16 +96,25 @@ export default function Sidebar() {
 
   return (
     <>
-      <Link
-        href="/"
-        className="flex -translate-x-1 items-center gap-2 px-7 py-6 text-lg font-extrabold"
-      >
-        <Logo className="inline-block h-7 w-7" />
-        <span>
-          KodMQ
-          <sup className="font-medium text-indigo-500"> βeta</sup>
-        </span>
-      </Link>
+      <div className="flex items-center justify-between pr-4 lg:pr-0">
+        <Link
+          href="/"
+          className="flex -translate-x-1 items-center gap-2 px-7 py-6 text-lg font-extrabold"
+        >
+          <Logo className="inline-block h-7 w-7" />
+          <span>
+            KodMQ
+            <sup className="font-medium text-indigo-500"> βeta</sup>
+          </span>
+        </Link>
+
+        <button
+          onClick={onClose}
+          className="group/button rounded-lg p-1.5 text-zinc-500 transition-colors duration-300 ease-in-out hover:bg-black/2.5 hover:text-zinc-700 dark:hover:bg-white/2.5 dark:hover:text-zinc-300 lg:hidden"
+        >
+          <XIcon className="h-5 w-5 transition-transform duration-300 ease-in-out group-hover/button:rotate-90" />
+        </button>
+      </div>
 
       <nav className="mt-2">
         <ul className="space-y-0.5 text-sm">

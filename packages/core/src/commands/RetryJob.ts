@@ -1,6 +1,6 @@
+import KodMQ from "../"
 import { Scheduled } from "../constants.js"
 import { KodMQError } from "../errors.js"
-import KodMQ from "../kodmq.js"
 import { Job } from "../types.js"
 import Command from "./Command.js"
 

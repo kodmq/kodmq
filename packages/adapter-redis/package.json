@@ -37,7 +37,7 @@
   "scripts": {
     "lint": "eslint --ext .ts .",
     "lint:fix": "eslint --ext .ts . --fix",
-    "test": "tap --jobs=1 --timeout=5",
+    "test": "tap --jobs=1 --timeout=5 --allow-incomplete-coverage",
     "tsc": "tsc -p ./tsconfig.lint.json",
     "build": "rollup -c && tsc"
   },

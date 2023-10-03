@@ -1,10 +1,10 @@
 import * as os from "os"
 import * as colorette from "colorette"
 import { onShutdown } from "node-graceful-shutdown"
-import { KodMQLauncherError } from "../errors.js"
-import KodMQ from "../kodmq.js"
-import Logger from "./logger.js"
-import { formatDuration, formatJobPayload, formatName } from "./utils.js"
+import { KodMQLauncherError } from "./errors.js"
+import Logger from "./utils/logger.js"
+import { formatDuration, formatJobPayload, formatName } from "./utils/utils.js"
+import KodMQ from "./index.js"
 
 export type LaunchOptions = {
   concurrency?: number

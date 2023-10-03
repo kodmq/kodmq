@@ -1,6 +1,6 @@
+import KodMQ from "../"
 import { Active, Busy, Completed, Failed, Idle } from "../constants.js"
 import { getErrorMessage, KodMQError } from "../errors.js"
-import KodMQ from "../kodmq.js"
 import { Job, Worker } from "../types.js"
 import Command from "./Command.js"
 import { RetryJob } from "./RetryJob.js"

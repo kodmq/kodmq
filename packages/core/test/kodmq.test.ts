@@ -1,37 +1,35 @@
-import RedisAdapter from "@kodmq/adapter-redis"
+import KodMQ from "@kodmq/core"
+import { InMemoryAdapter } from "@kodmq/core/adapters"
+import { Completed, Failed, Idle, Pending, Scheduled } from "@kodmq/core/constants"
 import t from "tap"
-import { Completed, Failed, Idle, Pending, Scheduled } from "../src/constants.js"
-import KodMQ from "../src/kodmq.js"
-import { handlers } from "./handlers.js"
+import { handlers } from "./helpers/handlers.js"
 
-t.test("KodMQ", async (t) => {
-  t.beforeEach(async () => {
-    const adapter = new RedisAdapter()
-    await adapter.clearAll()
-    await adapter.closeConnection()
+t.only("KodMQ", async (t) => {
+  t.beforeEach(() => {
+    new InMemoryAdapter().clearAll()
   })
 
-  t.test("does not allow to create instance without config", async () => {
+  t.test("does not allow to create instance without config", async (t) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     t.throws(() => new KodMQ(), { message: "Config is required" })
   })
 
-  t.test("does not allow to create instance with wrong adapter", async () => {
+  t.test("does not allow to create instance with wrong adapter", async (t) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     t.throws(() => new KodMQ({ adapter: "hello", handlers }), { message: "Adapter must be an instance of Adapter" })
   })
 
-  t.test("does not allow to start worker without handlers", async () => {
-    const kodmq = new KodMQ({ adapter: new RedisAdapter() })
+  t.test("does not allow to start worker without handlers", async (t) => {
+    const kodmq = new KodMQ({ adapter: new InMemoryAdapter() })
 
     await t.rejects(kodmq.workers.start(), { message: "At least one handler is required to start workers" })
     await kodmq.closeConnection()
   })
 
-  t.test("does not allow to start worker twice", async () => {
-    const kodmq = new KodMQ({ adapter: new RedisAdapter(), handlers })
+  t.test("does not allow to start worker twice", async (t) => {
+    const kodmq = new KodMQ({ adapter: new InMemoryAdapter(), handlers })
 
     setTimeout(() => kodmq.workers.start(), 1)
     await new Promise((resolve) => setTimeout(resolve, 100))
@@ -40,21 +38,21 @@ t.test("KodMQ", async (t) => {
     await kodmq.stopAll()
   })
 
-  t.test("creates instance with config", async () => {
+  t.test("creates instance with config", async (t) => {
     const kodmq = new KodMQ({
-      adapter: new RedisAdapter(),
+      adapter: new InMemoryAdapter(),
       handlers,
     })
 
     t.ok(kodmq instanceof KodMQ)
-    t.ok(kodmq.adapter instanceof RedisAdapter)
+    t.ok(kodmq.adapter instanceof InMemoryAdapter)
     t.equal(kodmq.handlers, handlers)
 
     await kodmq.closeConnection()
   })
 
-  t.only("push jobs to adapter and pops them", async () => {
-    const kodmq = new KodMQ({ adapter: new RedisAdapter(), handlers })
+  t.only("push jobs to adapter and pops them", async (t) => {
+    const kodmq = new KodMQ({ adapter: new InMemoryAdapter(), handlers })
 
     // Trigger jobs
     const job1 = await kodmq.jobs.perform("welcomeMessage", "John")
@@ -101,13 +99,13 @@ t.test("KodMQ", async (t) => {
     await kodmq.closeConnection()
   })
 
-  t.test("runs jobs", async () => {
+  t.test("runs jobs", async (t) => {
     const welcomeMessageCalls = t.capture(handlers, "welcomeMessage")
     const happyBirthdayMessageCalls = t.capture(handlers, "happyBirthdayMessage")
     const promotionMessageCalls = t.capture(handlers, "promotionMessage")
 
     const kodmq = new KodMQ({
-      adapter: new RedisAdapter(),
+      adapter: new InMemoryAdapter(),
       handlers,
     })
 
@@ -151,8 +149,8 @@ t.test("KodMQ", async (t) => {
     t.equal(completedJobs[2].workerId, workers[0].id)
   })
 
-  t.test("gets information about workers", async () => {
-    const kodmq = new KodMQ({ adapter: new RedisAdapter(), handlers })
+  t.test("gets information about workers", async (t) => {
+    const kodmq = new KodMQ({ adapter: new InMemoryAdapter(), handlers })
 
     let workers = await kodmq.workers.all()
     t.equal(workers.length, 0)
@@ -168,8 +166,8 @@ t.test("KodMQ", async (t) => {
     await kodmq.stopAll()
   })
 
-  t.test("gracefully stops workers", async () => {
-    const kodmq = new KodMQ({ adapter: new RedisAdapter(), handlers })
+  t.test("gracefully stops workers", async (t) => {
+    const kodmq = new KodMQ({ adapter: new InMemoryAdapter(), handlers })
 
     const job = await kodmq.jobs.perform("longRunningJob")
 
@@ -197,7 +195,7 @@ t.test("KodMQ", async (t) => {
     t.equal(completedJobs[0].id, job.id)
   })
 
-  t.test("runs callbacks", async () => {
+  t.test("runs callbacks", async (t) => {
     const callbacks = {
       jobCreated: (..._args: unknown[]) => undefined,
       jobActive: (..._args: unknown[]) => undefined,
@@ -215,7 +213,7 @@ t.test("KodMQ", async (t) => {
     const workerBusyCalls = t.capture(callbacks, "workerBusy")
 
     const kodmq = new KodMQ({
-      adapter: new RedisAdapter(),
+      adapter: new InMemoryAdapter(),
       handlers,
       callbacks,
 
@@ -246,9 +244,9 @@ t.test("KodMQ", async (t) => {
     t.equal(workerBusyCalls().length, 2)
   })
 
-  t.test("kills worker and puts job back to queue", async () => {
+  t.test("kills worker and puts job back to queue", async (t) => {
     const kodmq = new KodMQ({
-      adapter: new RedisAdapter(),
+      adapter: new InMemoryAdapter(),
       handlers,
       stopTimeout: 1,
     })
@@ -271,8 +269,8 @@ t.test("KodMQ", async (t) => {
     t.equal(pendingJobs[0].id, job.id)
   })
 
-  t.test("boosts job", async () => {
-    const kodmq = new KodMQ({ adapter: new RedisAdapter(), handlers })
+  t.test("boosts job", async (t) => {
+    const kodmq = new KodMQ({ adapter: new InMemoryAdapter(), handlers })
 
     const job1 = await kodmq.jobs.perform("welcomeMessage", "John")
     const job2 = await kodmq.jobs.perform("welcomeMessage", "Andrew")
@@ -283,18 +281,18 @@ t.test("KodMQ", async (t) => {
     await kodmq.jobs.boost(boostedJob.id)
 
     // NOTE: Should job boosted job be above the scheduled job?
-    // expect(await kodmq.adapter.popJobFromQueue()).toHaveProperty("id", scheduledJob.id)
-    // expect(await kodmq.adapter.popJobFromQueue()).toHaveProperty("id", boostedJob.id)
-    // expect(await kodmq.adapter.popJobFromQueue()).toHaveProperty("id", job1.id)
-    // expect(await kodmq.adapter.popJobFromQueue()).toHaveProperty("id", job2.id)
-    // expect(await kodmq.adapter.popJobFromQueue()).toHaveProperty("id", job3.id)
+    t.match(await kodmq.adapter.popJobFromQueue(), { id: scheduledJob.id })
+    t.match(await kodmq.adapter.popJobFromQueue(), { id: boostedJob.id })
+    t.match(await kodmq.adapter.popJobFromQueue(), { id: job1.id })
+    t.match(await kodmq.adapter.popJobFromQueue(), { id: job2.id })
+    t.match(await kodmq.adapter.popJobFromQueue(), { id: job3.id })
 
     await kodmq.closeConnection()
   })
 
-  t.test("retries job", async () => {
+  t.test("retries job", async (t) => {
     const kodmq = new KodMQ({
-      adapter: new RedisAdapter(),
+      adapter: new InMemoryAdapter(),
       handlers,
       maxRetries: 1,
       retryDelay: 200,

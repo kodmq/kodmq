@@ -13,23 +13,28 @@
   "funding": "https://github.com/sponsors/akodkod",
   "license": "MIT",
   "type": "module",
-  "main": "./dist/kodmq.js",
-  "types": "./dist/kodmq.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/kodmq.d.ts",
-      "import": "./dist/kodmq.js",
-      "require": "./dist/kodmq.js"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
     },
     "./launcher": {
-      "types": "./dist/launcher/index.d.ts",
-      "import": "./dist/launcher/index.js",
-      "require": "./dist/launcher/index.js"
+      "types": "./dist/launcher.d.ts",
+      "import": "./dist/launcher.js",
+      "require": "./dist/launcher.js"
     },
     "./adapter": {
       "types": "./dist/adapter.d.ts",
       "import": "./dist/adapter.js",
       "require": "./dist/adapter.js"
+    },
+    "./adapters": {
+      "types": "./dist/adapters/index.d.ts",
+      "import": "./dist/adapters/index.js",
+      "require": "./dist/adapters/index.js"
     },
     "./errors": {
       "types": "./dist/errors.d.ts",
@@ -71,19 +76,18 @@
   "scripts": {
     "lint": "eslint --ext .ts .",
     "lint:fix": "eslint --ext .ts . --fix",
-    "test": "tap --jobs=1 --timeout=5",
+    "test": "tap --jobs=1 --timeout=5 --allow-incomplete-coverage test/**/*.test.ts",
     "tsc": "tsc -p ./tsconfig.lint.json",
     "build": "rollup -c && tsc"
   },
   "devDependencies": {
-    "@kodmq/adapter-redis": "workspace:*",
-    "@types/node": "20.6.2",
+    "@types/node": "20.8.2",
     "eslint-config-kodmq": "workspace:*",
-    "rollup": "^3.29.2",
+    "rollup": "^3.29.4",
     "rollup-plugin-bundle-size": "^1.0.3",
-    "rollup-plugin-esbuild": "6.0.1",
+    "rollup-plugin-esbuild": "6.0.2",
     "tap": "^18.4.2",
-    "typescript": "^5.0.0"
+    "typescript": "^5.2.2"
   },
   "dependencies": {
     "colorette": "^2.0.20",

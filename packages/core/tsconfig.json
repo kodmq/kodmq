@@ -18,6 +18,11 @@
     "declarationDir": "dist",
     "rootDir": "src",
     "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@kodmq/core": ["./src/index.ts"],
+      "@kodmq/core/*": ["./src/*"]
+    }
   },
   "include": [
     "src/**/*"

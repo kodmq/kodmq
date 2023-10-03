@@ -145,11 +145,11 @@ const buttonVariants = cva([
     { variant: "secondary", disabled: false, loading: false, className: "hover:bg-neutral-200 dark:hover:bg-neutral-800" },
 
     // Sizes (iconOnly)
-    { size: "xs", iconOnly: true, className: "w-7" },
-    { size: "sm", iconOnly: true, className: "w-9" },
-    { size: "md", iconOnly: true, className: "w-12" },
-    { size: "lg", iconOnly: true, className: "w-14" },
-    { size: "xl", iconOnly: true, className: "w-16" },
+    { size: "xs", iconOnly: true, className: "h-7 w-7" },
+    { size: "sm", iconOnly: true, className: "h-9 w-9" },
+    { size: "md", iconOnly: true, className: "h-12 w-12" },
+    { size: "lg", iconOnly: true, className: "h-14 w-14" },
+    { size: "xl", iconOnly: true, className: "h-16 w-16" },
   ],
 })
 
