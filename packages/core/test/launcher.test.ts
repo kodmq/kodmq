@@ -1,11 +1,11 @@
-import { Stopped } from "../src/constants"
-import KodMQ from "../src/kodmq"
-import launcher from "../src/launcher/index"
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { handlers } from "./handlers.ts"
+import RedisAdapter from "@kodmq/adapter-redis"
+import t from "tap"
+import { Stopped } from "../src/constants.js"
+import KodMQ from "../src/kodmq.js"
+import launcher from "../src/launcher/index.js"
+import { handlers } from "./handlers.js"
 
-describe("Launcher", () => {
+t.test("launcher", async (t) => {
   let consoleOutput = ""
 
   const consoleLogger = (message?: unknown, ...optionalParams: unknown[]) => {
@@ -15,34 +15,39 @@ describe("Launcher", () => {
       .concat("\n")
   }
 
-  beforeEach(async () => {
+  t.beforeEach(async () => {
     consoleOutput = ""
+
+    // Clear all queues
+    const adapter = new RedisAdapter()
+    await adapter.clearAll()
+    await adapter.closeConnection()
   })
-  
-  it("does not allow to launch without KodMQ instance", async () => {
+
+  t.test("does not allow to launch without KodMQ instance", async () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    await expect(launcher()).rejects.toThrow("You must pass a KodMQ instance to launch()")
+    await t.rejects(launcher(), { message: "You must pass a KodMQ instance to launch()" })
   })
 
-  it("does not allow to launch without job handlers", async () => {
-    const kodmq = new KodMQ()
+  t.test("does not allow to launch without job handlers", async () => {
+    const kodmq = new KodMQ({ adapter: new RedisAdapter() })
 
-    await expect(launcher(kodmq)).rejects.toThrow("You must register at least one job handler before launching KodMQ")
+    await t.rejects(launcher(kodmq), { message: "You must register at least one job handler before launching KodMQ" })
     await kodmq.stopAll()
   })
 
-  it("does not allow to launch with invalid concurrency", async () => {
-    const kodmq = new KodMQ({ handlers })
+  t.test("does not allow to launch with invalid concurrency", async () => {
+    const kodmq = new KodMQ({ adapter: new RedisAdapter(), handlers })
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    await expect(launcher(kodmq, { concurrency: "hello" })).rejects.toThrow("Concurrency must be a number")
+    await t.rejects(launcher(kodmq, { concurrency: "hello" }), { message: "Concurrency must be a number" })
     await kodmq.stopAll()
   })
 
-  it("launches KodMQ", async () => {
-    const kodmq = new KodMQ({ handlers })
+  t.test("launches KodMQ", async () => {
+    const kodmq = new KodMQ({ adapter: new RedisAdapter(), handlers })
 
     setTimeout(async () => await kodmq.jobs.perform("welcomeMessage", "John"), 200)
     setTimeout(async () => await kodmq.jobs.perform("happyBirthdayMessage", { name: "John", age: 30 }), 300)
@@ -50,36 +55,37 @@ describe("Launcher", () => {
     setTimeout(async () => await kodmq.stopAll(), 1500)
     await launcher(kodmq, { concurrency: 2, logger: consoleLogger })
 
-    expect(consoleOutput).toContain("Starting KodMQ...")
-    expect(consoleOutput).toContain("Concurrency: 2")
-    expect(consoleOutput).toContain("[Worker #1] Worker is active and waiting for jobs")
-    expect(consoleOutput).toContain("[Worker #2] Worker is active and waiting for jobs")
-    expect(consoleOutput).toContain("[Worker #1] Worker is stopping")
-    expect(consoleOutput).toContain("[Worker #2] Worker is stopping")
-    expect(consoleOutput).toContain("[Worker #1] Worker has stopped")
-    expect(consoleOutput).toContain("[Worker #2] Worker has stopped")
+    t.match(consoleOutput, "Starting KodMQ...")
+    t.match(consoleOutput, "Concurrency: 2")
+    t.match(consoleOutput, "[Worker #1] Worker is active and waiting for jobs")
+    t.match(consoleOutput, "[Worker #2] Worker is active and waiting for jobs")
+    t.match(consoleOutput, "[Worker #1] Worker is stopping")
+    t.match(consoleOutput, "[Worker #2] Worker is stopping")
+    t.match(consoleOutput, "[Worker #1] Worker has stopped")
+    t.match(consoleOutput, "[Worker #2] Worker has stopped")
 
     // eslint-disable-next-line quotes
-    expect(consoleOutput).toContain(`[Job #1] Queued Welcome Message with payload "John"`)
-    expect(consoleOutput).toContain("[Job #1] Running Welcome Message…")
-    expect(consoleOutput).toContain("[Job #1] Completed Welcome Message in")
+    t.match(consoleOutput, `[Job #1] Queued Welcome Message with payload "John"`)
+    t.match(consoleOutput, "[Job #1] Running Welcome Message…")
+    t.match(consoleOutput, "[Job #1] Completed Welcome Message in")
 
     // eslint-disable-next-line quotes
-    expect(consoleOutput).toContain(`[Job #2] Queued Happy Birthday Message with payload {"name":"John","age":30}`)
-    expect(consoleOutput).toContain("[Job #2] Running Happy Birthday Message…")
-    expect(consoleOutput).toContain("[Job #2] Completed Happy Birthday Message in")
+    t.match(consoleOutput, `[Job #2] Queued Happy Birthday Message with payload {"name":"John","age":30}`)
+    t.match(consoleOutput, "[Job #2] Running Happy Birthday Message…")
+    t.match(consoleOutput, "[Job #2] Completed Happy Birthday Message in")
 
-    // eslint-disable-next-line quotes
-    expect(consoleOutput).toContain(`[Job #3] Queued I Was Born To Fail`)
-    expect(consoleOutput).toContain("[Job #3] Running I Was Born To Fail…")
-    expect(consoleOutput).toContain("[Job #3] Failed I Was Born To Fail in")
-    expect(consoleOutput).toContain("[Job #3] Retrying I Was Born To Fail as new job with id #4 in")
+    t.match(consoleOutput, "[Job #3] Queued I Was Born To Fail")
+    t.match(consoleOutput, "[Job #3] Running I Was Born To Fail…")
+    t.match(consoleOutput, "[Job #3] Failed I Was Born To Fail in")
+    t.match(consoleOutput, "[Job #3] Retrying I Was Born To Fail as new job with id #4 in")
+
+    t.match(consoleOutput, "[Job #4] Re-queued I Was Born To Fail")
   })
 
-  it("loads parameters from environment variables", async () => {
+  t.test("loads parameters from environment variables", async () => {
     const desiredConcurrency = 4
     const desiredClusterName = "Fantastic"
-    const kodmq = new KodMQ({ handlers })
+    const kodmq = new KodMQ({ adapter: new RedisAdapter(), handlers })
 
     // Set environment variable
     process.env.KODMQ_CONCURRENCY = desiredConcurrency.toString()
@@ -89,18 +95,18 @@ describe("Launcher", () => {
     await launcher(kodmq, { logger: consoleLogger })
     await kodmq.workers.waitUntilAllInStatus(Stopped)
 
-    expect(consoleOutput).toContain("Starting KodMQ...")
-    expect(consoleOutput).toContain(`Concurrency: ${desiredConcurrency}`)
-    expect(consoleOutput).toContain(`Cluster name: ${desiredClusterName}`)
+    t.match(consoleOutput, "Starting KodMQ...")
+    t.match(consoleOutput, `Concurrency: ${desiredConcurrency}`)
+    t.match(consoleOutput, `Cluster name: ${desiredClusterName}`)
 
     delete process.env.KODMQ_CONCURRENCY
     delete process.env.KODMQ_CLUSTER_NAME
   })
 
-  it("loads parameters from CLI arguments", async () => {
+  t.test("loads parameters from CLI arguments", async () => {
     const desiredConcurrency = 3
     const desiredClusterName = "Nice"
-    const kodmq = new KodMQ({ handlers })
+    const kodmq = new KodMQ({ adapter: new RedisAdapter(), handlers })
 
     // Set CLI argument
     process.argv.push("--concurrency=3")
@@ -110,9 +116,9 @@ describe("Launcher", () => {
     await launcher(kodmq, { concurrency: desiredConcurrency, logger: consoleLogger })
     await kodmq.workers.waitUntilAllInStatus(Stopped)
 
-    expect(consoleOutput).toContain("Starting KodMQ...")
-    expect(consoleOutput).toContain(`Concurrency: ${desiredConcurrency}`)
-    expect(consoleOutput).toContain(`Cluster name: ${desiredClusterName}`)
+    t.match(consoleOutput, "Starting KodMQ...")
+    t.match(consoleOutput, `Concurrency: ${desiredConcurrency}`)
+    t.match(consoleOutput, `Cluster name: ${desiredClusterName}`)
 
     process.argv.pop()
     process.argv.pop()

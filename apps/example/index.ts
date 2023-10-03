@@ -1,5 +1,6 @@
-import KodMQ from "kodmq"
-import kodmqLauncher from "kodmq/launcher"
+import RedisAdapter from "@kodmq/adapter-redis"
+import KodMQ from "@kodmq/core"
+import kodmqLauncher from "@kodmq/core/launcher"
 
 const randomWindow = 300000
 
@@ -27,6 +28,7 @@ async function fireJim() {
 }
 
 const kodmq = new KodMQ({
+  adapter: new RedisAdapter(),
   handlers: {
     sendEmail,
     processPayment,

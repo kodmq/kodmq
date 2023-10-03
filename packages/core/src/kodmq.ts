@@ -1,9 +1,9 @@
 import process from "process"
-import Adapter from "./adapter"
-import { KodMQError } from "./errors"
-import Jobs from "./jobs"
-import { Handlers, Callbacks, CallbacksMap, Config } from "./types"
-import Workers from "./workers"
+import Adapter from "./adapter.js"
+import { KodMQError } from "./errors.js"
+import Jobs from "./jobs.js"
+import { Handlers, CallbacksMap, Config, CallbacksArrayOnly } from "./types.js"
+import Workers from "./workers.js"
 
 const DefaultConfig: Omit<Config, "adapter" | "handlers"> = {
   maxRetries: 3,
@@ -21,7 +21,7 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
   handlers: THandlers
   jobs: Jobs<THandlers>
   workers: Workers<THandlers>
-  callbacks: Callbacks
+  callbacks: CallbacksArrayOnly
 
   /**
    * Create a new KodMQ instance
@@ -29,18 +29,35 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
    * @param config
    */
   constructor(config: Config<THandlers>) {
+    if (!config) throw new KodMQError("Config is required")
+
     if (config.adapter) {
-      const isAdapter = config.adapter instanceof Adapter
-      if (!isAdapter) throw new KodMQError("Adapter must be an instance of Adapter")
+      try {
+        config.adapter.isKodMQAdapter()
+      } catch (e) {
+        throw new KodMQError("Adapter must be an instance of Adapter")
+      }
     }
 
     this.config = { ...DefaultConfig, ...config }
     this.adapter = config.adapter
-    this.handlers = config.handlers || {} as THandlers
-    this.callbacks = config.callbacks || {}
+    this.handlers = config.handlers ?? {} as THandlers
+    this.callbacks = {}
 
     this.jobs = new Jobs<THandlers>(this)
     this.workers = new Workers<THandlers>(this)
+
+    // Convert callbacks to array
+    for (const callbackKey of Object.keys(this.config.callbacks ?? {})) {
+      const key = callbackKey as keyof CallbacksMap
+      const isArray = Array.isArray(this.config.callbacks![key])
+      const callbacks = this.config.callbacks![key]
+
+      this.callbacks[key] = []
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      this.callbacks[key].push(...(isArray ? callbacks : [callbacks]))
+    }
   }
 
   /**
@@ -64,7 +81,7 @@ export default class KodMQ<THandlers extends Handlers = Handlers> {
    */
   on<T extends keyof CallbacksMap>(callbackName: T, callback: CallbacksMap[T]) {
     if (!this.callbacks[callbackName]) this.callbacks[callbackName] = []
-    this.callbacks[callbackName]?.push(callback)
+    this.callbacks[callbackName]!.push(callback)
   }
 
   /**

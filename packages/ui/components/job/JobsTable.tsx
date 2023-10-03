@@ -1,5 +1,5 @@
-import { Active, Failed, Pending, ReadableStatuses, Scheduled } from "kodmq/constants"
-import { JobStatus, Job } from "kodmq/types"
+import { Active, Failed, Pending, ReadableStatuses, Scheduled } from "@kodmq/core/constants"
+import { JobStatus, Job } from "@kodmq/core/types"
 import Link from "next/link"
 import EmptyValue from "@/components/content/EmptyValue"
 import Payload from "@/components/content/Payload"

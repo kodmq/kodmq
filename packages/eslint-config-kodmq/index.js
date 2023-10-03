@@ -1,13 +1,11 @@
 module.exports = {
   "env": {
     "node": true,
-    "jest/globals": true,
   },
 
   "parser": "@typescript-eslint/parser",
 
   "plugins": [
-    "jest",
     "import",
     "unused-imports",
     "import-newlines",

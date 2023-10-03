@@ -1,16 +1,6 @@
-import { Pending, Scheduled } from "./constants"
-import { KodMQAdapterError } from "./errors"
-import {
-  ID,
-  Job,
-  JobCreate,
-  JobsAllOptions,
-  JobUpdate,
-  Worker,
-  WorkerCreate,
-  WorkersAllOptions,
-  WorkerUpdate,
-} from "./types"
+import { Pending, Scheduled } from "./constants.js"
+import { KodMQAdapterError } from "./errors.js"
+import { ID, Job, JobCreate, JobsAllOptions, JobUpdate, Worker, WorkerCreate, WorkersAllOptions, WorkerUpdate } from "./types.js"
 
 export type AdapterHandler = (job: Job) => Promise<void>
 export type AdapterKeepSubscribed = () => Promise<boolean>
@@ -87,24 +77,7 @@ export default abstract class Adapter {
    * @param handler
    * @param keepSubscribed
    */
-  async subscribeToJobs(handler: AdapterHandler, keepSubscribed: AdapterKeepSubscribed) {
-    try {
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        if (!await keepSubscribed()) break
-
-        // FIXME: This is hack to avoid picking the same job by multiple workers
-        await new Promise((resolve) => setTimeout(resolve, Math.random() * 50))
-
-        const job = await this.popJobFromQueue()
-        if (!job || ![Pending, Scheduled].includes(job.status)) continue
-
-        await handler(job)
-      }
-    } catch (e) {
-      throw new KodMQAdapterError("Cannot subscribe to jobs", e as Error)
-    }
-  }
+  abstract subscribeToJobs(handler: AdapterHandler, keepSubscribed: AdapterKeepSubscribed): Promise<void>
 
   /**
    * Get next worker ID
@@ -163,4 +136,9 @@ export default abstract class Adapter {
    * Send ping to the database
    */
   abstract ping(): Promise<unknown>
+
+  /**
+   * Check if adapter is KodMQ adapter
+   */
+  abstract isKodMQAdapter(): boolean
 }

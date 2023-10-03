@@ -1,8 +1,8 @@
-import { Scheduled } from "../constants"
-import { KodMQError } from "../errors"
-import KodMQ from "../kodmq"
-import { Job } from "../types"
-import Command from "./Command"
+import { Scheduled } from "../constants.js"
+import { KodMQError } from "../errors.js"
+import KodMQ from "../kodmq.js"
+import { Job } from "../types.js"
+import Command from "./Command.js"
 
 export type RetryJobArgs = {
   job: Job

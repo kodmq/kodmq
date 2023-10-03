@@ -1,7 +1,7 @@
 "use client"
 
-import { Active, Idle } from "kodmq/constants"
-import { Worker } from "kodmq/types"
+import { Active, Idle } from "@kodmq/core/constants"
+import { Worker } from "@kodmq/core/types"
 import { useCallback, useState } from "react"
 import stopWorker from "@/actions/stopWorker"
 import { ServerAction } from "@/actions/withServerAction"

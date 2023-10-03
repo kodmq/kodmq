@@ -1,10 +1,10 @@
 import * as os from "os"
 import * as colorette from "colorette"
 import { onShutdown } from "node-graceful-shutdown"
-import { KodMQLauncherError } from "../errors"
-import KodMQ from "../kodmq"
-import Logger from "./logger"
-import { formatDuration, formatJobPayload, formatName } from "./utils"
+import { KodMQLauncherError } from "../errors.js"
+import KodMQ from "../kodmq.js"
+import Logger from "./logger.js"
+import { formatDuration, formatJobPayload, formatName } from "./utils.js"
 
 export type LaunchOptions = {
   concurrency?: number
@@ -92,7 +92,11 @@ export default async function launcher(kodmq: KodMQ, options: LaunchOptions = {}
   })
 
   kodmq.on("jobPending", (job) => {
-    logger.logTimeline(`Job #${job.id}`, `Queued ${formatName(job.name)}${formatJobPayload(job.payload)}`)
+    if (job.failedAttempts) {
+      logger.logTimeline(`Job #${job.id}`, `Re-queued ${formatName(job.name)}${formatJobPayload(job.payload)}`)
+    } else {
+      logger.logTimeline(`Job #${job.id}`, `Queued ${formatName(job.name)}${formatJobPayload(job.payload)}`)
+    }
   })
 
   kodmq.on("jobScheduled", (job) => {

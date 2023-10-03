@@ -49,13 +49,15 @@
     "tailwindcss": "^3.3.3",
     "typescript": "^5.2.2",
     "zod": "^3.22.2",
-    "zustand": "^4.4.1"
+    "zustand": "^4.4.1",
+    "@kodmq/core": "*",
+    "@kodmq/adapter-redis": "*"
   },
   "peerDependencies": {
-    "@kodmq/core": "*"
   },
   "devDependencies": {
     "@kodmq/core": "workspace:*",
+    "@kodmq/adapter-redis": "workspace:*",
     "eslint-config-kodmq": "workspace:*"
   }
 }

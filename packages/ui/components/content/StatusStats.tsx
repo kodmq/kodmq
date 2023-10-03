@@ -1,5 +1,5 @@
-import { JobStatuses, ReadableStatuses, WorkerStatuses } from "kodmq/constants"
-import { Job, Worker } from "kodmq/types"
+import { JobStatuses, ReadableStatuses, WorkerStatuses } from "@kodmq/core/constants"
+import { Job, Worker } from "@kodmq/core/types"
 import Card from "@/components/ui/Card"
 import { ExtendProps } from "@/lib/types"
 import { cn, filter } from "@/lib/utils"

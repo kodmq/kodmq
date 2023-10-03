@@ -1,5 +1,5 @@
-import Adapter from "./adapter"
-import { Idle, JobStatuses, Pending, Scheduled, WorkerStatuses } from "./constants"
+import Adapter from "./adapter.js"
+import { Idle, JobStatuses, Pending, Scheduled, WorkerStatuses } from "./constants.js"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AllowedAny = any
@@ -46,6 +46,10 @@ export type CallbacksMap = {
 }
 
 export type Callbacks = Partial<{
+  [key in CallbackName]: CallbacksMap[key] | CallbacksMap[key][]
+}>
+
+export type CallbacksArrayOnly = Partial<{
   [key in CallbackName]: CallbacksMap[key][]
 }>
 

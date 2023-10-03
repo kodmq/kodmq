@@ -71,18 +71,18 @@
   "scripts": {
     "lint": "eslint --ext .ts .",
     "lint:fix": "eslint --ext .ts . --fix",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles",
+    "test": "tap --jobs=1 --timeout=5",
     "tsc": "tsc -p ./tsconfig.lint.json",
     "build": "rollup -c && tsc"
   },
   "devDependencies": {
+    "@kodmq/adapter-redis": "workspace:*",
     "@types/node": "20.6.2",
     "eslint-config-kodmq": "workspace:*",
-    "jest": "^29.7.0",
     "rollup": "^3.29.2",
     "rollup-plugin-bundle-size": "^1.0.3",
     "rollup-plugin-esbuild": "6.0.1",
-    "ts-jest": "^29.1.1",
+    "tap": "^18.4.2",
     "typescript": "^5.0.0"
   },
   "dependencies": {

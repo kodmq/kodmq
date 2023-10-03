@@ -1,5 +1,5 @@
-import { Busy, Idle, Killed, ReadableStatuses, Stopping } from "kodmq/constants"
-import { Worker, WorkerStatus } from "kodmq/types"
+import { Busy, Idle, Killed, ReadableStatuses, Stopping } from "@kodmq/core/constants"
+import { Worker, WorkerStatus } from "@kodmq/core/types"
 import Link from "next/link"
 import EmptyValue from "@/components/content/EmptyValue"
 import Payload from "@/components/content/Payload"

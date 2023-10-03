@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import * as console from "console"
 import * as colorette from "colorette"
 
 type ForegroundColorName = keyof colorette.Colorette

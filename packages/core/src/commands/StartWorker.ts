@@ -1,9 +1,9 @@
-import { Idle, Stopped, WorkerActiveStatuses } from "../constants"
-import { KodMQError } from "../errors"
-import KodMQ from "../kodmq"
-import { Job, Worker } from "../types"
-import Command from "./Command"
-import { RunJob } from "./RunJob"
+import { Idle, Stopped, WorkerActiveStatuses } from "../constants.js"
+import { KodMQError } from "../errors.js"
+import KodMQ from "../kodmq.js"
+import { Job, Worker } from "../types.js"
+import Command from "./Command.js"
+import { RunJob } from "./RunJob.js"
 
 export type StartWorkerArgs = {
   worker: Worker,

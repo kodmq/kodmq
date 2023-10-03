@@ -1,20 +1,10 @@
-import Adapter from "./adapter"
-import { StartWorker } from "./commands/StartWorker"
-import { StopWorker } from "./commands/StopWorker"
-import { Busy, Idle, Killed, Stopped, Stopping } from "./constants"
-import { KodMQError } from "./errors"
-import KodMQ from "./kodmq"
-import {
-  Handlers,
-  ID,
-  Worker,
-  WorkerCallbackName,
-  WorkerCreate,
-  WorkersAllOptions,
-  WorkersStartOptions,
-  WorkerStatus,
-  WorkerUpdate,
-} from "./types"
+import Adapter from "./adapter.js"
+import { StartWorker } from "./commands/StartWorker.js"
+import { StopWorker } from "./commands/StopWorker.js"
+import { Busy, Idle, Killed, Stopped, Stopping } from "./constants.js"
+import { KodMQError } from "./errors.js"
+import KodMQ from "./kodmq.js"
+import { Handlers, ID, Worker, WorkerCallbackName, WorkerCreate, WorkersAllOptions, WorkersStartOptions, WorkerStatus, WorkerUpdate } from "./types.js"
 
 const StatusCallbacks: Record<WorkerStatus, WorkerCallbackName> = {
   [Idle]: "workerIdle",

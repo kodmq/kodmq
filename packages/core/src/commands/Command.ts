@@ -1,4 +1,4 @@
-import { getErrorMessage, KodMQCommandError } from "../errors"
+import { getErrorMessage, KodMQCommandError } from "../errors.js"
 
 export type RunOptions = {
   allowToFail?: boolean

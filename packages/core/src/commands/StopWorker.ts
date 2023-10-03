@@ -1,8 +1,8 @@
-import { Killed, Pending, ReadableStatuses, Stopped, Stopping, WorkerActiveStatuses } from "../constants"
-import { KodMQError } from "../errors"
-import KodMQ from "../kodmq"
-import { ID, Worker } from "../types"
-import Command from "./Command"
+import { Killed, Pending, ReadableStatuses, Stopped, Stopping, WorkerActiveStatuses } from "../constants.js"
+import { KodMQError } from "../errors.js"
+import KodMQ from "../kodmq.js"
+import { ID, Worker } from "../types.js"
+import Command from "./Command.js"
 
 const DefaultStopTimeout = 30 * 1000
 const StopPollingInterval = 100

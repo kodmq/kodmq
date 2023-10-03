@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { JobStatuses, ReadableStatuses, WorkerStatuses } from "kodmq/constants"
+import { JobStatuses, ReadableStatuses, WorkerStatuses } from "@kodmq/core/constants"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useMemo } from "react"

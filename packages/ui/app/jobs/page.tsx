@@ -1,4 +1,4 @@
-import { JobStatuses } from "kodmq/constants"
+import { JobStatuses } from "@kodmq/core/constants"
 import StatusStats from "@/components/content/StatusStats"
 import JobsTable from "@/components/job/JobsTable"
 import Heading from "@/components/typography/Heading"

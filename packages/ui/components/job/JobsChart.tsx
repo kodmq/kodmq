@@ -1,7 +1,7 @@
 "use client"
 
-import { Completed, Failed } from "kodmq/constants"
-import { Job } from "kodmq/types"
+import { Completed, Failed } from "@kodmq/core/constants"
+import { Job } from "@kodmq/core/types"
 import { useState } from "react"
 import colors from "tailwindcss/colors"
 import Card, { CardProps } from "@/components/ui/Card"

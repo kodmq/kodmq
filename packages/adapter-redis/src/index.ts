@@ -1,4 +1,5 @@
-import Adapter from "@kodmq/core/adapter"
+import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "@kodmq/core/adapter"
+import { Pending, Scheduled } from "@kodmq/core/constants"
 import { KodMQAdapterError } from "@kodmq/core/errors"
 import { Job, Worker, ID, JobCreate, WorkerCreate, JobsAllOptions, WorkersAllOptions } from "@kodmq/core/types"
 import Redis, { RedisOptions } from "ioredis"
@@ -221,6 +222,25 @@ export default class RedisAdapter extends Adapter {
       )
     } catch (e) {
       throw new KodMQAdapterError("Cannot remove job from queue", e as Error)
+    }
+  }
+
+  async subscribeToJobs(handler: AdapterHandler, keepSubscribed: AdapterKeepSubscribed) {
+    try {
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        if (!await keepSubscribed()) break
+
+        // FIXME: This is hack to avoid picking the same job by multiple workers
+        await new Promise((resolve) => setTimeout(resolve, Math.random() * 50))
+
+        const job = await this.popJobFromQueue()
+        if (!job || ![Pending, Scheduled].includes(job.status)) continue
+
+        await handler(job)
+      }
+    } catch (e) {
+      throw new KodMQAdapterError("Cannot subscribe to jobs", e as Error)
     }
   }
 
@@ -521,5 +541,9 @@ export default class RedisAdapter extends Adapter {
     } catch (e) {
       throw new KodMQAdapterError("Cannot remove from sorted set", e as Error)
     }
+  }
+
+  isKodMQAdapter() {
+    return true
   }
 }

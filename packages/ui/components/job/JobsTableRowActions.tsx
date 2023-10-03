@@ -1,7 +1,7 @@
 "use client"
 
-import { Completed, Failed, Pending, Scheduled } from "kodmq/constants"
-import { Job } from "kodmq/types"
+import { Completed, Failed, Pending, Scheduled } from "@kodmq/core/constants"
+import { Job } from "@kodmq/core/types"
 import { useCallback, useState } from "react"
 import performJob from "@/actions/performJob"
 import { ServerAction } from "@/actions/withServerAction"

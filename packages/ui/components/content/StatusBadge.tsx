@@ -1,6 +1,6 @@
 import { cva } from "class-variance-authority"
-import { Statuses, ReadableStatuses } from "kodmq/constants"
-import { Status } from "kodmq/types"
+import { Statuses, ReadableStatuses } from "@kodmq/core/constants"
+import { Status } from "@kodmq/core/types"
 import Badge from "@/components/ui/Badge"
 
 export type StatusBadgeProps = {

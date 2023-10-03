@@ -1,18 +1,8 @@
-import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "./adapter"
-import { Active, Canceled, Completed, Failed, JobFinishedStatuses, Pending, Scheduled } from "./constants"
-import { KodMQError } from "./errors"
-import KodMQ from "./kodmq"
-import {
-  Handlers,
-  ID,
-  Job,
-  JobCallbackName,
-  JobCreate,
-  JobsAllOptions,
-  JobStatus,
-  JobUpdate,
-  StringKeyOf,
-} from "./types"
+import Adapter, { AdapterHandler, AdapterKeepSubscribed } from "./adapter.js"
+import { Active, Canceled, Completed, Failed, JobFinishedStatuses, Pending, Scheduled } from "./constants.js"
+import { KodMQError } from "./errors.js"
+import KodMQ from "./kodmq.js"
+import { Handlers, ID, Job, JobCallbackName, JobCreate, JobsAllOptions, JobStatus, JobUpdate, StringKeyOf } from "./types.js"
 
 const StatusCallbacks: Record<JobStatus, JobCallbackName> = {
   [Pending]: "jobPending",

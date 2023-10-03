@@ -1,4 +1,4 @@
-import { Busy, Idle } from "kodmq/constants"
+import { Busy, Idle } from "@kodmq/core/constants"
 import StatusStats from "@/components/content/StatusStats"
 import JobsChart from "@/components/job/JobsChart"
 import Heading from "@/components/typography/Heading"
