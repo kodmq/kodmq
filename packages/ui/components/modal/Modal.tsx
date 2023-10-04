@@ -1,8 +1,8 @@
 "use client"
 
-import XIcon from "@/components/icons/XIcon"
 import { motion } from "framer-motion"
 import { ReactNode } from "react"
+import XIcon from "@/components/icons/XIcon"
 import Heading from "@/components/typography/Heading"
 import Text from "@/components/typography/Text"
 import Button from "@/components/ui/Button"
@@ -44,7 +44,7 @@ export default function Modal({ title, description, onClose, children }: ModalPr
           >
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 group/button rounded-lg p-1.5 text-zinc-500 transition-colors duration-300 ease-in-out hover:bg-black/2.5 hover:text-zinc-700 dark:hover:bg-white/2.5 dark:hover:text-zinc-300"
+              className="group/button absolute right-4 top-4 rounded-lg p-1.5 text-zinc-500 transition-colors duration-300 ease-in-out hover:bg-black/2.5 hover:text-zinc-700 dark:hover:bg-white/2.5 dark:hover:text-zinc-300"
             >
               <XIcon className="h-5 w-5 transition-transform duration-300 ease-in-out group-hover/button:rotate-90" />
             </button>
