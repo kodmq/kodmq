@@ -7,6 +7,7 @@ import H2 from "../components/H2.astro"
 import logo from "../images/logo.svg"
 import tsLogo from "../images/icons/ts-logo.svg"
 import terminal from "../images/terminal.png"
+import KvikPhotos from "../components/KvikPhotos.astro"
 
 export const components = { h2: H2 }
 
@@ -62,13 +63,14 @@ Let's get started!
 1. Install packages
 
     ```bash
-    bun install kodmq kodmq-ui
+    bun install @kodmq/core @kodmq/adapter-redis @kodmq/ui
     ```
 
 2. Create configuration file `./jobs/index.ts`. Ideally, to keep your code organized, you should create a separate file for each handler and put them under `./jobs/handlers` directory.
 
     ```ts
-    import KodMQ, { Handlers } from "kodmq"
+    import KodMQ from "@kodmq/core"
+    import { Handlers } from "@kodmq/core/types"
 
     const handlers: Handlers = {
       sendEmail: async ({ to, text }) => {
@@ -85,7 +87,7 @@ Let's get started!
 
     ```ts
     import kodmq from "./index"
-    import kodmqLauncher from "kodmq/launcher"
+    import kodmqLauncher from "@kodmq/core/launcher"
 
     await kodmqLauncher(kodmq)
     ```
@@ -217,7 +219,7 @@ KODMQ_CONCURRENCY=5
 ## Jobs API
 
 ```ts
-import { Pending, Completed } from "kodmq/constants"
+import { Pending, Completed } from "@kodmq/core/constants"
 import kodmq from "./jobs"
 
 // Get all jobs
@@ -256,7 +258,7 @@ await kodmq.jobs.waitUntilAllFinished()
 
 ```ts
 import KodMQ from "kodmq"
-import { Idle, Busy, Stopped } from "kodmq/constants"
+import { Idle, Busy, Stopped } from "@kodmq/core/constants"
 import kodmq from "./jobs"
 
 // Get all workers
@@ -280,7 +282,10 @@ await kodmq.workers.waitUntilAllInStatus(Stopped)
 ```
 
 ## Sponsor
-...
+
+<div className="not-prose">
+  <KvikPhotos />
+</div>
 
 ## That's it!
 
