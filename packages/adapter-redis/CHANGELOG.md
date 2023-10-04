@@ -2,6 +2,10 @@
 
 [//]: # (HeaderEnd)
 
+## v1.0.0-beta.5
+
+- Load Redis username from `KODMQ_REDIS_USERNAME`
+
 ## v1.0.0-beta.4
 
 No changes for this release
