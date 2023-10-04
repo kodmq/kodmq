@@ -2,6 +2,10 @@
 
 [//]: # (HeaderEnd)
 
+## v1.0.0-beta.3
+
+- Allow to specify port
+
 ## v1.0.0-beta.2
 
 - Specify @kodmq dependencies version to fix Bun resolve issue
