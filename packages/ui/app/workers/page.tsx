@@ -2,7 +2,7 @@ import { WorkerStatuses } from "@kodmq/core/constants"
 import StatusStats from "@/components/content/StatusStats"
 import Heading from "@/components/typography/Heading"
 import WorkersTable from "@/components/worker/WorkersTable"
-import kodmq from "@/lib/kodmq"
+import withKodMQ from "@/lib/kodmq"
 import { filter, getFromList } from "@/lib/utils"
 
 type WorkersPageProps = {
@@ -13,7 +13,8 @@ type WorkersPageProps = {
 
 export default async function WorkersPage({ searchParams }: WorkersPageProps) {
   const status = getFromList(WorkerStatuses, Number(searchParams.status), undefined)
-  const workers = await kodmq.workers.all()
+
+  const workers = await withKodMQ((kodmq) => kodmq.workers.all())
   const workersByStatus = status ? filter(workers, { status }) : workers
 
   return (

@@ -6,6 +6,7 @@ import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 import DataRefreshInterval from "@/components/app/DataRefreshInterval"
+import CogIcon from "@/components/icons/CogIcon"
 import HomeIcon from "@/components/icons/HomeIcon"
 import JobIcon from "@/components/icons/JobIcon"
 import Logo from "@/components/icons/Logo"
@@ -63,6 +64,11 @@ const navigationItems: NavigationItem[] = [
         queryParams: { status: status.toString() },
       })),
     ],
+  },
+  {
+    name: "Settings",
+    icon: CogIcon,
+    href: "/settings",
   },
 ]
 

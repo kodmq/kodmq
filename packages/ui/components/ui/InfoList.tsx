@@ -27,7 +27,7 @@ export function Item({ label, children, className, ...props }: InfoListItemProps
       {...props}
     >
       <dt className="text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-100">{label}</dt>
-      <dd className="mt-1 text-sm leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0 whitespace-pre-wrap">{children}</dd>
+      <dd className="mt-1 whitespace-pre-wrap text-sm leading-6 text-zinc-700 dark:text-zinc-300 sm:col-span-2 sm:mt-0">{children}</dd>
     </div>
   )
 }

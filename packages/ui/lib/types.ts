@@ -9,12 +9,8 @@ export type KeysOfType<T, U> = { [K in keyof T]: T[K] extends U ? K : never }[ke
 
 
 type IconSVGProps = PropsWithoutRef<SVGProps<SVGSVGElement>> & RefAttributes<SVGSVGElement>
-type IconProps = IconSVGProps & { title?: string, titleId?: string }
+export type IconProps = IconSVGProps & { title?: string, titleId?: string }
 export type Icon = FunctionComponent<IconProps>
-
-// export type IconProps = ComponentProps<"svg"> & {
-//   strokeWidth?: number
-// }
 
 export type Errors = {
   [key: string]: string

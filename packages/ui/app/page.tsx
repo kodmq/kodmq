@@ -1,17 +1,23 @@
 import { Busy, Idle } from "@kodmq/core/constants"
+import { Job, Worker } from "@kodmq/core/types"
 import StatusStats from "@/components/content/StatusStats"
 import JobsChart from "@/components/job/JobsChart"
 import Heading from "@/components/typography/Heading"
 import WorkersTable from "@/components/worker/WorkersTable"
-import kodmq from "@/lib/kodmq"
+import withKodMQ from "@/lib/kodmq"
 import { filter } from "@/lib/utils"
 
 export default async function HomePage() {
-  const workers = await kodmq.workers.all()
+  let jobs: Job[]
+  let workers: Worker[]
+
+  await withKodMQ(async (kodmq) => {
+    jobs = await kodmq.jobs.all()
+    workers = await kodmq.workers.all()
+  })
+  
   const idleAndBusyWorkers = filter(workers, { statusIn: [Idle, Busy] })
-
-  const jobs = await kodmq.jobs.all()
-
+  
   return (
     <div>
       <Heading className="mb-8">Dashboard</Heading>

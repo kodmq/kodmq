@@ -16,7 +16,7 @@ export default function Badge({ variant = "primary", children, className, ...pro
 }
 
 const badgeVariants = cva([
-  "inline-block whitespace-nowrap rounded px-2.5 py-0.5 text-xs font-medium leading-4",
+  "inline-block whitespace-nowrap rounded px-2 py-1 text-xs font-medium leading-4",
 ], {
   variants: {
     variant: {
