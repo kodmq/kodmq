@@ -26,7 +26,7 @@ export default function EmptyState({ icon, iconProps = {}, title, description, b
       })}
 
       <h3 className="text-accent mt-2 font-semibold md:mt-4">{title}</h3>
-      <p className="mt-1 text-sm text-zinc-500">{description}</p>
+      <p className="mx-auto mt-1 max-w-prose text-sm text-zinc-500">{description}</p>
 
       {button && (
         <div className="mt-6 flex justify-center">

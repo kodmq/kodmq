@@ -11,6 +11,10 @@
     width: 65ch;
   }
 
+  .max-w-prose {
+    max-width: 65ch;
+  }
+
   .text-accent {
     @apply font-medium text-black dark:text-white;
   }
