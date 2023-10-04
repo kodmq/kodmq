@@ -191,10 +191,10 @@ importers:
   packages/ui:
     dependencies:
       '@kodmq/adapter-redis':
-        specifier: '*'
+        specifier: ^1.0.0-beta.1
         version: link:../adapter-redis
       '@kodmq/core':
-        specifier: '*'
+        specifier: ^1.0.0-beta.1
         version: link:../core
       '@nivo/core':
         specifier: ^0.83.0
