@@ -53,10 +53,10 @@
   "typesVersions": {
     "*": {
       "launcher": [
-        "./dist/launcher/index.d.ts"
+        "./dist/launcher.d.ts"
       ],
       "adapter": [
-        "./dist/adapter/index.d.ts"
+        "./dist/adapter.d.ts"
       ],
       "errors": [
         "./dist/errors.d.ts"
