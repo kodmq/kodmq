@@ -1,6 +1,6 @@
 {
   "name": "@kodmq/adapter-redis",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "KodMQ adapter for Redis",
   "keywords": [
     "redis",
