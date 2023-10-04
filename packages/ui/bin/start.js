@@ -13,6 +13,8 @@ console.log("\x1b[36m%s\x1b[0m", "Starting Kodmq UI...")
 console.log()
 
 const appPath = resolve(__dirname, "../")
+const port = Number(process.env.KODMQ_UI_PORT ?? process.env.PORT ?? "3040")
+
 let nextBinPath
 
 try {
@@ -31,4 +33,4 @@ try {
   process.exit(1)
 }
 
-execSync(`${nextBinPath} start`, { cwd: appPath, stdio: "inherit" })
+execSync(`${nextBinPath} start --port ${port}`, { cwd: appPath, stdio: "inherit" })
