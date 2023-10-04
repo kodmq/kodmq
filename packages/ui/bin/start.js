@@ -2,18 +2,21 @@
 /* eslint-disable no-console */
 
 import { execSync } from "child_process"
+import { readFileSync } from "fs"
 import { dirname, resolve } from "path"
 import { fileURLToPath } from "url"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-console.log()
-console.log("\x1b[36m%s\x1b[0m", "Starting Kodmq UI...")
-console.log()
-
 const appPath = resolve(__dirname, "../")
+const pkg = JSON.parse(readFileSync(resolve(appPath, "package.json"), "utf-8"))
 const port = Number(process.env.KODMQ_UI_PORT ?? process.env.PORT ?? "3040")
+
+console.log()
+console.log("\x1b[36m%s\x1b[0m", "Starting KodMQ UI...")
+console.log("\x1b[37m%s\x1b[0m", `Version: ${pkg.version}`)
+console.log()
 
 let nextBinPath
 
