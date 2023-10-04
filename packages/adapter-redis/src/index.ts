@@ -65,6 +65,11 @@ export default class RedisAdapter extends Adapter {
           password: process.env.KODMQ_REDIS_PASSWORD ?? process.env.REDIS_PASSWORD ?? undefined,
           db: Number(process.env.KODMQ_REDIS_DB ?? process.env.REDIS_DB ?? 0),
         }
+
+        // Enable TLS if KODMQ_REDIS_TLS is set to "1" or "true"
+        if (["1", "true"].includes(process.env.KODMQ_REDIS_TLS ?? "")) {
+          options.redisOptions.tls = {}
+        }
       }
 
       try {
