@@ -61,6 +61,7 @@ export default class RedisAdapter extends Adapter {
         options.redisOptions = {
           host: process.env.KODMQ_REDIS_HOST ?? process.env.REDIS_HOST ?? "localhost",
           port: Number(process.env.KODMQ_REDIS_PORT ?? process.env.REDIS_PORT ?? 6379),
+          username: process.env.KODMQ_REDIS_USERNAME ?? process.env.REDIS_USERNAME ?? undefined,
           password: process.env.KODMQ_REDIS_PASSWORD ?? process.env.REDIS_PASSWORD ?? undefined,
           db: Number(process.env.KODMQ_REDIS_DB ?? process.env.REDIS_DB ?? 0),
         }
