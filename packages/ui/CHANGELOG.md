@@ -2,6 +2,12 @@
 
 [//]: # (HeaderEnd)
 
+## v1.0.0-beta.6
+
+- Automatically close Redis connection when commands are fulfilled
+- Catch errors and display them
+- Show version when launch server
+
 ## v1.0.0-beta.5
 
 No changes for this release
