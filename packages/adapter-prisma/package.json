@@ -1,0 +1,60 @@
+{
+  "name": "@kodmq/adapter-prisma",
+  "version": "1.0.0-beta.6",
+  "description": "KodMQ adapter for Prisma",
+  "keywords": [
+    "kodmq",
+    "prisma",
+    "message queue",
+    "background jobs"
+  ],
+  "author": "Andrew Kodkod <andrew@kodkod.me> (https://kodkod.me/)",
+  "homepage": "https://kodmq.com",
+  "repository": "kodmq/kodmq",
+  "bugs": "https://github.com/kodmq/kodmq/issues",
+  "funding": "https://github.com/sponsors/akodkod",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "index": [
+        "./dist/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "lint": "eslint --ext .ts .",
+    "lint:fix": "eslint --ext .ts . --fix",
+    "test": "tap --jobs=1 --timeout=5 --allow-incomplete-coverage",
+    "tsc": "tsc -p ./tsconfig.lint.json",
+    "build": "rollup -c && tsc"
+  },
+  "devDependencies": {
+    "@kodmq/core": "workspace:*",
+    "@types/node": "20.8.2",
+    "eslint-config-kodmq": "workspace:*",
+    "prisma": "^5.4.2",
+    "rollup": "^3.29.4",
+    "rollup-plugin-bundle-size": "^1.0.3",
+    "rollup-plugin-esbuild": "6.0.2",
+    "tap": "^18.4.2",
+    "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "@kodmq/core": "^1.0.0-beta.3",
+    "@prisma/client": ">=5"
+  }
+}

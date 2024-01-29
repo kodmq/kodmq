@@ -35,7 +35,7 @@ export default function WorkersTable({ workers, status, ...props }: WorkersTable
   const statusAll = status === undefined
   const isRunningStatus = [Idle, Busy, Stopping].includes(status)
 
-  const hasClusterName = workers.some((worker) => worker.clusterName)
+  const hasName = workers.some((worker) => worker.name)
 
   const showStatus = statusAll
   const showCurrentJob = statusAll || [Busy, Stopping, Killed].includes(status)
@@ -53,7 +53,7 @@ export default function WorkersTable({ workers, status, ...props }: WorkersTable
               </TableHead>
             )}
 
-            {hasClusterName && (
+            {hasName && (
               <TableHead>
                 Cluster
               </TableHead>
@@ -103,9 +103,9 @@ export default function WorkersTable({ workers, status, ...props }: WorkersTable
                 </TableCell>
               )}
 
-              {hasClusterName && (
+              {hasName && (
                 <TableCell>
-                  {worker.clusterName ?? <EmptyValue />}
+                  {worker.name ?? <EmptyValue />}
                 </TableCell>
               )}
 

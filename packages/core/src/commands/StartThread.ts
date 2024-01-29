@@ -10,7 +10,7 @@ export type StartWorkerArgs = {
   kodmq: KodMQ,
 }
 
-export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
+export class StartThread<TArgs extends StartWorkerArgs> extends Command<TArgs> {
   worker: TArgs["worker"]
   kodmq: TArgs["kodmq"]
 
@@ -27,7 +27,7 @@ export class StartWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
   constructor(args: TArgs) {
     super(args)
 
-    this.name = "StartWorker"
+    this.name = "StartThread"
     this.verify()
 
     this.worker = args.worker

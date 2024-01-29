@@ -56,6 +56,14 @@ export const WorkerActiveStatuses = [
   Busy,
 ]
 
+export const ThreadStatuses = [
+  Idle,
+  Busy,
+  Stopping,
+  Stopped,
+  Killed,
+]
+
 export const ReadableStatuses: Record<Status, string> = {
   [Pending]: "Pending",
   [Scheduled]: "Scheduled",

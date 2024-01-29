@@ -12,13 +12,13 @@ export type StartWorkerArgs = {
   kodmq: KodMQ,
 }
 
-export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
+export class StopThread<TArgs extends StartWorkerArgs> extends Command<TArgs> {
   id: ID
   worker: Worker | null
   kodmq: TArgs["kodmq"]
 
   steps = [
-    "checkIfWorkerCanBeStopped",
+    "checkIfThreadCanBeStopped",
     "setStatusToStopping",
     "waitForStopped",
   ]
@@ -28,7 +28,7 @@ export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
   constructor(args: TArgs) {
     super(args)
 
-    this.name = "StopWorker"
+    this.name = "StopThread"
     this.verify()
 
     this.id = args.id
@@ -36,7 +36,7 @@ export class StopWorker<TArgs extends StartWorkerArgs> extends Command<TArgs> {
     this.kodmq = args.kodmq
   }
 
-  async checkIfWorkerCanBeStopped() {
+  async checkIfThreadCanBeStopped() {
     this.worker = await this.kodmq.workers.find(this.id)
 
     // If worker is not found, we assume it was stopped

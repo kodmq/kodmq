@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Worker {
+  id        Int       @id @default(autoincrement())
+  threads   Thread[]
+  queues    String[]
+  status    Int
+  name      String
+  startedAt DateTime
+  stoppedAt DateTime?
+}
+
+model Thread {
+  id           Int    @id @default(autoincrement())
+  workerId     Int
+  worker       Worker @relation(fields: [workerId], references: [id])
+  currentJobId Int?
+  status       Int
+}
+
+model Job {
+  id         Int     @id @default(autoincrement())
+  threadId   Int
+  retryJobId Int?
+  throttleId String?
+
+  queue    String
+  status   Int
+  priority Int
+  name     String
+  payload  Json
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  runAt      DateTime?
+  startedAt  DateTime?
+  finishedAt DateTime?
+
+  failedAttempts Int     @default(0)
+  errorMessage   String?
+  errorStack     String?
+}

@@ -1,5 +1,5 @@
 import Adapter from "./adapter.js"
-import { Idle, JobStatuses, Pending, Scheduled, WorkerStatuses } from "./constants.js"
+import { Idle, JobStatuses, Pending, Scheduled, ThreadStatuses, WorkerStatuses } from "./constants.js"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AllowedAny = any
@@ -62,12 +62,13 @@ export type JobPayload = AllowedAny
 
 export type JobStatus = typeof JobStatuses[number]
 export type WorkerStatus = typeof WorkerStatuses[number]
-export type Status = JobStatus | WorkerStatus
+export type ThreadStatus = typeof ThreadStatuses[number]
+export type Status = JobStatus | WorkerStatus | ThreadStatus
 
 export type Worker = {
   id: ID
   status: WorkerStatus
-  clusterName?: string
+  name?: string
   currentJob?: Pick<Job, "id" | "name" | "payload">
   startedAt?: Date
   stoppedAt?: Date
@@ -78,6 +79,18 @@ export type WorkerCreate = Omit<Worker, "id" | "status"> & {
 }
 
 export type WorkerUpdate = Omit<Partial<Worker>, "id">
+
+export type Thread = {
+  id: ID
+  workerId: ID
+  status: ThreadStatus,
+  currentJob?: ThreadJob
+}
+
+export type ThreadJob = Pick<Job, "id" | "name" | "payload" | "startedAt">
+
+export type ThreadCreate = Pick<Thread, "workerId">
+export type ThreadUpdate = Partial<Pick<Thread, "status" | "currentJob">>
 
 export type Job = {
   id: ID
@@ -122,7 +135,13 @@ export type WorkersAllOptions = {
 
 export type WorkersStartOptions = {
   concurrency?: number
-  clusterName?: string
+  name?: string
+}
+
+export type ThreadsAllOptions = {
+  status?: ThreadStatus
+  limit?: number
+  offset?: number
 }
 
 export type JobsAllOptions = {
