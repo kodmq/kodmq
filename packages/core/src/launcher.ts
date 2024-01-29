@@ -8,7 +8,7 @@ import KodMQ from "./index.js"
 
 export type LaunchOptions = {
   concurrency?: number
-  clusterName?: string
+  name?: string
   logger?: typeof console.log
 }
 
@@ -52,23 +52,23 @@ export default async function launcher(kodmq: KodMQ, options: LaunchOptions = {}
     throw new KodMQLauncherError("Concurrency cannot be greater than 128")
   }
   
-  let clusterName: string | undefined
-  const clusterNameArg = process.argv.find((arg) => arg.startsWith("--cluster-name="))
-  const clusterNameEnv = process.env.KODMQ_CLUSTER_NAME
-  const clusterNameOption = options.clusterName
+  let name: string | undefined
+  const nameArg = process.argv.find((arg) => arg.startsWith("--cluster-name="))
+  const nameEnv = process.env.KODMQ_CLUSTER_NAME
+  const nameOption = options.name
   
-  if (clusterNameArg) {
-    clusterName = clusterNameArg.split("=")[1]
-  } else if (clusterNameOption !== undefined) {
-    clusterName = clusterNameOption
-  } else if (clusterNameEnv) {
-    clusterName = clusterNameEnv
+  if (nameArg) {
+    name = nameArg.split("=")[1]
+  } else if (nameOption !== undefined) {
+    name = nameOption
+  } else if (nameEnv) {
+    name = nameEnv
   }
 
   const logger = new Logger(options.logger)
   logger.logWithPrefix("Starting KodMQ...")
   logger.logWithCheckmark("Concurrency:", colorette.yellowBright(concurrency!.toString()))
-  if (clusterName) logger.logWithCheckmark("Cluster name:", colorette.yellowBright(clusterName))
+  if (name) logger.logWithCheckmark("Cluster name:", colorette.yellowBright(name))
   logger.logBlankLine()
 
   kodmq.on("workerStarted", (worker) => {
@@ -131,7 +131,7 @@ export default async function launcher(kodmq: KodMQ, options: LaunchOptions = {}
   try {
     await kodmq.workers.start({
       concurrency,
-      clusterName,
+      name,
     })
   } catch (e) {
     throw new KodMQLauncherError("Error starting KodMQ", e as Error)

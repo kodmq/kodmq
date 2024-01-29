@@ -1,0 +1,8 @@
+// tsconfig.build.json
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "emitDeclarationOnly": false,
+  },
+}

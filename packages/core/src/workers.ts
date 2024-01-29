@@ -1,6 +1,6 @@
 import Adapter from "./adapter.js"
-import { StartWorker } from "./commands/StartWorker.js"
-import { StopWorker } from "./commands/StopWorker.js"
+import { StartThread } from "./commands/StartThread.js"
+import { StopThread } from "./commands/StopThread.js"
 import { Busy, Idle, Killed, Stopped, Stopping } from "./constants.js"
 import { KodMQError } from "./errors.js"
 import { Handlers, ID, Worker, WorkerCallbackName, WorkerCreate, WorkersAllOptions, WorkersStartOptions, WorkerStatus, WorkerUpdate } from "./types.js"
@@ -18,7 +18,8 @@ export default class Workers<THandlers extends Handlers = Handlers> {
   kodmq: KodMQ<THandlers>
   adapter: Adapter
 
-  startedIds: ID[] = []
+  worker: Worker | null = null
+  threadIds: ID[] = []
 
   constructor(kodmq: KodMQ<THandlers>) {
     this.kodmq = kodmq
@@ -75,18 +76,20 @@ export default class Workers<THandlers extends Handlers = Handlers> {
    * @param options
    */
   async start(options: WorkersStartOptions = {}) {
-    if (this.startedIds.length > 0) throw new KodMQError("Workers are already started")
-    if (Object.keys(this.kodmq.handlers).length === 0) throw new KodMQError("At least one handler is required to start workers")
+    if (this.threadIds.length > 0) throw new KodMQError("Worker is already started")
+    if (Object.keys(this.kodmq.handlers).length === 0) throw new KodMQError("At least one handler is required to start worker")
 
     try {
       const promises = []
       const concurrency = options.concurrency ?? 1
+      
+      this.worker = await this.create({ status: Idle, name: options.name })
 
       for (let i = 0; i < concurrency; i++) {
-        const worker = await this.create({ status: Idle, clusterName: options.clusterName })
-        this.startedIds.push(worker.id)
+        const worker = await this.create({ status: Idle, name: options.name })
+        this.threadIds.push(worker.id)
 
-        promises.push(StartWorker.run({ worker: worker, kodmq: this.kodmq }))
+        promises.push(StartThread.run({ worker: worker, kodmq: this.kodmq }))
       }
 
       return Promise.all(promises)
@@ -103,8 +106,8 @@ export default class Workers<THandlers extends Handlers = Handlers> {
    */
   async stop(id: ID) {
     try {
-      await StopWorker.run({ id, kodmq: this.kodmq })
-      this.startedIds = this.startedIds.filter((startedId) => startedId !== id)
+      await StopThread.run({ id, kodmq: this.kodmq })
+      this.threadIds = this.threadIds.filter((startedId) => startedId !== id)
     } catch (e) {
       throw new KodMQError(`Failed to stop worker ${id}`, e as Error)
     }
@@ -117,7 +120,7 @@ export default class Workers<THandlers extends Handlers = Handlers> {
     try {
       const promises = []
 
-      for (const id of this.startedIds) {
+      for (const id of this.threadIds) {
         promises.push(this.stop(id))
       }
 
@@ -141,7 +144,7 @@ export default class Workers<THandlers extends Handlers = Handlers> {
 
         let allInStatus = true
 
-        for (const id of this.startedIds) {
+        for (const id of this.threadIds) {
           const worker = await this.find(id)
           if (!worker) continue
 
@@ -158,5 +161,9 @@ export default class Workers<THandlers extends Handlers = Handlers> {
     } catch (e) {
       throw new KodMQError("Failed to wait until all workers are stopped", e as Error)
     }
+  }
+
+  private async createThread() {
+
   }
 }

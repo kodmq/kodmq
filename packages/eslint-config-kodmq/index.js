@@ -30,6 +30,7 @@ module.exports = {
     "quotes": [
       "error",
       "double",
+      { "avoidEscape": true },
     ],
     "indent": [
       "error",

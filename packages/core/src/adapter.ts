@@ -1,14 +1,20 @@
-import { ID, Job, JobCreate, JobsAllOptions, JobUpdate, Worker, WorkerCreate, WorkersAllOptions, WorkerUpdate } from "./types.js"
+import {
+  ID,
+  Job,
+  JobCreate,
+  JobsAllOptions,
+  JobUpdate,
+  Thread, ThreadCreate, ThreadsAllOptions, ThreadUpdate,
+  Worker,
+  WorkerCreate,
+  WorkersAllOptions,
+  WorkerUpdate,
+} from "./types.js"
 
 export type AdapterHandler = (job: Job) => Promise<void>
 export type AdapterKeepSubscribed = () => Promise<boolean>
 
 export default abstract class Adapter {
-  /**
-   * Get next job ID
-   */
-  abstract getNextJobId(): Promise<ID>
-
   /**
    * Get all jobs from the database
    *
@@ -78,11 +84,6 @@ export default abstract class Adapter {
   abstract subscribeToJobs(handler: AdapterHandler, keepSubscribed: AdapterKeepSubscribed): Promise<void>
 
   /**
-   * Get next worker ID
-   */
-  abstract getNextWorkerId(): Promise<ID>
-
-  /**
    * Get all workers from the database
    */
   abstract getWorkers(options?: WorkersAllOptions): Promise<Worker[]>
@@ -109,6 +110,34 @@ export default abstract class Adapter {
    * Remove worker from the database
    */
   abstract removeWorker(id: ID): Promise<void>
+
+  /**
+   * Get all threads from the database
+   */
+  abstract getThreads(options?: ThreadsAllOptions): Promise<Thread[]>
+
+  /**
+   * Get thread from the database
+   */
+  abstract getThread(id: ID): Promise<Thread | null>
+
+  /**
+   * Create thread in the database
+   */
+  abstract createThread(attributes: ThreadCreate): Promise<Thread>
+
+  /**
+   * Update thread in the database
+   *
+   * @param id
+   * @param attributes
+   */
+  abstract updateThread(id: ID, attributes: ThreadUpdate): Promise<Thread>
+
+  /**
+   * Remove thread from the database
+   */
+  abstract removeThread(id: ID): Promise<void>
 
   /**
    * Erase all data from the database

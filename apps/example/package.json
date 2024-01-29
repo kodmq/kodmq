@@ -11,10 +11,12 @@
   "devDependencies": {
     "@types/node": "20.8.2",
     "eslint-config-kodmq": "workspace:*",
+    "prisma": "^5.4.2",
+    "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@kodmq/core": "workspace:*",
-    "@kodmq/adapter-redis": "workspace:*"
+    "@kodmq/adapter-redis": "workspace:*",
+    "@kodmq/core": "workspace:*"
   }
 }
